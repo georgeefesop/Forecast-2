@@ -1,8 +1,10 @@
 import NextAuth, { NextAuthConfig } from "next-auth";
 import EmailProvider from "next-auth/providers/email";
+import CredentialsProvider from "next-auth/providers/credentials";
 import { db } from "@/lib/db/client";
 import { createAdapter } from "@/lib/auth-adapter";
 import { getSignInEmailHTML, getSignInEmailText } from "@/lib/emails/signin-email";
+import bcrypt from "bcrypt";
 
 // Note: Phone OTP requires a provider like Twilio
 // For MVP, we'll use email magic links and add phone later
@@ -23,6 +25,57 @@ export const authConfig: NextAuthConfig = {
   // Only add adapter if Email provider will be used
   ...(shouldUseEmailProvider ? { adapter: createAdapter() } : {}),
   providers: [
+    // Password-based authentication
+    CredentialsProvider({
+      name: "credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null;
+        }
+
+        try {
+          // Find user by email
+          const result = await db.query(
+            "SELECT user_id, email, password_hash FROM profiles WHERE email = $1",
+            [credentials.email]
+          );
+
+          if (result.rows.length === 0) {
+            return null;
+          }
+
+          const user = result.rows[0];
+
+          // Check if user has a password set
+          if (!user.password_hash) {
+            return null; // User hasn't set a password yet
+          }
+
+          // Verify password
+          const isValid = await bcrypt.compare(
+            credentials.password as string,
+            user.password_hash
+          );
+
+          if (!isValid) {
+            return null;
+          }
+
+          return {
+            id: user.user_id,
+            email: user.email,
+          };
+        } catch (error) {
+          console.error("Credentials auth error:", error);
+          return null;
+        }
+      },
+    }),
+    // Email magic link authentication
     ...(shouldUseEmailProvider
       ? [
           EmailProvider({
@@ -125,6 +178,7 @@ export const authConfig: NextAuthConfig = {
           if (profile) {
             session.user.handle = profile.handle;
             session.user.avatarUrl = profile.avatar_url;
+            session.user.avatarSeed = profile.avatar_seed;
             session.user.isAdmin = profile.is_admin;
             session.user.isOrganizer = profile.is_organizer;
           }

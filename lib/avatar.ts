@@ -30,11 +30,17 @@ export async function getUserAvatarUrl(
   userId: string,
   handle: string,
   avatarUrl: string | null,
-  avatarSource: string | null
+  avatarSource: string | null,
+  avatarSeed: string | null = null
 ): Promise<string> {
   // If user has uploaded avatar, use it
   if (avatarSource === "uploaded" && avatarUrl) {
     return avatarUrl;
+  }
+
+  // If we have a stored seed, use it (for regenerated avatars)
+  if (avatarSeed) {
+    return generateAvatarUrl(avatarSeed);
   }
 
   // Otherwise, generate based on user ID (consistent across sessions)

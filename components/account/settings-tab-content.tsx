@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { User, Shield, Bell, LogOut, Mail, Trash2, Calendar } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { ProfileEditForm } from "@/components/account/profile-edit-form";
+import { BirthdayInput } from "@/components/account/birthday-input";
 
 interface SettingsTabContentProps {
   session: any;
@@ -184,6 +185,7 @@ export function SettingsTabContent({ session }: SettingsTabContentProps) {
             <AvatarUpload
               currentAvatarUrl={profile?.avatar_url || null}
               avatarSource={profile?.avatar_source || "generated"}
+              avatarSeed={profile?.avatar_seed || null}
               userId={session.user.id}
               handle={session.user.handle || session.user.email || "user"}
               onAvatarUpdate={fetchProfile}
@@ -223,13 +225,10 @@ export function SettingsTabContent({ session }: SettingsTabContentProps) {
                 <p className="text-xs text-text-tertiary mb-3">
                   We use this to filter adult-only events. Your exact age is never displayed publicly.
                 </p>
-                <div className="flex gap-2">
-                  <input
-                    type="date"
+                <div className="space-y-3">
+                  <BirthdayInput
                     value={birthday}
-                    onChange={(e) => setBirthday(e.target.value)}
-                    max={new Date().toISOString().split('T')[0]}
-                    className="flex-1 rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                    onChange={setBirthday}
                     disabled={saving}
                   />
                   <Button
@@ -237,8 +236,9 @@ export function SettingsTabContent({ session }: SettingsTabContentProps) {
                     onClick={handleBirthdayUpdate}
                     disabled={saving || !birthday}
                     variant="outline"
+                    className="w-full"
                   >
-                    Save
+                    Save Birthday
                   </Button>
                 </div>
               </div>

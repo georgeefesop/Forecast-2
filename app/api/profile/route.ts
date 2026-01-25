@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
         email,
         avatar_url,
         avatar_source,
+        avatar_seed,
         birthday,
         age_verified,
         is_admin,

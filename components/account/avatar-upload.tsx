@@ -9,6 +9,7 @@ import { generateAvatarUrl } from "@/lib/avatar";
 interface AvatarUploadProps {
   currentAvatarUrl: string | null;
   avatarSource: string | null;
+  avatarSeed: string | null;
   userId: string;
   handle: string;
   onAvatarUpdate?: () => void;
@@ -17,6 +18,7 @@ interface AvatarUploadProps {
 export function AvatarUpload({
   currentAvatarUrl,
   avatarSource,
+  avatarSeed,
   userId,
   handle,
   onAvatarUpdate,
@@ -31,7 +33,7 @@ export function AvatarUpload({
   const currentAvatar =
     avatarSource === "uploaded" && currentAvatarUrl
       ? currentAvatarUrl
-      : generateAvatarUrl(userId || handle);
+      : generateAvatarUrl(avatarSeed || userId || handle);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -134,18 +136,14 @@ export function AvatarUpload({
   };
 
   const handleRegenerate = async () => {
-    if (!confirm("Regenerate your avatar? This will create a new random avatar.")) {
-      return;
-    }
-
     setUploading(true);
     setError(null);
 
     try {
-      // Generate new seed by adding timestamp
-      const newSeed = `${userId || handle}-${Date.now()}`;
+      // Generate new random seed
+      const newSeed = `${userId || handle}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
       
-      // Update profile to use generated avatar
+      // Update profile to use generated avatar with new seed
       const response = await fetch("/api/profile/avatar/regenerate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -157,13 +155,10 @@ export function AvatarUpload({
         throw new Error(data.error || "Failed to regenerate avatar");
       }
 
-      // Update session
-      await update();
-
-      onAvatarUpdate?.();
+      // Force page refresh to show new avatar (since it's generated client-side)
+      window.location.reload();
     } catch (err: any) {
       setError(err.message || "Failed to regenerate avatar");
-    } finally {
       setUploading(false);
     }
   };
