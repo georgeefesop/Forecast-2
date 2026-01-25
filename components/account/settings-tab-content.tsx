@@ -7,7 +7,7 @@ import { AvatarUpload } from "@/components/account/avatar-upload";
 import { PrivacyToggle } from "@/components/account/privacy-toggle";
 import { NotificationToggle } from "@/components/account/notification-toggle";
 import { Button } from "@/components/ui/button";
-import { User, Shield, Bell, LogOut, Mail } from "lucide-react";
+import { User, Shield, Bell, LogOut, Mail, Trash2, Calendar } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { ProfileEditForm } from "@/components/account/profile-edit-form";
 
@@ -21,6 +21,8 @@ export function SettingsTabContent({ session }: SettingsTabContentProps) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState<any>(null);
+  const [birthday, setBirthday] = useState<string>("");
+  const [deleting, setDeleting] = useState(false);
 
   // Fetch settings on mount
   useEffect(() => {
@@ -57,6 +59,9 @@ export function SettingsTabContent({ session }: SettingsTabContentProps) {
       if (res.ok) {
         const data = await res.json();
         setProfile(data);
+        if (data.birthday) {
+          setBirthday(data.birthday);
+        }
       }
     } catch (error) {
       console.error("Failed to fetch profile:", error);
@@ -104,6 +109,56 @@ export function SettingsTabContent({ session }: SettingsTabContentProps) {
   const handleSignOut = () => {
     if (confirm("Are you sure you want to sign out?")) {
       signOut({ callbackUrl: "/" });
+    }
+  };
+
+  const handleBirthdayUpdate = async () => {
+    setSaving(true);
+    try {
+      const response = await fetch("/api/profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ birthday }),
+      });
+
+      if (response.ok) {
+        await fetchProfile();
+      }
+    } catch (error) {
+      console.error("Failed to update birthday:", error);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    const confirmText = "DELETE";
+    const userInput = prompt(
+      `This will permanently delete your account and all associated data. This action cannot be undone.\n\nType "${confirmText}" to confirm:`
+    );
+
+    if (userInput !== confirmText) {
+      return;
+    }
+
+    setDeleting(true);
+    try {
+      const response = await fetch("/api/profile/delete", {
+        method: "POST",
+      });
+
+      if (response.ok) {
+        alert("Your account deletion has been scheduled. You will be signed out.");
+        signOut({ callbackUrl: "/" });
+      } else {
+        const data = await response.json();
+        alert(data.error || "Failed to delete account");
+      }
+    } catch (error) {
+      console.error("Failed to delete account:", error);
+      alert("Failed to delete account. Please try again.");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -156,6 +211,39 @@ export function SettingsTabContent({ session }: SettingsTabContentProps) {
               onUpdate={fetchProfile}
             />
           </div>
+
+          {/* Birthday/Age */}
+          <div className="rounded-lg border border-border-default bg-background-surface p-4">
+            <div className="flex items-center gap-3 mb-3">
+              <Calendar className="h-5 w-5 text-text-secondary" />
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-text-primary mb-2">
+                  Birthday (for age verification)
+                </label>
+                <p className="text-xs text-text-tertiary mb-3">
+                  We use this to filter adult-only events. Your exact age is never displayed publicly.
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    type="date"
+                    value={birthday}
+                    onChange={(e) => setBirthday(e.target.value)}
+                    max={new Date().toISOString().split('T')[0]}
+                    className="flex-1 rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                    disabled={saving}
+                  />
+                  <Button
+                    type="button"
+                    onClick={handleBirthdayUpdate}
+                    disabled={saving || !birthday}
+                    variant="outline"
+                  >
+                    Save
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -187,27 +275,6 @@ export function SettingsTabContent({ session }: SettingsTabContentProps) {
             onChange={(checked) => updatePrivacySetting("show_activity_publicly", checked)}
             loading={saving}
           />
-          <PrivacyToggle
-            label="Show my comments publicly"
-            description="Make your comments visible on event pages"
-            checked={privacySettings?.show_comments_publicly ?? true}
-            onChange={(checked) => updatePrivacySetting("show_comments_publicly", checked)}
-            loading={saving}
-          />
-          <PrivacyToggle
-            label="Show my email publicly"
-            description="Display your email address on your profile"
-            checked={privacySettings?.show_email_publicly ?? false}
-            onChange={(checked) => updatePrivacySetting("show_email_publicly", checked)}
-            loading={saving}
-          />
-          <PrivacyToggle
-            label="Allow direct messages"
-            description="Let other users send you direct messages"
-            checked={privacySettings?.allow_direct_messages ?? false}
-            onChange={(checked) => updatePrivacySetting("allow_direct_messages", checked)}
-            loading={saving}
-          />
         </div>
       </div>
 
@@ -223,7 +290,7 @@ export function SettingsTabContent({ session }: SettingsTabContentProps) {
             <div className="space-y-2">
               <NotificationToggle
                 label="Event reminders"
-                description="Get notified 24h and 1h before events you're going to"
+                description="Get notified 3 days and 24 hours before events you're going to"
                 checked={notificationSettings?.email_event_reminders ?? true}
                 onChange={(checked) => updateNotificationSetting("email_event_reminders", checked)}
                 loading={saving}
@@ -283,13 +350,6 @@ export function SettingsTabContent({ session }: SettingsTabContentProps) {
                 loading={saving}
               />
               <NotificationToggle
-                label="Claim updates"
-                description="Notifications about venue claim requests"
-                checked={notificationSettings?.email_claim_updates ?? true}
-                onChange={(checked) => updateNotificationSetting("email_claim_updates", checked)}
-                loading={saving}
-              />
-              <NotificationToggle
                 label="Security alerts"
                 description="Important security notifications about your account"
                 checked={notificationSettings?.email_security_alerts ?? true}
@@ -307,13 +367,6 @@ export function SettingsTabContent({ session }: SettingsTabContentProps) {
                 description="Receive our weekly newsletter with featured events"
                 checked={notificationSettings?.email_newsletter ?? false}
                 onChange={(checked) => updateNotificationSetting("email_newsletter", checked)}
-                loading={saving}
-              />
-              <NotificationToggle
-                label="Weekly digest"
-                description="Get a weekly summary of events and updates"
-                checked={notificationSettings?.email_weekly_digest ?? false}
-                onChange={(checked) => updateNotificationSetting("email_weekly_digest", checked)}
                 loading={saving}
               />
               <NotificationToggle
@@ -346,22 +399,44 @@ export function SettingsTabContent({ session }: SettingsTabContentProps) {
           <Shield className="h-5 w-5 text-text-secondary" />
           <h2 className="text-xl font-semibold text-text-primary">Security</h2>
         </div>
-        <div className="rounded-lg border border-border-default bg-background-surface p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium text-text-primary">Sign Out</p>
-              <p className="text-sm text-text-secondary">
-                Sign out of your account on this device
-              </p>
+        <div className="space-y-4">
+          <div className="rounded-lg border border-border-default bg-background-surface p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-text-primary">Sign Out</p>
+                <p className="text-sm text-text-secondary">
+                  Sign out of your account on this device
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                onClick={handleSignOut}
+                className="flex items-center gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                Sign Out
+              </Button>
             </div>
-            <Button
-              variant="outline"
-              onClick={handleSignOut}
-              className="flex items-center gap-2"
-            >
-              <LogOut className="h-4 w-4" />
-              Sign Out
-            </Button>
+          </div>
+
+          <div className="rounded-lg border border-semantic-error/50 bg-background-surface p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-text-primary">Delete Account</p>
+                <p className="text-sm text-text-secondary">
+                  Permanently delete your account and all associated data
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                onClick={handleDeleteAccount}
+                disabled={deleting}
+                className="flex items-center gap-2 text-semantic-error hover:text-semantic-error hover:border-semantic-error"
+              >
+                <Trash2 className="h-4 w-4" />
+                {deleting ? "Deleting..." : "Delete Account"}
+              </Button>
+            </div>
           </div>
         </div>
       </div>

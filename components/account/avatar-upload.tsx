@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { Upload, X, Loader2 } from "lucide-react";
+import { Upload, X, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { generateAvatarUrl } from "@/lib/avatar";
 
@@ -133,6 +133,41 @@ export function AvatarUpload({
     }
   };
 
+  const handleRegenerate = async () => {
+    if (!confirm("Regenerate your avatar? This will create a new random avatar.")) {
+      return;
+    }
+
+    setUploading(true);
+    setError(null);
+
+    try {
+      // Generate new seed by adding timestamp
+      const newSeed = `${userId || handle}-${Date.now()}`;
+      
+      // Update profile to use generated avatar
+      const response = await fetch("/api/profile/avatar/regenerate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ seed: newSeed }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to regenerate avatar");
+      }
+
+      // Update session
+      await update();
+
+      onAvatarUpdate?.();
+    } catch (err: any) {
+      setError(err.message || "Failed to regenerate avatar");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const displayAvatar = preview || currentAvatar;
 
   return (
@@ -184,6 +219,19 @@ export function AvatarUpload({
             <Upload className="h-4 w-4" />
             {preview ? "Change" : "Upload"}
           </Button>
+
+          {avatarSource !== "uploaded" && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleRegenerate}
+              disabled={uploading}
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Regenerate
+            </Button>
+          )}
 
           {avatarSource === "uploaded" && (
             <Button

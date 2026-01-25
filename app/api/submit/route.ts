@@ -32,6 +32,7 @@ export async function POST(request: NextRequest) {
       currency: data.currency || "EUR",
       ticketUrl: data.ticketUrl || null,
       imageUrl: data.imageUrl || null,
+      adultOnly: data.adultOnly || false,
     };
 
     await db.query(

@@ -43,7 +43,13 @@ export function PrivacyToggle({
           onChange={handleToggle}
           disabled={loading}
         />
-        <div className="peer h-6 w-11 rounded-full bg-background-elevated after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-border-default after:bg-background-base after:transition-all after:content-[''] peer-checked:bg-brand peer-checked:after:translate-x-full peer-checked:after:border-brand peer-disabled:opacity-50"></div>
+        <div className={`peer h-7 w-12 rounded-full transition-colors ${
+          isChecked ? 'bg-brand' : 'bg-background-elevated'
+        } after:absolute after:left-[3px] after:top-[3px] after:h-6 after:w-6 after:rounded-full after:border-2 after:transition-all after:content-[''] ${
+          isChecked 
+            ? 'after:translate-x-5 after:border-brand after:bg-background-base' 
+            : 'after:translate-x-0 after:border-border-default after:bg-background-base'
+        } peer-disabled:opacity-50 shadow-sm`}></div>
       </label>
     </div>
   );

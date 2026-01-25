@@ -36,8 +36,8 @@ export async function POST(
       `INSERT INTO events (
         title, slug, description, start_at, end_at, city, address_text,
         category, tags, price_min, price_max, currency, image_url, ticket_url,
-        status, created_by_user_id
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, 'published', $15)
+        adult_only, status, created_by_user_id
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, 'published', $16)
       ON CONFLICT (slug) DO NOTHING`,
       [
         payload.title,
@@ -54,6 +54,7 @@ export async function POST(
         payload.currency || "EUR",
         payload.imageUrl || null,
         payload.ticketUrl || null,
+        payload.adultOnly || false,
         submission.rows[0].user_id,
       ]
     );

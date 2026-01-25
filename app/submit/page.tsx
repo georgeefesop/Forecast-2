@@ -28,6 +28,7 @@ export default function SubmitPage() {
     priceMax: "",
     currency: "EUR",
     ticketUrl: "",
+    adultOnly: false,
     image: null as File | null,
   });
 
@@ -302,6 +303,24 @@ export default function SubmitPage() {
                     placeholder="https://..."
                     className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
                   />
+                </div>
+
+                <div className="flex items-center gap-3 rounded-lg border border-border-default bg-background-surface p-4">
+                  <input
+                    type="checkbox"
+                    id="adultOnly"
+                    checked={formData.adultOnly}
+                    onChange={(e) =>
+                      setFormData({ ...formData, adultOnly: e.target.checked })
+                    }
+                    className="h-4 w-4 rounded border-border-default text-brand focus:ring-brand"
+                  />
+                  <label htmlFor="adultOnly" className="flex-1 cursor-pointer">
+                    <p className="font-medium text-text-primary">Adult-only event (18+)</p>
+                    <p className="text-sm text-text-secondary">
+                      This event is restricted to adults only (e.g., drinking events, nightlife)
+                    </p>
+                  </label>
                 </div>
 
                 <div>
