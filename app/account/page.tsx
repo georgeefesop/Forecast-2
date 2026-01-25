@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { useSession } from "next-auth/react";
+import { useState, useEffect } from "react";
+import { useSession, signOut } from "next-auth/react";
 import { MainNav } from "@/components/nav/main-nav";
 import { Footer } from "@/components/footer";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useTheme } from "@/components/theme-provider";
-import { Bookmark, MessageSquare, Star, Settings } from "lucide-react";
+import { Bookmark, MessageSquare, Settings, LogOut, User, Shield, Bell } from "lucide-react";
+import { SettingsTabContent } from "@/components/account/settings-tab-content";
 
 export default function AccountPage() {
   const { data: session } = useSession();
@@ -94,48 +95,7 @@ export default function AccountPage() {
             )}
 
             {activeTab === "settings" && (
-              <div className="space-y-6">
-                <div>
-                  <h2 className="mb-4 text-xl font-semibold text-text-primary">
-                    Appearance
-                  </h2>
-                  <div className="flex items-center justify-between rounded-lg border border-border-default bg-background-surface p-4">
-                    <div>
-                      <p className="font-medium text-text-primary">Theme</p>
-                      <p className="text-sm text-text-secondary">
-                        Choose light or dark mode
-                      </p>
-                    </div>
-                    <ThemeToggle />
-                  </div>
-                </div>
-
-                <div>
-                  <h2 className="mb-4 text-xl font-semibold text-text-primary">
-                    Privacy
-                  </h2>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between rounded-lg border border-border-default bg-background-surface p-4">
-                      <div>
-                        <p className="font-medium text-text-primary">
-                          Show my "Going" publicly
-                        </p>
-                        <p className="text-sm text-text-secondary">
-                          Allow others to see when you're going to events
-                        </p>
-                      </div>
-                      <label className="relative inline-flex cursor-pointer items-center">
-                        <input
-                          type="checkbox"
-                          className="peer sr-only"
-                          defaultChecked={false}
-                        />
-                        <div className="peer h-6 w-11 rounded-full bg-background-elevated after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-border-default after:bg-background-base after:transition-all after:content-[''] peer-checked:bg-brand peer-checked:after:translate-x-full peer-checked:after:border-brand"></div>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <SettingsTabContent session={session} />
             )}
           </div>
         </div>
