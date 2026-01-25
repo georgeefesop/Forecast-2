@@ -170,14 +170,14 @@ export const config = {
 2. ✅ Set `NEXTAUTH_URL` in Vercel production environment (2 minutes)
 
 ### High Priority (This Week):
-3. ✅ Create custom email template with branding (1-2 hours)
-4. ✅ Update `EmailProvider` to use custom template (30 minutes)
-5. ✅ Test email appearance in production (15 minutes)
+3. ✅ Create custom email template with branding (1-2 hours) - **COMPLETED**
+4. ✅ Update `EmailProvider` to use custom template (30 minutes) - **COMPLETED**
+5. ⚠️ Test email appearance in production (15 minutes) - **PENDING: Test after DNS verification**
 
 ### Medium Priority (Before Launch):
-6. ⚠️ Set up custom domain in Resend (30 minutes + DNS propagation)
-7. ⚠️ Update `EMAIL_FROM` to use custom domain (5 minutes)
-8. ⚠️ Add email footer with legal links (1 hour)
+6. ⚠️ Set up custom domain in Resend (30 minutes + DNS propagation) - **IN PROGRESS: DNS records provided**
+7. ⚠️ Update `EMAIL_FROM` to use custom domain (5 minutes) - **PENDING: After DNS verification**
+8. ✅ Add email footer with legal links (1 hour) - **COMPLETED: Included in email template**
 
 ---
 
