@@ -6,6 +6,10 @@ import { SessionProvider } from "@/components/providers/session-provider";
 export const metadata: Metadata = {
   title: "Forecast - What's On in Limassol",
   description: "Discover events, venues, and what's happening in Limassol, Cyprus",
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
