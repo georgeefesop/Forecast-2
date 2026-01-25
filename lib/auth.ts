@@ -21,6 +21,8 @@ const shouldUseEmailProvider = hasSMTP && hasDatabase;
 export const authConfig: NextAuthConfig = {
   // Trust host for local development
   trustHost: true,
+  // Secret for JWT signing
+  secret: process.env.NEXTAUTH_SECRET,
   // Add adapter for Email provider (required for verification tokens)
   // Only add adapter if Email provider will be used
   ...(shouldUseEmailProvider ? { adapter: createAdapter() } : {}),
