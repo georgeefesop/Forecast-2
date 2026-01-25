@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSession, signOut } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import { MainNav } from "@/components/nav/main-nav";
 import { Footer } from "@/components/footer";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -9,12 +10,31 @@ import { useTheme } from "@/components/theme-provider";
 import { Bookmark, MessageSquare, Settings, LogOut, User, Shield, Bell } from "lucide-react";
 import { SettingsTabContent } from "@/components/account/settings-tab-content";
 
-export default function AccountPage() {
+function AccountPageContent() {
   const { data: session } = useSession();
   const { theme, setTheme } = useTheme();
+  const searchParams = useSearchParams();
+  const isOnboarding = searchParams.get("onboarding") === "true";
   const [activeTab, setActiveTab] = useState<"saved" | "activity" | "settings">(
-    "saved"
+    isOnboarding ? "settings" : "saved"
   );
+  
+  // Auto-scroll to profile section on onboarding
+  useEffect(() => {
+    if (isOnboarding) {
+      setTimeout(() => {
+        const profileSection = document.getElementById("profile-section");
+        if (profileSection) {
+          profileSection.scrollIntoView({ behavior: "smooth", block: "start" });
+          // Add highlight animation
+          profileSection.classList.add("animate-pulse");
+          setTimeout(() => {
+            profileSection.classList.remove("animate-pulse");
+          }, 2000);
+        }
+      }, 300);
+    }
+  }, [isOnboarding]);
 
   if (!session) {
     return (
@@ -106,12 +126,27 @@ export default function AccountPage() {
             )}
 
             {activeTab === "settings" && (
-              <SettingsTabContent session={session} />
+              <SettingsTabContent session={session} isOnboarding={isOnboarding} />
             )}
           </div>
         </div>
       </main>
       <Footer />
     </div>
+  );
+}
+
+export default function AccountPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen flex-col">
+        <MainNav />
+        <main className="flex flex-1 items-center justify-center">
+          <p className="text-text-secondary">Loading...</p>
+        </main>
+      </div>
+    }>
+      <AccountPageContent />
+    </Suspense>
   );
 }

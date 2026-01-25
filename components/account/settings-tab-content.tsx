@@ -14,9 +14,10 @@ import { BirthdayInput } from "@/components/account/birthday-input";
 
 interface SettingsTabContentProps {
   session: any;
+  isOnboarding?: boolean;
 }
 
-export function SettingsTabContent({ session }: SettingsTabContentProps) {
+export function SettingsTabContent({ session, isOnboarding = false }: SettingsTabContentProps) {
   const [privacySettings, setPrivacySettings] = useState<any>(null);
   const [notificationSettings, setNotificationSettings] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -217,7 +218,22 @@ export function SettingsTabContent({ session }: SettingsTabContentProps) {
           </div>
 
           {/* Handle/Username (Editable) */}
-          <div className="rounded-lg border border-border-default bg-background-surface p-4">
+          <div 
+            id="profile-section"
+            className={`rounded-lg border p-4 transition-all ${
+              isOnboarding 
+                ? "border-brand bg-brand/5 ring-2 ring-brand/20" 
+                : "border-border-default bg-background-surface"
+            }`}
+          >
+            {isOnboarding && (
+              <div className="mb-3 rounded-md bg-brand/10 p-3 text-sm text-text-primary">
+                <p className="font-medium">👋 Welcome! Let's set up your profile</p>
+                <p className="mt-1 text-xs text-text-secondary">
+                  Choose a username and add your birthday to get started
+                </p>
+              </div>
+            )}
             <ProfileEditForm
               currentHandle={session.user.handle || ""}
               onUpdate={fetchProfile}
@@ -225,7 +241,13 @@ export function SettingsTabContent({ session }: SettingsTabContentProps) {
           </div>
 
           {/* Birthday/Age */}
-          <div className="rounded-lg border border-border-default bg-background-surface p-4">
+          <div 
+            className={`rounded-lg border p-4 transition-all ${
+              isOnboarding && !profile?.birthday
+                ? "border-brand bg-brand/5 ring-2 ring-brand/20" 
+                : "border-border-default bg-background-surface"
+            }`}
+          >
             <div className="flex items-center gap-3 mb-3">
               <Calendar className="h-5 w-5 text-text-secondary" />
               <div className="flex-1">
@@ -235,20 +257,21 @@ export function SettingsTabContent({ session }: SettingsTabContentProps) {
                 <p className="text-xs text-text-tertiary mb-3">
                   We use this to filter adult-only events. Your exact age is never displayed publicly.
                 </p>
-                <div className="space-y-3">
-                  <BirthdayInput
-                    value={birthday}
-                    onChange={setBirthday}
-                    disabled={saving}
-                  />
+                <div className="flex items-end gap-2">
+                  <div className="flex-1">
+                    <BirthdayInput
+                      value={birthday}
+                      onChange={setBirthday}
+                      disabled={saving}
+                    />
+                  </div>
                   <Button
                     type="button"
                     onClick={handleBirthdayUpdate}
                     disabled={saving || !birthday}
                     variant="outline"
-                    className="w-full"
                   >
-                    Save Birthday
+                    {saving ? "Saving..." : "Save"}
                   </Button>
                 </div>
               </div>

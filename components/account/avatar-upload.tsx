@@ -12,7 +12,7 @@ interface AvatarUploadProps {
   avatarSeed: string | null;
   userId: string;
   handle: string;
-  onAvatarUpdate?: () => void;
+  onAvatarUpdate?: (seed?: string) => void;
 }
 
 export function AvatarUpload({
@@ -27,13 +27,19 @@ export function AvatarUpload({
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [currentSeed, setCurrentSeed] = useState(avatarSeed);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Update seed when prop changes
+  useEffect(() => {
+    setCurrentSeed(avatarSeed);
+  }, [avatarSeed]);
 
   // Get current avatar (uploaded or generated)
   const currentAvatar =
     avatarSource === "uploaded" && currentAvatarUrl
       ? currentAvatarUrl
-      : generateAvatarUrl(avatarSeed || userId || handle);
+      : generateAvatarUrl(currentSeed || userId || handle);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -158,8 +164,22 @@ export function AvatarUpload({
         throw new Error(data.error || "Failed to regenerate avatar");
       }
 
-      // Force page refresh to show new avatar (since it's generated client-side)
-      window.location.reload();
+      const data = await response.json();
+      
+      // Update the seed to trigger avatar regeneration
+      setCurrentSeed(data.seed);
+      
+      // Update avatar without page refresh
+      if (onAvatarUpdate) {
+        onAvatarUpdate(data.seed);
+      }
+      
+      // Update session
+      await update();
+      
+      // Update the current avatar display
+      setPreview(null);
+      setUploading(false);
     } catch (err: any) {
       setError(err.message || "Failed to regenerate avatar");
       setUploading(false);

@@ -15,6 +15,11 @@ export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [useMagicLink, setUseMagicLink] = useState(false);
+  
+  // Validation states
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [confirmPasswordError, setConfirmPasswordError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,7 +74,8 @@ export default function SignUpPage() {
           });
 
           if (result?.ok) {
-            router.push("/");
+            // Redirect to account page with onboarding flag
+            router.push("/account?onboarding=true");
           } else {
             setMessage("Account created! Please sign in.");
             setTimeout(() => {
@@ -145,11 +151,35 @@ export default function SignUpPage() {
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setEmail(value);
+                  // Instant validation
+                  if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+                    setEmailError("Please enter a valid email address");
+                  } else {
+                    setEmailError("");
+                  }
+                }}
+                onBlur={(e) => {
+                  if (!e.target.value) {
+                    setEmailError("Email is required");
+                  }
+                }}
                 placeholder="you@example.com"
-                className="mt-1 w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                className={`mt-1 w-full rounded-md border bg-background-surface px-3 py-2 text-text-primary focus:outline-none focus:ring-2 ${
+                  emailError
+                    ? "border-semantic-error focus:border-semantic-error focus:ring-semantic-error/20"
+                    : "border-border-default focus:border-brand focus:ring-brand/20"
+                }`}
                 required
               />
+              {emailError && (
+                <p className="mt-1 text-sm text-semantic-error">{emailError}</p>
+              )}
+              {email && !emailError && (
+                <p className="mt-1 text-xs text-text-tertiary">✓ Valid email format</p>
+              )}
             </div>
 
             {!useMagicLink && (
@@ -165,12 +195,54 @@ export default function SignUpPage() {
                     id="password"
                     type="password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setPassword(value);
+                      // Instant validation
+                      if (value && value.length < 8) {
+                        setPasswordError("Password must be at least 8 characters");
+                      } else if (value && !/(?=.*[a-z])(?=.*[A-Z])/.test(value) && !/(?=.*\d)/.test(value)) {
+                        setPasswordError("Consider adding uppercase, lowercase, or numbers for better security");
+                      } else {
+                        setPasswordError("");
+                      }
+                      // Clear confirm password error if passwords match
+                      if (confirmPassword && value === confirmPassword) {
+                        setConfirmPasswordError("");
+                      }
+                    }}
+                    onBlur={(e) => {
+                      if (!e.target.value) {
+                        setPasswordError("Password is required");
+                      }
+                    }}
                     placeholder="At least 8 characters"
-                    className="mt-1 w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                    className={`mt-1 w-full rounded-md border bg-background-surface px-3 py-2 text-text-primary focus:outline-none focus:ring-2 ${
+                      passwordError
+                        ? "border-semantic-error focus:border-semantic-error focus:ring-semantic-error/20"
+                        : password && password.length >= 8
+                        ? "border-semantic-success focus:border-semantic-success focus:ring-semantic-success/20"
+                        : "border-border-default focus:border-brand focus:ring-brand/20"
+                    }`}
                     required
                     minLength={8}
                   />
+                  {passwordError && (
+                    <p className="mt-1 text-sm text-semantic-error">{passwordError}</p>
+                  )}
+                  {password && !passwordError && password.length >= 8 && (
+                    <div className="mt-1 space-y-1">
+                      <p className="text-xs text-semantic-success">✓ Password meets requirements</p>
+                      <div className="flex gap-2 text-xs text-text-tertiary">
+                        <span className={password.length >= 8 ? "text-semantic-success" : ""}>
+                          {password.length >= 8 ? "✓" : "○"} 8+ characters
+                        </span>
+                        {password.length >= 12 && (
+                          <span className="text-semantic-success">✓ Strong length</span>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -184,12 +256,40 @@ export default function SignUpPage() {
                     id="confirmPassword"
                     type="password"
                     value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setConfirmPassword(value);
+                      // Instant validation
+                      if (value && password && value !== password) {
+                        setConfirmPasswordError("Passwords do not match");
+                      } else {
+                        setConfirmPasswordError("");
+                      }
+                    }}
+                    onBlur={(e) => {
+                      if (!e.target.value) {
+                        setConfirmPasswordError("Please confirm your password");
+                      } else if (password && e.target.value !== password) {
+                        setConfirmPasswordError("Passwords do not match");
+                      }
+                    }}
                     placeholder="Confirm your password"
-                    className="mt-1 w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                    className={`mt-1 w-full rounded-md border bg-background-surface px-3 py-2 text-text-primary focus:outline-none focus:ring-2 ${
+                      confirmPasswordError
+                        ? "border-semantic-error focus:border-semantic-error focus:ring-semantic-error/20"
+                        : confirmPassword && confirmPassword === password
+                        ? "border-semantic-success focus:border-semantic-success focus:ring-semantic-success/20"
+                        : "border-border-default focus:border-brand focus:ring-brand/20"
+                    }`}
                     required
                     minLength={8}
                   />
+                  {confirmPasswordError && (
+                    <p className="mt-1 text-sm text-semantic-error">{confirmPasswordError}</p>
+                  )}
+                  {confirmPassword && !confirmPasswordError && confirmPassword === password && (
+                    <p className="mt-1 text-xs text-semantic-success">✓ Passwords match</p>
+                  )}
                 </div>
               </>
             )}

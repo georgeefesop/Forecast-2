@@ -310,6 +310,149 @@ export const zIndex = {
 } as const;
 
 /**
+ * Button & Toggle Design System
+ * Comprehensive component tokens for interactive elements
+ */
+export const components = {
+  button: {
+    // Button variants
+    variants: {
+      default: {
+        light: {
+          bg: lightTheme.color.brand.primary,
+          text: lightTheme.color.text.inverse,
+          hover: "rgba(99, 102, 241, 0.9)", // brand/90
+          active: "rgba(99, 102, 241, 0.8)",
+          focus: "rgba(99, 102, 241, 0.2)",
+        },
+        dark: {
+          bg: darkTheme.color.brand.primary,
+          text: darkTheme.color.text.inverse,
+          hover: "rgba(129, 140, 248, 0.9)",
+          active: "rgba(129, 140, 248, 0.8)",
+          focus: "rgba(129, 140, 248, 0.2)",
+        },
+      },
+      outline: {
+        light: {
+          bg: "transparent",
+          text: lightTheme.color.text.primary,
+          border: lightTheme.color.border.default,
+          hover: lightTheme.color.background.elevated,
+          active: lightTheme.color.background.surface,
+          focus: "rgba(99, 102, 241, 0.2)",
+        },
+        dark: {
+          bg: "transparent",
+          text: darkTheme.color.text.primary,
+          border: darkTheme.color.border.default,
+          hover: darkTheme.color.background.elevated,
+          active: darkTheme.color.background.surface,
+          focus: "rgba(129, 140, 248, 0.2)",
+        },
+      },
+      secondary: {
+        light: {
+          bg: lightTheme.color.background.elevated,
+          text: lightTheme.color.text.primary,
+          hover: lightTheme.color.background.surface,
+          active: lightTheme.color.background.elevated,
+          focus: "rgba(99, 102, 241, 0.2)",
+        },
+        dark: {
+          bg: darkTheme.color.background.elevated,
+          text: darkTheme.color.text.primary,
+          hover: darkTheme.color.background.surface,
+          active: darkTheme.color.background.elevated,
+          focus: "rgba(129, 140, 248, 0.2)",
+        },
+      },
+      ghost: {
+        light: {
+          bg: "transparent",
+          text: lightTheme.color.text.primary,
+          hover: lightTheme.color.background.elevated,
+          active: lightTheme.color.background.surface,
+          focus: "rgba(99, 102, 241, 0.2)",
+        },
+        dark: {
+          bg: "transparent",
+          text: darkTheme.color.text.primary,
+          hover: darkTheme.color.background.elevated,
+          active: darkTheme.color.background.surface,
+          focus: "rgba(129, 140, 248, 0.2)",
+        },
+      },
+    },
+    sizes: {
+      sm: { height: "2.25rem", paddingX: "0.75rem", fontSize: "0.875rem" }, // 36px, 12px, 14px
+      default: { height: "2.5rem", paddingX: "1rem", fontSize: "1rem" }, // 40px, 16px, 16px
+      lg: { height: "2.75rem", paddingX: "2rem", fontSize: "1rem" }, // 44px, 32px, 16px
+      icon: { height: "2.5rem", width: "2.5rem", fontSize: "1rem" }, // 40px square
+    },
+  },
+  toggle: {
+    // Toggle states
+    states: {
+      on: {
+        light: {
+          bg: lightTheme.color.semantic.success, // #10b981
+          handle: lightTheme.color.text.inverse,
+          border: lightTheme.color.semantic.success,
+        },
+        dark: {
+          bg: darkTheme.color.semantic.success, // #22c55e
+          handle: darkTheme.color.text.inverse,
+          border: darkTheme.color.semantic.success,
+        },
+      },
+      off: {
+        light: {
+          bg: colorPrimitives.gray[300], // #d1d5db
+          handle: lightTheme.color.text.inverse,
+          border: colorPrimitives.gray[400], // #9ca3af
+        },
+        dark: {
+          bg: colorPrimitives.gray[600], // #4b5563
+          handle: darkTheme.color.text.inverse,
+          border: colorPrimitives.gray[500], // #6b7280
+        },
+      },
+      disabled: {
+        light: {
+          bg: colorPrimitives.gray[200],
+          handle: colorPrimitives.gray[400],
+          opacity: 0.5,
+        },
+        dark: {
+          bg: colorPrimitives.gray[700],
+          handle: colorPrimitives.gray[500],
+          opacity: 0.5,
+        },
+      },
+      focus: {
+        light: "rgba(16, 185, 129, 0.2)", // success/20
+        dark: "rgba(34, 197, 94, 0.2)",
+      },
+    },
+    sizes: {
+      default: {
+        width: "3rem", // 48px
+        height: "1.75rem", // 28px
+        handle: "1.5rem", // 24px
+        handleOffset: "0.125rem", // 2px
+      },
+      sm: {
+        width: "2.5rem", // 40px
+        height: "1.5rem", // 24px
+        handle: "1.25rem", // 20px
+        handleOffset: "0.125rem", // 2px
+      },
+    },
+  },
+} as const;
+
+/**
  * Complete Design Token System
  * Export all tokens in a structured format
  */
@@ -325,6 +468,7 @@ export const designTokens = {
   typography,
   motion,
   zIndex,
+  components,
 } as const;
 
 /**
