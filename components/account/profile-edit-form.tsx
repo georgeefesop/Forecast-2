@@ -27,6 +27,7 @@ export function ProfileEditForm({ currentHandle, onUpdate }: ProfileEditFormProp
       const response = await fetch("/api/profile/update", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ handle }),
       });
 

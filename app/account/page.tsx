@@ -21,11 +21,22 @@ export default function AccountPage() {
       <div className="flex min-h-screen flex-col">
         <MainNav />
         <main className="flex flex-1 items-center justify-center">
-          <div className="text-center">
-            <p className="mb-4 text-text-secondary">Please sign in to view your account.</p>
-            <a href="/auth/signin" className="text-brand hover:underline">
-              Sign in
-            </a>
+          <div className="text-center space-y-4">
+            <p className="text-text-secondary">Please sign in to view your account.</p>
+            <div className="flex gap-4 justify-center">
+              <a
+                href="/auth/signin"
+                className="inline-flex items-center justify-center rounded-md bg-brand px-6 py-2 text-sm font-medium text-text-inverse transition-colors hover:bg-brand/90"
+              >
+                Sign in
+              </a>
+              <a
+                href="/auth/signup"
+                className="inline-flex items-center justify-center rounded-md border border-border-default bg-background-surface px-6 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-background-elevated"
+              >
+                Sign up
+              </a>
+            </div>
           </div>
         </main>
       </div>

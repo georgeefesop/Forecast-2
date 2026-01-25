@@ -60,7 +60,7 @@ export function BirthdayInput({ value, onChange, disabled = false }: BirthdayInp
         value={day}
         onChange={(e) => setDay(e.target.value)}
         disabled={disabled}
-        className="flex-1 rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+        className="w-20 rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
       >
         <option value="">Day</option>
         {days.map((d) => (
@@ -74,7 +74,7 @@ export function BirthdayInput({ value, onChange, disabled = false }: BirthdayInp
         value={month}
         onChange={(e) => setMonth(e.target.value)}
         disabled={disabled}
-        className="flex-1 rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+        className="w-32 rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
       >
         <option value="">Month</option>
         {months.map((m) => (
@@ -88,7 +88,7 @@ export function BirthdayInput({ value, onChange, disabled = false }: BirthdayInp
         value={year}
         onChange={(e) => setYear(e.target.value)}
         disabled={disabled}
-        className="flex-1 rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+        className="w-24 rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
       >
         <option value="">Year</option>
         {years.map((y) => (

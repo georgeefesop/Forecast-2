@@ -75,6 +75,7 @@ export function AvatarUpload({
       // Upload to API
       const response = await fetch("/api/profile/avatar", {
         method: "POST",
+        credentials: "include",
         body: formData,
       });
 
@@ -114,6 +115,7 @@ export function AvatarUpload({
     try {
       const response = await fetch("/api/profile/avatar", {
         method: "DELETE",
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -147,6 +149,7 @@ export function AvatarUpload({
       const response = await fetch("/api/profile/avatar/regenerate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ seed: newSeed }),
       });
 

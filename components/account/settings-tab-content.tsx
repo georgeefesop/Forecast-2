@@ -34,8 +34,8 @@ export function SettingsTabContent({ session }: SettingsTabContentProps) {
   const fetchSettings = async () => {
     try {
       const [privacyRes, notifRes] = await Promise.all([
-        fetch("/api/profile/privacy"),
-        fetch("/api/notifications/preferences"),
+        fetch("/api/profile/privacy", { credentials: "include" }),
+        fetch("/api/notifications/preferences", { credentials: "include" }),
       ]);
 
       if (privacyRes.ok) {
@@ -56,7 +56,7 @@ export function SettingsTabContent({ session }: SettingsTabContentProps) {
 
   const fetchProfile = async () => {
     try {
-      const res = await fetch("/api/profile");
+      const res = await fetch("/api/profile", { credentials: "include" });
       if (res.ok) {
         const data = await res.json();
         setProfile(data);
@@ -75,11 +75,15 @@ export function SettingsTabContent({ session }: SettingsTabContentProps) {
       const response = await fetch("/api/profile/privacy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ [field]: value }),
       });
 
       if (response.ok) {
         setPrivacySettings((prev: any) => ({ ...prev, [field]: value }));
+      } else {
+        const data = await response.json();
+        console.error("Failed to update privacy setting:", data.error);
       }
     } catch (error) {
       console.error("Failed to update privacy setting:", error);
@@ -94,11 +98,15 @@ export function SettingsTabContent({ session }: SettingsTabContentProps) {
       const response = await fetch("/api/notifications/preferences", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ [field]: value }),
       });
 
       if (response.ok) {
         setNotificationSettings((prev: any) => ({ ...prev, [field]: value }));
+      } else {
+        const data = await response.json();
+        console.error("Failed to update notification setting:", data.error);
       }
     } catch (error) {
       console.error("Failed to update notification setting:", error);
@@ -119,6 +127,7 @@ export function SettingsTabContent({ session }: SettingsTabContentProps) {
       const response = await fetch("/api/profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ birthday }),
       });
 
@@ -146,6 +155,7 @@ export function SettingsTabContent({ session }: SettingsTabContentProps) {
     try {
       const response = await fetch("/api/profile/delete", {
         method: "POST",
+        credentials: "include",
       });
 
       if (response.ok) {
@@ -252,6 +262,7 @@ export function SettingsTabContent({ session }: SettingsTabContentProps) {
         <div className="mb-4 flex items-center gap-2">
           <Shield className="h-5 w-5 text-text-secondary" />
           <h2 className="text-xl font-semibold text-text-primary">Privacy</h2>
+          <span className="ml-2 text-xs text-text-tertiary">(Auto-saves)</span>
         </div>
         <div className="space-y-4">
           <PrivacyToggle
@@ -283,6 +294,7 @@ export function SettingsTabContent({ session }: SettingsTabContentProps) {
         <div className="mb-4 flex items-center gap-2">
           <Bell className="h-5 w-5 text-text-secondary" />
           <h2 className="text-xl font-semibold text-text-primary">Notifications</h2>
+          <span className="ml-2 text-xs text-text-tertiary">(Auto-saves)</span>
         </div>
         <div className="space-y-4">
           <div className="mb-4">

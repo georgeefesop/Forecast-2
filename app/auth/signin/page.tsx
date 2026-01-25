@@ -2,6 +2,7 @@
 
 import { signIn } from "next-auth/react";
 import { useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { MainNav } from "@/components/nav/main-nav";
 
@@ -62,7 +63,7 @@ export default function SignInPage() {
             <p className="mt-2 text-text-secondary">
               {method === "password"
                 ? "Enter your email and password"
-                : "Enter your email to receive a magic link"}
+                : "Enter your email to receive a magic link (creates account if new)"}
             </p>
           </div>
 
@@ -159,6 +160,13 @@ export default function SignInPage() {
                 : "Send magic link"}
             </Button>
           </form>
+
+          <div className="text-center text-sm text-text-secondary">
+            Don't have an account?{" "}
+            <Link href="/auth/signup" className="text-brand hover:underline">
+              Sign up
+            </Link>
+          </div>
         </div>
       </main>
     </div>

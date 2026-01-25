@@ -44,11 +44,11 @@ export function PrivacyToggle({
           disabled={loading}
         />
         <div className={`peer h-7 w-12 rounded-full transition-colors ${
-          isChecked ? 'bg-brand' : 'bg-background-elevated'
+          isChecked ? 'bg-semantic-success' : 'bg-gray-300 dark:bg-gray-600'
         } after:absolute after:left-[3px] after:top-[3px] after:h-6 after:w-6 after:rounded-full after:border-2 after:transition-all after:content-[''] ${
           isChecked 
-            ? 'after:translate-x-5 after:border-brand after:bg-background-base' 
-            : 'after:translate-x-0 after:border-border-default after:bg-background-base'
+            ? 'after:translate-x-5 after:border-semantic-success after:bg-background-base' 
+            : 'after:translate-x-0 after:border-gray-400 dark:after:border-gray-500 after:bg-background-base'
         } peer-disabled:opacity-50 shadow-sm`}></div>
       </label>
     </div>
