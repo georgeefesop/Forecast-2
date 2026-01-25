@@ -3,20 +3,21 @@
  * Uses brand colors and modern HTML email design
  */
 
-import { brandColors } from "@/lib/brand-colors";
+import { getLightThemeColors } from "@/lib/design-tokens";
 
 export function getSignInEmailHTML(url: string, host: string): string {
   const appName = "Forecast";
   const appUrl = process.env.NEXTAUTH_URL || "https://forecast.app";
   
-  // Use brand color variables instead of hardcoded values
-  const brandColor = brandColors.brand;
-  const brandAccent = brandColors.brandAccent;
-  const textColor = brandColors.textPrimary;
-  const textSecondary = brandColors.textSecondary;
-  const borderColor = brandColors.borderSubtle;
-  const bgColor = brandColors.bgBase;
-  const bgSurface = brandColors.bgSurface;
+  // Use design token system for all colors
+  const colors = getLightThemeColors();
+  const brandColor = colors.brand;
+  const brandAccent = colors.brandAccent;
+  const textColor = colors.textPrimary;
+  const textSecondary = colors.textSecondary;
+  const borderColor = colors.borderSubtle;
+  const bgColor = colors.bgBase;
+  const bgSurface = colors.bgSurface;
 
   return `
 <!DOCTYPE html>
@@ -54,7 +55,7 @@ export function getSignInEmailHTML(url: string, host: string): string {
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                 <tr>
                   <td align="center" style="padding: 0 0 32px 0;">
-                    <a href="${url}" style="display: inline-block; padding: 14px 32px; background-color: ${brandColor}; color: ${brandColors.textInverse}; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600; text-align: center; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); transition: background-color 0.2s;">
+                    <a href="${url}" style="display: inline-block; padding: 14px 32px; background-color: ${brandColor}; color: ${colors.textInverse}; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600; text-align: center; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); transition: background-color 0.2s;">
                       Sign in to ${appName}
                     </a>
                   </td>
