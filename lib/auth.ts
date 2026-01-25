@@ -178,7 +178,7 @@ export const authConfig: NextAuthConfig = {
           if (profile) {
             session.user.handle = profile.handle;
             session.user.avatarUrl = profile.avatar_url;
-            session.user.avatarSeed = profile.avatar_seed;
+            // avatarSeed is fetched from profile API when needed
             session.user.isAdmin = profile.is_admin;
             session.user.isOrganizer = profile.is_organizer;
           }
