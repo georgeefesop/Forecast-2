@@ -18,11 +18,52 @@ const hasSMTP = process.env.SMTP_HOST &&
 const hasDatabase = !!process.env.DATABASE_URL;
 const shouldUseEmailProvider = hasSMTP && hasDatabase;
 
+// Determine if we're in development (localhost)
+const isDevelopment = process.env.NODE_ENV === 'development' || 
+                       process.env.NEXTAUTH_URL?.includes('localhost') ||
+                       !process.env.NEXTAUTH_URL?.startsWith('https://');
+
 export const authConfig: NextAuthConfig = {
   // Trust host for local development
   trustHost: true,
   // Secret for JWT signing
   secret: process.env.NEXTAUTH_SECRET,
+  // Cookie configuration for development (disable Secure on localhost)
+  cookies: {
+    sessionToken: {
+      name: isDevelopment 
+        ? `authjs.session-token` 
+        : `__Secure-authjs.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: !isDevelopment, // Only secure in production
+      },
+    },
+    callbackUrl: {
+      name: isDevelopment
+        ? `authjs.callback-url`
+        : `__Secure-authjs.callback-url`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: !isDevelopment,
+      },
+    },
+    csrfToken: {
+      name: isDevelopment
+        ? `authjs.csrf-token`
+        : `__Host-authjs.csrf-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: !isDevelopment,
+      },
+    },
+  },
   // Add adapter for Email provider (required for verification tokens)
   // Only add adapter if Email provider will be used
   ...(shouldUseEmailProvider ? { adapter: createAdapter() } : {}),

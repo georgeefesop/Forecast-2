@@ -12,10 +12,23 @@ export async function getSession(request?: NextRequest) {
     // Try auth() first (should work in NextAuth v5)
     let session = await auth();
     
+    if (session) {
+      console.log("[getSession] auth() returned session for user:", session.user?.id);
+      return session;
+    }
+    
+    console.log("[getSession] auth() returned null, trying cookie fallback");
+    
     // If auth() doesn't work and we have a request, try reading token from cookies
     if (!session && request) {
       try {
         const cookieHeader = request.headers.get('cookie') || '';
+        console.log("[getSession] Cookie header:", cookieHeader ? `${cookieHeader.substring(0, 100)}...` : "EMPTY");
+        
+        // Check for NextAuth v5 cookie names
+        const hasAuthjsCookie = cookieHeader.includes('authjs.session-token') || cookieHeader.includes('__Secure-authjs.session-token');
+        const hasNextAuthCookie = cookieHeader.includes('next-auth.session-token');
+        console.log("[getSession] Has authjs cookie:", hasAuthjsCookie, "Has next-auth cookie:", hasNextAuthCookie);
         
         if (cookieHeader) {
           const token = await getToken({
@@ -26,6 +39,8 @@ export async function getSession(request?: NextRequest) {
             } as any,
             secret: process.env.NEXTAUTH_SECRET,
           });
+
+          console.log("[getSession] getToken result:", token ? `Token found for user: ${token.id}` : "No token");
 
           if (token && token.id) {
             // Fetch user profile to build session
@@ -47,17 +62,28 @@ export async function getSession(request?: NextRequest) {
                 },
                 expires: token.exp ? new Date(token.exp * 1000).toISOString() : new Date().toISOString(),
               } as any;
+              console.log("[getSession] Built session from token for user:", user.user_id);
+            } else {
+              console.log("[getSession] Token found but no profile in database for user:", token.id);
             }
           }
+        } else {
+          console.log("[getSession] No cookie header in request");
         }
       } catch (cookieError) {
-        console.log("Could not read token from cookies:", cookieError);
+        console.error("[getSession] Error reading token from cookies:", cookieError);
       }
+    } else if (!request) {
+      console.log("[getSession] No request object provided");
+    }
+    
+    if (!session) {
+      console.log("[getSession] Final result: No session found");
     }
     
     return session;
   } catch (error) {
-    console.error("getSession error:", error);
+    console.error("[getSession] Fatal error:", error);
     return null;
   }
 }
