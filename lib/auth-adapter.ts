@@ -107,7 +107,7 @@ export function createAdapter(): Adapter {
       };
     },
 
-    async getUserByAccount({ providerAccountId, providerId }) {
+    async getUserByAccount({ providerAccountId, provider }) {
       // For email provider, account is the same as user
       return null;
     },
