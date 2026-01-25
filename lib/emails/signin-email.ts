@@ -3,15 +3,20 @@
  * Uses brand colors and modern HTML email design
  */
 
+import { brandColors } from "@/lib/brand-colors";
+
 export function getSignInEmailHTML(url: string, host: string): string {
   const appName = "Forecast";
   const appUrl = process.env.NEXTAUTH_URL || "https://forecast.app";
-  const brandColor = "#6366f1"; // Indigo
-  const brandAccent = "#8b5cf6"; // Purple
-  const textColor = "#111827";
-  const textSecondary = "#6b7280";
-  const borderColor = "#e5e7eb";
-  const bgColor = "#ffffff";
+  
+  // Use brand color variables instead of hardcoded values
+  const brandColor = brandColors.brand;
+  const brandAccent = brandColors.brandAccent;
+  const textColor = brandColors.textPrimary;
+  const textSecondary = brandColors.textSecondary;
+  const borderColor = brandColors.borderSubtle;
+  const bgColor = brandColors.bgBase;
+  const bgSurface = brandColors.bgSurface;
 
   return `
 <!DOCTYPE html>
@@ -21,8 +26,8 @@ export function getSignInEmailHTML(url: string, host: string): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign in to ${appName}</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif; background-color: #f9fafb; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
-  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; padding: 40px 20px;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif; background-color: ${bgSurface}; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
+  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: ${bgSurface}; padding: 40px 20px;">
     <tr>
       <td align="center">
         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 600px; background-color: ${bgColor}; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);">
@@ -49,7 +54,7 @@ export function getSignInEmailHTML(url: string, host: string): string {
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                 <tr>
                   <td align="center" style="padding: 0 0 32px 0;">
-                    <a href="${url}" style="display: inline-block; padding: 14px 32px; background-color: ${brandColor}; color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600; text-align: center; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); transition: background-color 0.2s;">
+                    <a href="${url}" style="display: inline-block; padding: 14px 32px; background-color: ${brandColor}; color: ${brandColors.textInverse}; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600; text-align: center; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); transition: background-color 0.2s;">
                       Sign in to ${appName}
                     </a>
                   </td>
@@ -63,7 +68,7 @@ export function getSignInEmailHTML(url: string, host: string): string {
               </p>
               
               <!-- Security Notice -->
-              <div style="padding: 16px; background-color: #f9fafb; border-radius: 8px; border-left: 4px solid ${brandColor};">
+              <div style="padding: 16px; background-color: ${bgSurface}; border-radius: 8px; border-left: 4px solid ${brandColor};">
                 <p style="margin: 0; font-size: 14px; line-height: 1.5; color: ${textSecondary};">
                   <strong style="color: ${textColor};">Security tip:</strong> If you didn't request this email, you can safely ignore it. This link will only work once and expires in 24 hours.
                 </p>
@@ -73,7 +78,7 @@ export function getSignInEmailHTML(url: string, host: string): string {
           
           <!-- Footer -->
           <tr>
-            <td style="padding: 32px 40px; background-color: #f9fafb; border-top: 1px solid ${borderColor}; border-radius: 0 0 12px 12px;">
+            <td style="padding: 32px 40px; background-color: ${bgSurface}; border-top: 1px solid ${borderColor}; border-radius: 0 0 12px 12px;">
               <p style="margin: 0 0 16px 0; font-size: 14px; line-height: 1.5; color: ${textSecondary}; text-align: center;">
                 This email was sent to you because someone requested to sign in to ${appName}.
               </p>
