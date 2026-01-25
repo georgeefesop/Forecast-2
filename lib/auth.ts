@@ -201,7 +201,10 @@ export const authConfig: NextAuthConfig = {
       return true;
     },
     async jwt({ token, user, account }) {
+      // Preserve existing token.id if user is not present (subsequent requests)
+      // Set token.id when user is present (initial sign-in)
       if (user) {
+        console.log("[JWT callback] User signing in, setting token.id:", user.id);
         token.id = user.id;
         // Ensure profile exists
         try {
@@ -209,7 +212,11 @@ export const authConfig: NextAuthConfig = {
         } catch (error) {
           console.error("Error ensuring profile:", error);
         }
+      } else {
+        console.log("[JWT callback] No user, preserving token.id:", token.id);
       }
+      // Always return token with id (preserve it if it exists)
+      console.log("[JWT callback] Returning token with id:", token.id, "keys:", Object.keys(token));
       return token;
     },
     async session({ session, token }) {

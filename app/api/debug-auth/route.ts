@@ -57,8 +57,10 @@ export async function GET(request: NextRequest) {
         });
         debug.tokenResult = {
           hasToken: !!token,
-          userId: token?.id || null,
+          userId: token?.id || (token as any)?.sub || null,
           tokenKeys: token ? Object.keys(token) : [],
+          tokenSub: (token as any)?.sub || null,
+          fullToken: token, // Include full token for debugging
         };
       } else {
         debug.tokenResult = { error: "No cookie header" };

@@ -40,13 +40,16 @@ export async function getSession(request?: NextRequest) {
             secret: process.env.NEXTAUTH_SECRET,
           });
 
-          console.log("[getSession] getToken result:", token ? `Token found for user: ${token.id}` : "No token");
+          console.log("[getSession] getToken result:", token ? `Token found, keys: ${Object.keys(token).join(', ')}, id: ${token.id || 'MISSING'}` : "No token");
 
-          if (token && token.id) {
+          // Check for token.id or try to extract from token.sub (NextAuth v5 might use 'sub' instead of 'id')
+          const userId = token?.id || (token as any)?.sub || null;
+          
+          if (token && userId) {
             // Fetch user profile to build session
             const profile = await db.query(
               "SELECT user_id, email, handle, avatar_url, is_admin, is_organizer FROM profiles WHERE user_id = $1",
-              [token.id as string]
+              [userId]
             );
 
             if (profile.rows.length > 0) {
@@ -64,8 +67,10 @@ export async function getSession(request?: NextRequest) {
               } as any;
               console.log("[getSession] Built session from token for user:", user.user_id);
             } else {
-              console.log("[getSession] Token found but no profile in database for user:", token.id);
+              console.log("[getSession] Token found but no profile in database for user:", userId);
             }
+          } else if (token && !userId) {
+            console.log("[getSession] Token found but missing user ID. Token keys:", Object.keys(token));
           }
         } else {
           console.log("[getSession] No cookie header in request");
