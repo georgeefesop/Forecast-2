@@ -120,7 +120,7 @@ function BoostNewPageContent() {
                         }
                         className={`w-full rounded-lg border p-4 text-left transition-colors ${
                           formData.productType === type.value
-                            ? "border-brand bg-brand/10"
+                            ? "border-brand-accent bg-brand-accent/10"
                             : "border-border-default bg-background-surface hover:bg-background-elevated"
                         }`}
                       >
@@ -163,7 +163,7 @@ function BoostNewPageContent() {
                         onChange={(e) =>
                           setFormData({ ...formData, headline: e.target.value })
                         }
-                        className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                        className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
                       />
                       <textarea
                         placeholder="Description"
@@ -175,7 +175,7 @@ function BoostNewPageContent() {
                           })
                         }
                         rows={4}
-                        className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                        className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
                       />
                     </div>
                   ) : (
@@ -199,7 +199,7 @@ function BoostNewPageContent() {
                             : "venueId"]: e.target.value,
                         })
                       }
-                      className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                      className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
                     />
                   )}
                 </div>
@@ -282,7 +282,7 @@ function BoostNewPageContent() {
                       onChange={(e) =>
                         setFormData({ ...formData, startsAt: e.target.value })
                       }
-                      className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                      className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
                     />
                   </div>
                   <div>
@@ -295,7 +295,7 @@ function BoostNewPageContent() {
                       onChange={(e) =>
                         setFormData({ ...formData, endsAt: e.target.value })
                       }
-                      className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                      className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
                     />
                   </div>
                 </div>
@@ -336,7 +336,7 @@ function BoostNewPageContent() {
                       onChange={(e) =>
                         setFormData({ ...formData, city: e.target.value })
                       }
-                      className="rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                      className="rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
                     >
                       <option value="Limassol">Limassol</option>
                       <option value="Nicosia">Nicosia</option>
@@ -348,7 +348,7 @@ function BoostNewPageContent() {
                       onChange={(e) =>
                         setFormData({ ...formData, category: e.target.value })
                       }
-                      className="rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                      className="rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
                     >
                       <option value="">All Categories</option>
                       <option value="Nightlife">Nightlife</option>
@@ -370,7 +370,7 @@ function BoostNewPageContent() {
                       onChange={(e) =>
                         setFormData({ ...formData, headline: e.target.value })
                       }
-                      className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                      className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
                     />
                     <textarea
                       placeholder="Description"
@@ -382,7 +382,7 @@ function BoostNewPageContent() {
                         })
                       }
                       rows={3}
-                      className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                      className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
                     />
                     <input
                       type="url"
@@ -391,7 +391,7 @@ function BoostNewPageContent() {
                       onChange={(e) =>
                         setFormData({ ...formData, ctaLink: e.target.value })
                       }
-                      className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                      className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
                     />
                     <input
                       type="file"
@@ -402,7 +402,7 @@ function BoostNewPageContent() {
                           image: e.target.files?.[0] || null,
                         })
                       }
-                      className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                      className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
                     />
                   </div>
                 </div>

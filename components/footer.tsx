@@ -7,7 +7,7 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
-            <Link href="/" className="text-fluid-lg font-bold text-brand">
+            <Link href="/" className="text-fluid-lg font-bold text-text-primary">
               Forecast
             </Link>
             <p className="mt-2 text-sm text-text-secondary">

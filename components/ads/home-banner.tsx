@@ -21,7 +21,7 @@ export async function HomeBanner() {
 
   return (
     <div className="relative overflow-hidden rounded-xl border border-border-default bg-background-elevated">
-      <div className="absolute top-4 right-4 z-10 rounded bg-brand px-3 py-1 text-sm font-medium text-text-inverse">
+      <div className="absolute top-4 right-4 z-10 rounded-full bg-background-overlay/80 backdrop-blur-sm border border-border-default px-3 py-1.5 text-sm font-medium text-text-inverse">
         Sponsored
       </div>
       <Link href={creative.ctaLink || "#"} className="block">
@@ -46,7 +46,7 @@ export async function HomeBanner() {
             <div className="mt-6 flex items-center gap-4">
               <Link
                 href={creative.ctaLink || "#"}
-                className="inline-flex items-center gap-2 rounded-md bg-brand px-6 py-3 text-sm font-medium text-text-inverse transition-colors hover:bg-brand/90"
+                className="inline-flex items-center gap-2 rounded-md bg-brand-accent px-6 py-3 text-sm font-medium text-text-inverse transition-colors hover:bg-brand-accent-hover"
               >
                 {creative.ctaText || "Learn More"}
                 <ArrowRight className="h-4 w-4" />

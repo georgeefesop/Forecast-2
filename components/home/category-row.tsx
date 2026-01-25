@@ -1,29 +1,23 @@
 import Link from "next/link";
 import { EventCard } from "@/components/event-card";
 import { ArrowRight } from "lucide-react";
+import { getEvents } from "@/lib/db/queries/events";
 
 interface CategoryRowProps {
   category: string;
 }
 
-// Mock data - will be replaced with real database queries
-const mockEvents = [
-  {
-    id: "1",
-    slug: "event-1",
-    title: "Sample Event",
-    startAt: new Date(Date.now() + 86400000),
-    venue: { name: "Venue", city: "Limassol" },
-    imageUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400",
-    interestedCount: 12,
-    goingCount: 5,
-    category: "Nightlife",
-  },
-];
+export async function CategoryRow({ category }: CategoryRowProps) {
+  let events: any[] = [];
 
-export function CategoryRow({ category }: CategoryRowProps) {
-  // TODO: Replace with real data fetching by category
-  const events = mockEvents;
+  try {
+    events = await getEvents({
+      category,
+      limit: 4,
+    });
+  } catch (error) {
+    console.error(`Error fetching ${category} events:`, error);
+  }
 
   if (events.length === 0) {
     return null;
@@ -37,7 +31,7 @@ export function CategoryRow({ category }: CategoryRowProps) {
         </h2>
         <Link
           href={`/explore?category=${encodeURIComponent(category)}`}
-          className="flex items-center gap-1 text-sm font-medium text-brand hover:underline"
+          className="flex items-center gap-1 text-sm font-medium text-text-secondary hover:text-text-primary"
         >
           View all
           <ArrowRight className="h-4 w-4" />
@@ -45,7 +39,20 @@ export function CategoryRow({ category }: CategoryRowProps) {
       </div>
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {events.slice(0, 4).map((event) => (
-          <EventCard key={event.id} {...event} />
+          <EventCard
+            key={event.id}
+            id={event.id}
+            slug={event.slug}
+            title={event.title}
+            startAt={new Date(event.start_at)}
+            venue={event.venue}
+            imageUrl={event.image_url || undefined}
+            interestedCount={event.counters?.interested_count}
+            goingCount={event.counters?.going_count}
+            category={event.category || undefined}
+            sourceName={event.source_name || undefined}
+            priceMin={event.price_min}
+          />
         ))}
       </div>
     </section>

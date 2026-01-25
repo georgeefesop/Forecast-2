@@ -36,6 +36,8 @@ const config: Config = {
         brand: {
           DEFAULT: "var(--color-brand)",
           accent: "var(--color-brand-accent)",
+          "accent-hover": "var(--color-brand-accent-hover)",
+          "accent-active": "var(--color-brand-accent-active)",
         },
       },
       spacing: {

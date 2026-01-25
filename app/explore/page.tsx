@@ -1,11 +1,14 @@
+
 import { MainNav } from "@/components/nav/main-nav";
 import { Footer } from "@/components/footer";
 import { FilterChips } from "@/components/filters/filter-chips";
-import { EventCard } from "@/components/event-card";
+import { EventList } from "@/components/explore/event-list";
+import { SortSelect } from "@/components/explore/sort-select";
 import { getEvents } from "@/lib/db/queries/events";
 import { format } from "date-fns";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface ExplorePageProps {
   searchParams: {
@@ -19,15 +22,18 @@ interface ExplorePageProps {
 }
 
 export default async function ExplorePage({ searchParams }: ExplorePageProps) {
+  // Ensure searchParams is properly handled (Next.js 15 compatibility)
+  const params = await Promise.resolve(searchParams);
+
   let events: any[] = [];
   try {
     events = await getEvents({
-    city: searchParams.city || "Limassol",
-    category: searchParams.category || undefined,
-    date: searchParams.date || undefined,
-    free: searchParams.free === "true",
-    search: searchParams.q || undefined,
-    limit: 50,
+      city: params.city && params.city.trim() ? params.city : undefined,
+      category: params.category && params.category.trim() ? params.category : undefined,
+      date: params.date && params.date.trim() ? params.date : undefined,
+      free: params.free === "true",
+      search: params.q && params.q.trim() ? params.q : undefined,
+      limit: 500, // Increased from 50 to show more events
     });
   } catch (error) {
     console.error("Error fetching events:", error);
@@ -36,13 +42,13 @@ export default async function ExplorePage({ searchParams }: ExplorePageProps) {
 
   // Sort events
   let sortedEvents = [...events];
-  if (searchParams.sort === "interested") {
+  if (params.sort === "interested") {
     sortedEvents.sort(
       (a, b) =>
         (b.counters?.interested_count || 0) -
         (a.counters?.interested_count || 0)
     );
-  } else if (searchParams.sort === "free") {
+  } else if (params.sort === "free") {
     sortedEvents.sort((a, b) => {
       const aFree = !a.price_min || a.price_min === 0;
       const bFree = !b.price_min || b.price_min === 0;
@@ -70,39 +76,11 @@ export default async function ExplorePage({ searchParams }: ExplorePageProps) {
             <p className="text-sm text-text-secondary">
               {events.length} event{events.length !== 1 ? "s" : ""} found
             </p>
-            <select
-              defaultValue={searchParams.sort || "soonest"}
-              className="rounded-md border border-border-default bg-background-surface px-3 py-2 text-sm text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
-            >
-              <option value="soonest">Soonest</option>
-              <option value="interested">Most Interested</option>
-              <option value="free">Free First</option>
-            </select>
+            <SortSelect />
           </div>
 
           {/* Results */}
-          {events.length === 0 ? (
-            <div className="py-12 text-center">
-              <p className="text-text-secondary">No events found.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {sortedEvents.map((event) => (
-                <EventCard
-                  key={event.id}
-                  id={event.id}
-                  slug={event.slug}
-                  title={event.title}
-                  startAt={new Date(event.start_at)}
-                  venue={event.venue}
-                  imageUrl={event.image_url || undefined}
-                  interestedCount={event.counters?.interested_count}
-                  goingCount={event.counters?.going_count}
-                  category={event.category || undefined}
-                />
-              ))}
-            </div>
-          )}
+          <EventList events={sortedEvents} />
         </div>
       </main>
       <Footer />

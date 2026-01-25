@@ -18,8 +18,8 @@ export async function ExploreInsert() {
   // TODO: Fetch event by ID
   // For now, return a placeholder
   return (
-    <div className="rounded-lg border-2 border-brand bg-background-elevated p-4">
-      <div className="mb-2 text-xs font-medium text-brand">Promoted</div>
+    <div className="rounded-lg border-2 border-border-default bg-background-elevated p-4">
+      <div className="mb-2 text-xs font-medium text-text-secondary">Promoted</div>
       <p className="text-sm text-text-secondary">
         Promoted event will appear here
       </p>

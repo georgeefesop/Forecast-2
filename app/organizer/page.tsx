@@ -55,7 +55,7 @@ export default function OrganizerPage() {
             <p className="mb-4 text-text-secondary">
               Please sign in to access the organizer dashboard.
             </p>
-            <a href="/auth/signin" className="text-brand hover:underline">
+            <a href="/auth/signin" className="text-text-primary hover:underline">
               Sign in
             </a>
           </div>
@@ -80,7 +80,7 @@ export default function OrganizerPage() {
                 onClick={() => setActiveTab("venues")}
                 className={`border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
                   activeTab === "venues"
-                    ? "border-brand text-brand"
+                    ? "border-brand-accent text-brand-accent"
                     : "border-transparent text-text-secondary hover:text-text-primary"
                 }`}
               >
@@ -91,7 +91,7 @@ export default function OrganizerPage() {
                 onClick={() => setActiveTab("events")}
                 className={`border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
                   activeTab === "events"
-                    ? "border-brand text-brand"
+                    ? "border-brand-accent text-brand-accent"
                     : "border-transparent text-text-secondary hover:text-text-primary"
                 }`}
               >
@@ -102,7 +102,7 @@ export default function OrganizerPage() {
                 onClick={() => setActiveTab("promote")}
                 className={`border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
                   activeTab === "promote"
-                    ? "border-brand text-brand"
+                    ? "border-brand-accent text-brand-accent"
                     : "border-transparent text-text-secondary hover:text-text-primary"
                 }`}
               >

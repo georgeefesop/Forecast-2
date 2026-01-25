@@ -85,7 +85,7 @@ export default function ClaimVenuePage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search for a venue..."
-                className="flex-1 rounded-md border border-border-default bg-background-surface px-4 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                className="flex-1 rounded-md border border-border-default bg-background-surface px-4 py-2 text-text-primary focus:border-border-strong focus:outline-none"
               />
               <Button type="submit" disabled={loading}>
                 <Search className="mr-2 h-4 w-4" />

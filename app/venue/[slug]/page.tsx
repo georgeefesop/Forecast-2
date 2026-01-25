@@ -64,7 +64,7 @@ export default async function VenuePage({ params }: VenuePageProps) {
                   <Phone className="h-5 w-5" />
                   <a
                     href={`tel:${venue.phone}`}
-                    className="text-brand hover:underline"
+                    className="text-text-primary hover:underline"
                   >
                     {venue.phone}
                   </a>
@@ -76,7 +76,7 @@ export default async function VenuePage({ params }: VenuePageProps) {
                   <Mail className="h-5 w-5" />
                   <a
                     href={`mailto:${venue.email}`}
-                    className="text-brand hover:underline"
+                    className="text-text-primary hover:underline"
                   >
                     {venue.email}
                   </a>
@@ -90,7 +90,7 @@ export default async function VenuePage({ params }: VenuePageProps) {
                     href={venue.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-brand hover:underline"
+                    className="text-text-primary hover:underline"
                   >
                     Website
                   </a>
@@ -104,7 +104,7 @@ export default async function VenuePage({ params }: VenuePageProps) {
                     href={`https://instagram.com/${venue.instagram.replace("@", "")}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-brand hover:underline"
+                    className="text-text-primary hover:underline"
                   >
                     @{venue.instagram.replace("@", "")}
                   </a>

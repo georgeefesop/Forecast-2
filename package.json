@@ -12,9 +12,12 @@
     "@auth/prisma-adapter": "^2.11.1",
     "@dicebear/collection": "^9.3.1",
     "@dicebear/core": "^9.3.1",
+    "@radix-ui/react-dropdown-menu": "^2.1.16",
+    "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-switch": "^1.2.6",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/bcrypt": "^6.0.0",
+    "@types/cheerio": "^0.22.35",
     "@types/node": "^25.0.10",
     "@types/nodemailer": "^7.0.5",
     "@types/react": "^19.2.9",
@@ -23,7 +26,10 @@
     "@vercel/blob": "^2.0.1",
     "@vercel/postgres": "^0.10.0",
     "autoprefixer": "^10.4.23",
+    "axios": "^1.13.3",
     "bcrypt": "^6.0.0",
+    "cheerio": "^1.2.0",
+    "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.468.0",
@@ -36,10 +42,28 @@
     "react-dom": "^19.2.3",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.18",
+    "tailwindcss-animate": "^1.0.7",
     "typescript": "^5.9.3",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
     "dotenv": "^17.2.3"
-  }
+  },
+  "description": "A production MVP for discovering events, venues, and what's happening in Limassol, Cyprus.",
+  "main": "next.config.js",
+  "directories": {
+    "doc": "docs",
+    "lib": "lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/georgeefesop/Forecast-2.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/georgeefesop/Forecast-2/issues"
+  },
+  "homepage": "https://github.com/georgeefesop/Forecast-2#readme"
 }

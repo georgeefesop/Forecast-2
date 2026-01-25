@@ -18,10 +18,13 @@ export interface Event {
   price_max: number | null;
   currency: string;
   image_url: string | null;
+  local_image_url?: string | null;
   ticket_url: string | null;
   status: string;
   source_name: string | null;
   source_url: string | null;
+  series_id: string | null;
+  is_primary_occurrence: boolean;
   venue?: {
     name: string;
     slug: string;
@@ -42,6 +45,7 @@ export async function getEvents(filters: {
   search?: string;
   limit?: number;
   offset?: number;
+  primaryOnly?: boolean;
 }): Promise<Event[]> {
   let query = `
     SELECT 
@@ -61,13 +65,16 @@ export async function getEvents(filters: {
   let paramIndex = 1;
 
   if (filters.city) {
-    query += ` AND e.city = $${paramIndex}`;
+    // Check both event city and venue city (case-insensitive)
+    // Match if either the event's city or the venue's city matches
+    query += ` AND (LOWER(e.city) = LOWER($${paramIndex}) OR (v.city IS NOT NULL AND LOWER(v.city) = LOWER($${paramIndex})))`;
     params.push(filters.city);
     paramIndex++;
   }
 
   if (filters.category) {
-    query += ` AND e.category = $${paramIndex}`;
+    // Case-insensitive category matching using primary category OR tags
+    query += ` AND (LOWER(e.category) = LOWER($${paramIndex}) OR $${paramIndex} = ANY(SELECT LOWER(unnest(e.tags))))`;
     params.push(filters.category);
     paramIndex++;
   }
@@ -83,7 +90,6 @@ export async function getEvents(filters: {
   }
 
   if (filters.date) {
-    const now = new Date();
     if (filters.date === "today") {
       query += ` AND DATE(e.start_at) = CURRENT_DATE`;
     } else if (filters.date === "weekend") {
@@ -92,12 +98,30 @@ export async function getEvents(filters: {
       query += ` AND e.start_at >= CURRENT_DATE AND e.start_at <= CURRENT_DATE + INTERVAL '7 days'`;
     } else if (filters.date === "month") {
       query += ` AND e.start_at >= CURRENT_DATE AND e.start_at <= CURRENT_DATE + INTERVAL '30 days'`;
+    } else if (filters.date === "past") {
+      query += ` AND e.start_at < NOW()`;
     }
   } else {
+    // Default to future events if no date filter (unless past is explicitly requested via date filter)
     query += ` AND e.start_at >= NOW()`;
   }
 
-  query += ` ORDER BY e.start_at ASC`;
+  if (filters.primaryOnly) {
+    query += ` AND e.is_primary_occurrence = TRUE`;
+    // Filter out low quality images from the wall as requested
+    query += ` AND (e.image_size_kb IS NULL OR e.image_size_kb >= 20)`;
+  }
+
+  // Sort: High Res first, then Date
+  const sortDir = filters.date === "past" ? "DESC" : "ASC";
+
+  // Custom sorting for homepage/wall (when primaryOnly is true)
+  if (filters.primaryOnly) {
+    // Prefer local images or valid images
+    query += ` ORDER BY e.is_high_res DESC, (e.local_image_url IS NOT NULL) DESC, e.start_at ${sortDir}`;
+  } else {
+    query += ` ORDER BY e.is_high_res DESC, e.start_at ${sortDir}`;
+  }
 
   if (filters.limit) {
     query += ` LIMIT $${paramIndex}`;
@@ -115,10 +139,10 @@ export async function getEvents(filters: {
     ...row,
     venue: row.venue_name
       ? {
-          name: row.venue_name,
-          slug: row.venue_slug,
-          city: row.venue_city,
-        }
+        name: row.venue_name,
+        slug: row.venue_slug,
+        city: row.venue_city,
+      }
       : undefined,
     counters: {
       interested_count: row.interested_count || 0,
@@ -128,7 +152,29 @@ export async function getEvents(filters: {
   }));
 }
 
+/**
+ * Get all occurrences of a series
+ */
+export async function getSeriesOccurrences(seriesId: string): Promise<Event[]> {
+  const result = await db.query(
+    `
+    SELECT 
+      e.id, e.title, e.slug, e.start_at, e.end_at, 
+      v.name as venue_name, v.city as venue_city
+    FROM events e
+    LEFT JOIN venues v ON e.venue_id = v.id
+    WHERE e.series_id = $1 AND e.status = 'published'
+    ORDER BY e.start_at ASC
+    `,
+    [seriesId]
+  );
+  return result.rows;
+}
+
 export async function getEventBySlug(slug: string): Promise<Event | null> {
+  // Trim and normalize the slug
+  const normalizedSlug = slug.trim();
+
   const result = await db.query(
     `
     SELECT 
@@ -144,7 +190,7 @@ export async function getEventBySlug(slug: string): Promise<Event | null> {
     LEFT JOIN event_counters ec ON e.id = ec.event_id
     WHERE e.slug = $1 AND e.status = 'published'
     `,
-    [slug]
+    [normalizedSlug]
   );
 
   if (result.rows.length === 0) {
@@ -156,10 +202,10 @@ export async function getEventBySlug(slug: string): Promise<Event | null> {
     ...row,
     venue: row.venue_name
       ? {
-          name: row.venue_name,
-          slug: row.venue_slug,
-          city: row.venue_city,
-        }
+        name: row.venue_name,
+        slug: row.venue_slug,
+        city: row.venue_city,
+      }
       : undefined,
     counters: {
       interested_count: row.interested_count || 0,
@@ -196,10 +242,10 @@ export async function getPopularEvents(limit: number = 10): Promise<Event[]> {
     ...row,
     venue: row.venue_name
       ? {
-          name: row.venue_name,
-          slug: row.venue_slug,
-          city: row.venue_city,
-        }
+        name: row.venue_name,
+        slug: row.venue_slug,
+        city: row.venue_city,
+      }
       : undefined,
     counters: {
       interested_count: row.interested_count || 0,

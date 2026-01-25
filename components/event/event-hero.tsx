@@ -45,7 +45,7 @@ export function EventHero({ event }: EventHeroProps) {
             <MapPin className="h-5 w-5" />
             <Link
               href={`/venue/${event.venue.slug}`}
-              className="text-brand hover:underline"
+              className="text-text-primary hover:underline"
             >
               {event.venue.name}
             </Link>
@@ -65,7 +65,7 @@ export function EventHero({ event }: EventHeroProps) {
               href={event.ticket_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-brand hover:underline"
+              className="text-text-primary hover:underline"
             >
               Get Tickets
             </a>

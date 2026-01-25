@@ -28,7 +28,7 @@ export function SearchBar() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search events, venues…"
-          className="w-full rounded-lg border border-border-default bg-background-surface py-3 pl-12 pr-4 text-base text-text-primary placeholder:text-text-tertiary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+          className="w-full rounded-lg border border-border-default bg-background-surface py-3 pl-12 pr-4 text-base text-text-primary placeholder:text-text-tertiary focus:border-border-strong focus:outline-none"
         />
       </div>
     </form>

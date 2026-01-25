@@ -46,6 +46,19 @@ export const colorPrimitives = {
     800: "#6b21a8",
     900: "#581c87",
   },
+  // Accent colors - Cyan/Teal for premium feel
+  cyan: {
+    50: "#ecfeff",
+    100: "#cffafe",
+    200: "#a5f3fc",
+    300: "#67e8f9",
+    400: "#22d3ee", // Dark mode accent
+    500: "#06b6d4", // Light mode accent
+    600: "#0891b2",
+    700: "#0e7490",
+    800: "#155e75",
+    900: "#164e63",
+  },
   // Neutral grays
   gray: {
     50: "#f9fafb",
@@ -99,13 +112,13 @@ export const lightTheme = {
     // Brand
     brand: {
       primary: colorPrimitives.indigo[500], // #6366f1
-      accent: colorPrimitives.purple[500], // #a855f7 (was #8b5cf6, using standard purple-500)
+      accent: "#8B6F47", // Warm brown - premium, sophisticated accent
     },
-    // Background
+    // Background - Warm beige-gray for premium feel (not white!)
     background: {
-      base: colorPrimitives.gray[50], // #ffffff (white)
-      surface: colorPrimitives.gray[50], // #f9fafb
-      elevated: colorPrimitives.gray[50], // #ffffff
+      base: "#F5F0EB", // Warm beige-gray, premium and reduces eye strain
+      surface: "#EDE4DC", // Pearl beige, subtle differentiation
+      elevated: "#ffffff", // Pure white for cards/modals (creates depth)
       overlay: "rgba(0, 0, 0, 0.5)",
     },
     // Text
@@ -115,10 +128,10 @@ export const lightTheme = {
       tertiary: colorPrimitives.gray[400], // #9ca3af
       inverse: colorPrimitives.gray[50], // #ffffff
     },
-    // Border
+    // Border - Softer, more subtle borders with warm tones
     border: {
-      subtle: colorPrimitives.gray[200], // #e5e7eb
-      default: colorPrimitives.gray[300], // #d1d5db
+      subtle: "#E0D9D0", // Warm beige-gray border
+      default: "#D4C9BC", // Warmer than gray-300
       strong: colorPrimitives.gray[400], // #9ca3af
     },
     // Semantic
@@ -132,42 +145,42 @@ export const lightTheme = {
 } as const;
 
 /**
- * Dark Theme Tokens
- * Semantic tokens for dark mode
+ * Dark Theme Tokens - "Night Editorial" Premium Dark Theme
+ * Semantic tokens for dark mode - Cyprus night vibe, modern, exclusive but friendly
  */
 export const darkTheme = {
   color: {
-    // Brand (lighter for dark mode)
+    // Brand - Warm brown accent for premium, sophisticated feel
     brand: {
       primary: colorPrimitives.indigo[400], // #818cf8
-      accent: colorPrimitives.purple[400], // #c084fc
+      accent: "#C9A882", // Warm tan brown - premium, sophisticated accent
     },
-    // Background
+    // Background - Night Editorial palette
     background: {
-      base: "#0f172a", // slate-900
-      surface: "#1e293b", // slate-800
-      elevated: "#334155", // slate-700
+      base: "#0B0F14", // Page background - deep night blue
+      surface: "#0F1621", // Panels - slightly lighter
+      elevated: "#141E2B", // Cards - subtle elevation
       overlay: "rgba(0, 0, 0, 0.7)",
     },
-    // Text
+    // Text - High contrast with opacity for hierarchy
     text: {
-      primary: "#f1f5f9", // slate-100
-      secondary: "#cbd5e1", // slate-300
-      tertiary: "#94a3b8", // slate-400
-      inverse: "#0f172a", // slate-900
+      primary: "rgba(255, 255, 255, 0.92)", // Primary text - high contrast
+      secondary: "rgba(255, 255, 255, 0.72)", // Secondary text
+      tertiary: "rgba(255, 255, 255, 0.52)", // Tertiary text
+      inverse: "#0B0F14", // Inverse text for dark backgrounds
     },
-    // Border
+    // Border - Subtle, translucent borders
     border: {
-      subtle: "#334155", // slate-700
-      default: "#475569", // slate-600
-      strong: "#64748b", // slate-500
+      subtle: "rgba(255, 255, 255, 0.08)", // Subtle borders
+      default: "rgba(255, 255, 255, 0.12)", // Default borders
+      strong: "rgba(255, 255, 255, 0.20)", // Strong borders
     },
-    // Semantic
+    // Semantic - Night Editorial semantic colors
     semantic: {
-      success: "#22c55e", // green-500
-      warning: "#fbbf24", // amber-400
-      error: "#f87171", // red-400
-      info: "#60a5fa", // blue-400
+      success: "#3EE28A", // Success green
+      warning: "#FFCC66", // Warning amber
+      error: "#FF5C6C", // Danger red
+      info: "#37D6FF", // Info uses accent cyan
     },
   },
 } as const;
@@ -195,25 +208,27 @@ export const spacing = {
 
 /**
  * Border Radius Tokens
+ * Increased for premium, modern feel
  */
 export const radius = {
-  sm: "0.25rem",   // 4px
-  md: "0.5rem",    // 8px
-  lg: "0.75rem",   // 12px
-  xl: "1rem",      // 16px
+  sm: "0.375rem",   // 6px (was 4px)
+  md: "0.625rem",    // 10px (was 8px)
+  lg: "1rem",        // 16px (was 12px)
+  xl: "1.5rem",      // 24px (was 16px)
   full: "9999px",
 } as const;
 
 /**
  * Shadow Tokens
- * Elevation system for depth
+ * Night Editorial - Soft shadows for cards, subtle elevation
+ * Dark mode uses softer, more diffused shadows
  */
 export const shadow = {
-  sm: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
-  md: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
-  lg: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
-  xl: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
-  "2xl": "0 25px 50px -12px rgb(0 0 0 / 0.25)",
+  sm: "0 1px 2px 0 rgb(0 0 0 / 0.3)", // Subtle shadow for dark mode
+  md: "0 4px 8px -2px rgb(0 0 0 / 0.4), 0 2px 4px -1px rgb(0 0 0 / 0.3)", // Card shadow
+  lg: "0 8px 16px -4px rgb(0 0 0 / 0.5), 0 4px 8px -2px rgb(0 0 0 / 0.4)", // Elevated cards
+  xl: "0 16px 32px -6px rgb(0 0 0 / 0.6), 0 8px 16px -4px rgb(0 0 0 / 0.5)", // Modals
+  "2xl": "0 24px 48px -8px rgb(0 0 0 / 0.7), 0 12px 24px -4px rgb(0 0 0 / 0.6)", // Overlays
 } as const;
 
 /**
@@ -323,14 +338,14 @@ export const components = {
           text: lightTheme.color.text.inverse,
           hover: "rgba(99, 102, 241, 0.9)", // brand/90
           active: "rgba(99, 102, 241, 0.8)",
-          focus: "rgba(99, 102, 241, 0.2)",
+          focus: "rgba(6, 182, 212, 0.2)", // cyan accent for focus
         },
         dark: {
           bg: darkTheme.color.brand.primary,
           text: darkTheme.color.text.inverse,
           hover: "rgba(129, 140, 248, 0.9)",
           active: "rgba(129, 140, 248, 0.8)",
-          focus: "rgba(129, 140, 248, 0.2)",
+          focus: "rgba(34, 211, 238, 0.2)", // cyan-400 accent for focus
         },
       },
       outline: {
@@ -340,7 +355,7 @@ export const components = {
           border: lightTheme.color.border.default,
           hover: lightTheme.color.background.elevated,
           active: lightTheme.color.background.surface,
-          focus: "rgba(99, 102, 241, 0.2)",
+          focus: "rgba(6, 182, 212, 0.2)", // cyan accent
         },
         dark: {
           bg: "transparent",
@@ -348,7 +363,7 @@ export const components = {
           border: darkTheme.color.border.default,
           hover: darkTheme.color.background.elevated,
           active: darkTheme.color.background.surface,
-          focus: "rgba(129, 140, 248, 0.2)",
+          focus: "rgba(34, 211, 238, 0.2)", // cyan-400 accent
         },
       },
       secondary: {
@@ -357,14 +372,14 @@ export const components = {
           text: lightTheme.color.text.primary,
           hover: lightTheme.color.background.surface,
           active: lightTheme.color.background.elevated,
-          focus: "rgba(99, 102, 241, 0.2)",
+          focus: "rgba(6, 182, 212, 0.2)", // cyan accent
         },
         dark: {
           bg: darkTheme.color.background.elevated,
           text: darkTheme.color.text.primary,
           hover: darkTheme.color.background.surface,
           active: darkTheme.color.background.elevated,
-          focus: "rgba(129, 140, 248, 0.2)",
+          focus: "rgba(34, 211, 238, 0.2)", // cyan-400 accent
         },
       },
       ghost: {
@@ -373,14 +388,14 @@ export const components = {
           text: lightTheme.color.text.primary,
           hover: lightTheme.color.background.elevated,
           active: lightTheme.color.background.surface,
-          focus: "rgba(99, 102, 241, 0.2)",
+          focus: "rgba(6, 182, 212, 0.2)", // cyan accent
         },
         dark: {
           bg: "transparent",
           text: darkTheme.color.text.primary,
           hover: darkTheme.color.background.elevated,
           active: darkTheme.color.background.surface,
-          focus: "rgba(129, 140, 248, 0.2)",
+          focus: "rgba(34, 211, 238, 0.2)", // cyan-400 accent
         },
       },
     },

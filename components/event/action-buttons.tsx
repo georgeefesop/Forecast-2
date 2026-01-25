@@ -3,15 +3,13 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Bookmark, Heart, UserCheck, Share2, Ticket } from "lucide-react";
+import { Heart, UserCheck, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 interface ActionButtonsProps {
   eventId: string;
   initialInterested?: boolean;
   initialGoing?: boolean;
-  initialSaved?: boolean;
   interestedCount?: number;
   goingCount?: number;
 }
@@ -20,7 +18,6 @@ export function ActionButtons({
   eventId,
   initialInterested = false,
   initialGoing = false,
-  initialSaved = false,
   interestedCount = 0,
   goingCount = 0,
 }: ActionButtonsProps) {
@@ -28,16 +25,19 @@ export function ActionButtons({
   const router = useRouter();
   const [interested, setInterested] = useState(initialInterested);
   const [going, setGoing] = useState(initialGoing);
-  const [saved, setSaved] = useState(initialSaved);
   const [interestedCountState, setInterestedCount] = useState(interestedCount);
   const [goingCountState, setGoingCount] = useState(goingCount);
+  const [loading, setLoading] = useState<"interested" | "going" | null>(null);
 
-  const handleAction = async (type: "interested" | "going" | "save") => {
+  const handleAction = async (type: "interested" | "going") => {
     if (!session) {
       router.push("/auth/signin");
       return;
     }
 
+    if (loading) return; // Prevent multiple clicks
+
+    setLoading(type);
     try {
       const response = await fetch(`/api/events/${eventId}/actions`, {
         method: "POST",
@@ -53,20 +53,20 @@ export function ActionButtons({
         } else if (type === "going") {
           setGoing(data.active);
           setGoingCount(data.count);
-        } else if (type === "save") {
-          setSaved(data.active);
         }
       }
     } catch (error) {
       console.error("Action error:", error);
+    } finally {
+      setLoading(null);
     }
   };
 
   const handleShare = async () => {
     if (typeof window === "undefined") return;
-    
+
     const currentUrl = window.location.href;
-    
+
     if (navigator.share) {
       try {
         await navigator.share({
@@ -87,52 +87,43 @@ export function ActionButtons({
   };
 
   return (
-    <div className="mb-8 space-y-4">
+    <div>
       {/* Action Buttons */}
-      <div className="flex flex-wrap gap-3">
-        <Button
-          variant={saved ? "default" : "outline"}
-          onClick={() => handleAction("save")}
-          className="flex items-center gap-2"
-        >
-          <Bookmark className="h-4 w-4" />
-          {saved ? "Saved" : "Save"}
-        </Button>
-
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
         <Button
           variant={interested ? "default" : "outline"}
           onClick={() => handleAction("interested")}
-          className="flex items-center gap-2"
+          disabled={loading === "interested"}
         >
-          <Heart className="h-4 w-4" />
-          Interested
+          <Heart />
+          {loading === "interested" ? "Updating..." : "Interested"}
         </Button>
 
         <Button
           variant={going ? "default" : "outline"}
           onClick={() => handleAction("going")}
-          className="flex items-center gap-2"
+          disabled={loading === "going"}
         >
-          <UserCheck className="h-4 w-4" />
-          Going
+          <UserCheck />
+          {loading === "going" ? "Updating..." : "Going"}
         </Button>
 
-        <Button variant="outline" onClick={handleShare} className="flex items-center gap-2">
-          <Share2 className="h-4 w-4" />
+        <Button variant="outline" onClick={handleShare}>
+          <Share2 />
           Share
         </Button>
       </div>
 
       {/* Counts */}
-      <div className="flex items-center gap-6 text-sm text-text-secondary">
+      <div>
         {interestedCountState > 0 && (
           <div>
-            <span className="font-medium">{interestedCountState}</span> interested
+            <span>{interestedCountState}</span> interested
           </div>
         )}
         {goingCountState > 0 && (
           <div>
-            <span className="font-medium">{goingCountState}</span> going
+            <span>{goingCountState}</span> going
           </div>
         )}
       </div>

@@ -72,7 +72,7 @@ export default function AdvertisePage() {
                     key={placement.type}
                     className="rounded-lg border border-border-default bg-background-surface p-6"
                   >
-                    <Icon className="mb-4 h-8 w-8 text-brand" />
+                    <Icon className="mb-4 h-8 w-8 text-text-secondary" />
                     <h3 className="mb-2 text-lg font-semibold text-text-primary">
                       {placement.name}
                     </h3>

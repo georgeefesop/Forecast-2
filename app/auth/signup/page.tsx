@@ -117,7 +117,7 @@ export default function SignUpPage() {
               }}
               className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                 !useMagicLink
-                  ? "bg-brand text-text-inverse"
+                  ? "bg-brand-accent text-text-inverse"
                   : "text-text-secondary hover:text-text-primary"
               }`}
             >
@@ -131,7 +131,7 @@ export default function SignUpPage() {
               }}
               className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                 useMagicLink
-                  ? "bg-brand text-text-inverse"
+                  ? "bg-brand-accent text-text-inverse"
                   : "text-text-secondary hover:text-text-primary"
               }`}
             >
@@ -170,7 +170,7 @@ export default function SignUpPage() {
                 className={`mt-1 w-full rounded-md border bg-background-surface px-3 py-2 text-text-primary focus:outline-none focus:ring-2 ${
                   emailError
                     ? "border-semantic-error focus:border-semantic-error focus:ring-semantic-error/20"
-                    : "border-border-default focus:border-brand focus:ring-brand/20"
+                    : "border-border-default focus:border-border-strong"
                 }`}
                 required
               />
@@ -222,7 +222,7 @@ export default function SignUpPage() {
                         ? "border-semantic-error focus:border-semantic-error focus:ring-semantic-error/20"
                         : password && password.length >= 8
                         ? "border-semantic-success focus:border-semantic-success focus:ring-semantic-success/20"
-                        : "border-border-default focus:border-brand focus:ring-brand/20"
+                        : "border-border-default focus:border-border-strong"
                     }`}
                     required
                     minLength={8}
@@ -279,7 +279,7 @@ export default function SignUpPage() {
                         ? "border-semantic-error focus:border-semantic-error focus:ring-semantic-error/20"
                         : confirmPassword && confirmPassword === password
                         ? "border-semantic-success focus:border-semantic-success focus:ring-semantic-success/20"
-                        : "border-border-default focus:border-brand focus:ring-brand/20"
+                        : "border-border-default focus:border-border-strong"
                     }`}
                     required
                     minLength={8}
@@ -320,7 +320,7 @@ export default function SignUpPage() {
 
           <div className="text-center text-sm text-text-secondary">
             Already have an account?{" "}
-            <Link href="/auth/signin" className="text-brand hover:underline">
+            <Link href="/auth/signin" className="text-text-primary hover:underline">
               Sign in
             </Link>
           </div>

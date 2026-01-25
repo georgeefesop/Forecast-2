@@ -108,7 +108,7 @@ export default function NewsletterPage() {
                   setFormData({ ...formData, email: e.target.value })
                 }
                 required
-                className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
               />
             </div>
 
@@ -122,7 +122,7 @@ export default function NewsletterPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, phone: e.target.value })
                 }
-                className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
               />
             </div>
 
@@ -136,7 +136,7 @@ export default function NewsletterPage() {
                   setFormData({ ...formData, city: e.target.value })
                 }
                 required
-                className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
               >
                 <option value="Limassol">Limassol</option>
                 <option value="Nicosia">Nicosia</option>
@@ -157,7 +157,7 @@ export default function NewsletterPage() {
                     onClick={() => toggleInterest(category)}
                     className={`rounded-md border px-3 py-2 text-sm font-medium transition-colors ${
                       formData.interests.includes(category)
-                        ? "border-brand bg-brand text-text-inverse"
+                        ? "border-brand-accent bg-brand-accent text-text-inverse"
                         : "border-border-default bg-background-surface text-text-secondary hover:bg-background-elevated"
                     }`}
                   >
@@ -177,7 +177,7 @@ export default function NewsletterPage() {
                   setFormData({ ...formData, frequency: e.target.value })
                 }
                 required
-                className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
               >
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>

@@ -113,7 +113,7 @@ export default function SubmitPage() {
                       setFormData({ ...formData, title: e.target.value })
                     }
                     required
-                    className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                    className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
                   />
                 </div>
 
@@ -127,7 +127,7 @@ export default function SubmitPage() {
                       setFormData({ ...formData, description: e.target.value })
                     }
                     rows={4}
-                    className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                    className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
                   />
                 </div>
 
@@ -143,7 +143,7 @@ export default function SubmitPage() {
                         setFormData({ ...formData, startAt: e.target.value })
                       }
                       required
-                      className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                      className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
                     />
                   </div>
                   <div>
@@ -156,7 +156,7 @@ export default function SubmitPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, endAt: e.target.value })
                       }
-                      className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                      className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
                     />
                   </div>
                 </div>
@@ -171,7 +171,7 @@ export default function SubmitPage() {
                       setFormData({ ...formData, city: e.target.value })
                     }
                     required
-                    className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                    className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
                   >
                     <option value="Limassol">Limassol</option>
                     <option value="Nicosia">Nicosia</option>
@@ -192,7 +192,7 @@ export default function SubmitPage() {
                     }
                     placeholder="Enter venue name or full address"
                     required
-                    className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                    className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
                   />
                 </div>
 
@@ -215,7 +215,7 @@ export default function SubmitPage() {
                       setFormData({ ...formData, category: e.target.value })
                     }
                     required
-                    className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                    className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
                   >
                     <option value="">Select category</option>
                     <option value="Nightlife">Nightlife</option>
@@ -240,7 +240,7 @@ export default function SubmitPage() {
                       setFormData({ ...formData, tags: e.target.value })
                     }
                     placeholder="jazz, live music, outdoor"
-                    className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                    className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
                   />
                 </div>
 
@@ -256,7 +256,7 @@ export default function SubmitPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, priceMin: e.target.value })
                       }
-                      className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                      className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
                     />
                   </div>
                   <div>
@@ -270,7 +270,7 @@ export default function SubmitPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, priceMax: e.target.value })
                       }
-                      className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                      className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
                     />
                   </div>
                   <div>
@@ -282,7 +282,7 @@ export default function SubmitPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, currency: e.target.value })
                       }
-                      className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                      className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
                     >
                       <option value="EUR">EUR</option>
                       <option value="USD">USD</option>
@@ -301,7 +301,7 @@ export default function SubmitPage() {
                       setFormData({ ...formData, ticketUrl: e.target.value })
                     }
                     placeholder="https://..."
-                    className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                    className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
                   />
                 </div>
 
@@ -313,7 +313,7 @@ export default function SubmitPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, adultOnly: e.target.checked })
                     }
-                    className="h-4 w-4 rounded border-border-default text-brand focus:ring-brand"
+                    className="h-4 w-4 rounded border-border-default text-text-primary"
                   />
                   <label htmlFor="adultOnly" className="flex-1 cursor-pointer">
                     <p className="font-medium text-text-primary">Adult-only event (18+)</p>
@@ -336,7 +336,7 @@ export default function SubmitPage() {
                         image: e.target.files?.[0] || null,
                       })
                     }
-                    className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                    className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
                   />
                 </div>
 

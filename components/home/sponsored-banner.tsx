@@ -1,93 +1,94 @@
-"use client";
-
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { Calendar, MapPin, ArrowRight } from "lucide-react";
 import { format } from "date-fns";
+import { getEvents } from "@/lib/db/queries/events";
 
-// This will be replaced with real data from database
-const mockSponsoredEvent = {
-  id: "1",
-  slug: "sample-event",
-  title: "Featured Event - Live Music Night",
-  description: "Join us for an unforgettable evening of live music",
-  startAt: new Date(Date.now() + 86400000), // Tomorrow
-  venue: {
-    name: "The Venue",
-    city: "Limassol",
-    address: "123 Main Street",
-  },
-  imageUrl: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800",
-  ticketUrl: "#",
-};
+export async function SponsoredBanner() {
+  // Fetch a featured event (first upcoming event with an image)
+  let event: any = null;
 
-export function SponsoredBanner() {
-  const event = mockSponsoredEvent;
-  const router = useRouter();
+  try {
+    const events = await getEvents({
+      limit: 10,
+    });
 
-  const handleBannerClick = () => {
-    router.push(`/event/${event.slug}`);
-  };
+    // Find first event with an image
+    event = events.find((e) => e.local_image_url || e.image_url) || events[0] || null;
+  } catch (error) {
+    console.error("Error fetching sponsored event:", error);
+  }
+
+  if (!event) {
+    return null;
+  }
 
   return (
-    <div className="relative overflow-hidden rounded-xl border border-border-default bg-background-elevated">
-      <div className="absolute top-4 right-4 z-10 rounded bg-brand px-3 py-1 text-sm font-medium text-text-inverse">
+    <div className="relative overflow-hidden rounded-xl border border-border-default bg-background-elevated transition-all hover:shadow-lg">
+      <div className="absolute top-4 right-4 z-10 rounded-full bg-background-overlay/80 backdrop-blur-sm border border-border-default px-3 py-1.5 text-sm font-medium text-text-inverse">
         Sponsored
       </div>
-      <div 
-        className="grid md:grid-cols-2 cursor-pointer"
-        onClick={handleBannerClick}
-      >
+      <div className="grid md:grid-cols-2">
         {/* Image */}
-        <div className="relative aspect-video md:aspect-auto md:h-full min-h-[200px]">
-          {event.imageUrl && (
+        <Link
+          href={`/event/${event.slug}`}
+          className="relative aspect-video md:aspect-auto md:h-full min-h-[200px] block"
+        >
+          {(event.local_image_url || event.image_url) && (
             <Image
-              src={event.imageUrl}
+              src={event.local_image_url || event.image_url}
               alt={event.title}
               fill
               className="object-cover"
             />
           )}
-        </div>
+        </Link>
 
         {/* Content */}
         <div className="flex flex-col justify-center p-8">
-          <h2 className="text-fluid-3xl font-bold text-text-primary">
-            {event.title}
-          </h2>
-          <p className="mt-2 text-text-secondary">{event.description}</p>
+          <Link href={`/event/${event.slug}`} className="block">
+            <h2 className="text-fluid-3xl font-bold text-text-primary">
+              {event.title}
+            </h2>
+            {event.description && (
+              <p className="mt-2 text-text-secondary line-clamp-2">{event.description}</p>
+            )}
+          </Link>
 
           <div className="mt-6 space-y-2 text-sm text-text-secondary">
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
-              <time dateTime={event.startAt.toISOString()}>
-                {format(event.startAt, "EEEE, MMMM d 'at' h:mm a")}
+              <time dateTime={new Date(event.start_at).toISOString()}>
+                {format(new Date(event.start_at), "EEEE, MMMM d 'at' h:mm a")}
               </time>
             </div>
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4" />
-              <span>
-                {event.venue.name}, {event.venue.city}
-              </span>
-            </div>
+            {event.venue && (
+              <div className="flex items-center gap-2">
+                <MapPin className="h-4 w-4" />
+                <span>
+                  {event.venue.name}, {event.venue.city}
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="mt-6 flex items-center gap-4">
-            <Link
-              href={event.ticketUrl}
-              className="inline-flex items-center gap-2 rounded-md bg-brand px-6 py-3 text-sm font-medium text-text-inverse transition-colors hover:bg-brand/90"
-              onClick={(e) => e.stopPropagation()}
-            >
-              Get Tickets
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+            {event.ticket_url && (
+              <a
+                href={event.ticket_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-md bg-brand-accent px-6 py-3 text-sm font-medium text-text-inverse transition-colors hover:bg-brand-accent-hover"
+              >
+                Get Tickets
+                <ArrowRight className="h-4 w-4" />
+              </a>
+            )}
             <Link
               href={`/event/${event.slug}`}
-              className="text-sm font-medium text-brand hover:underline"
-              onClick={(e) => e.stopPropagation()}
+              className="text-sm font-medium text-text-primary hover:underline"
             >
-              Learn more
+              Learn more →
             </Link>
           </div>
         </div>

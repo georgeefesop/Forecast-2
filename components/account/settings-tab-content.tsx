@@ -7,7 +7,8 @@ import { AvatarUpload } from "@/components/account/avatar-upload";
 import { PrivacyToggle } from "@/components/account/privacy-toggle";
 import { NotificationToggle } from "@/components/account/notification-toggle";
 import { Button } from "@/components/ui/button";
-import { User, Shield, Bell, LogOut, Mail, Trash2, Calendar } from "lucide-react";
+import { User, Shield, Bell, LogOut, Mail, Trash2, Calendar, MapPin, ExternalLink } from "lucide-react";
+import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { ProfileEditForm } from "@/components/account/profile-edit-form";
 import { BirthdayInput } from "@/components/account/birthday-input";
@@ -222,12 +223,12 @@ export function SettingsTabContent({ session, isOnboarding = false }: SettingsTa
             id="profile-section"
             className={`rounded-lg border p-4 transition-all ${
               isOnboarding 
-                ? "border-brand bg-brand/5 ring-2 ring-brand/20" 
+                ? "border-brand-accent bg-brand-accent/10" 
                 : "border-border-default bg-background-surface"
             }`}
           >
             {isOnboarding && (
-              <div className="mb-3 rounded-md bg-brand/10 p-3 text-sm text-text-primary">
+              <div className="mb-3 rounded-md bg-background-elevated p-3 text-sm text-text-primary">
                 <p className="font-medium">👋 Welcome! Let's set up your profile</p>
                 <p className="mt-1 text-xs text-text-secondary">
                   Choose a username and add your birthday to get started
@@ -244,7 +245,7 @@ export function SettingsTabContent({ session, isOnboarding = false }: SettingsTa
           <div 
             className={`rounded-lg border p-4 transition-all ${
               isOnboarding && !profile?.birthday
-                ? "border-brand bg-brand/5 ring-2 ring-brand/20" 
+                ? "border-brand-accent bg-brand-accent/10" 
                 : "border-border-default bg-background-surface"
             }`}
           >
@@ -412,6 +413,30 @@ export function SettingsTabContent({ session, isOnboarding = false }: SettingsTa
                 loading={saving}
               />
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Organizer Section */}
+      <div>
+        <div className="mb-4 flex items-center gap-2">
+          <MapPin className="h-5 w-5 text-text-secondary" />
+          <h2 className="text-xl font-semibold text-text-primary">Organizer</h2>
+        </div>
+        <div className="rounded-lg border border-border-default bg-background-surface p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium text-text-primary">Organizer Dashboard</p>
+              <p className="mt-1 text-sm text-text-secondary">
+                Manage your venues, events, and promotions
+              </p>
+            </div>
+            <Link href="/organizer">
+              <Button className="flex items-center gap-2">
+                Open Dashboard
+                <ExternalLink className="h-4 w-4" />
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

@@ -199,7 +199,7 @@ export function AvatarUpload({
             className="h-24 w-24 rounded-full border-2 border-border-default object-cover"
           />
           {avatarSource === "uploaded" && (
-            <div className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-brand text-text-inverse">
+            <div className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-brand-accent text-text-inverse">
               <Upload className="h-3 w-3" />
             </div>
           )}

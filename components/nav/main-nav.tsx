@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
-  { href: "/explore", label: "Explore" },
+  { href: "/explore", label: "Events" },
   { href: "/map", label: "Map" },
   { href: "/venues", label: "Venues" },
   { href: "/submit", label: "Submit" },
@@ -24,7 +24,7 @@ export function MainNav() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <span className="text-fluid-xl font-bold text-brand">Forecast</span>
+            <span className="text-fluid-xl font-bold text-text-primary">Forecast</span>
           </Link>
 
           {/* Desktop Navigation */}

@@ -1,15 +1,15 @@
 import { notFound } from "next/navigation";
 import { MainNav } from "@/components/nav/main-nav";
 import { Footer } from "@/components/footer";
-import { getEventBySlug } from "@/lib/db/queries/events";
+import { getEventBySlug, getSeriesOccurrences } from "@/lib/db/queries/events";
 import { EventHero } from "@/components/event/event-hero";
 import { ActionButtons } from "@/components/event/action-buttons";
-import { VibeCheckForm } from "@/components/event/vibe-check-form";
+import { SeriesPicker } from "@/components/event/series-picker";
 import { CommentsThread } from "@/components/event/comments-thread";
 import { SponsorTile } from "@/components/event/sponsor-tile";
-import { format } from "date-fns";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface EventPageProps {
   params: Promise<{
@@ -19,9 +19,13 @@ interface EventPageProps {
 
 export default async function EventPage({ params }: EventPageProps) {
   const { slug } = await params;
+
+  // Decode slug in case it's URL encoded
+  const decodedSlug = decodeURIComponent(slug);
+
   let event;
   try {
-    event = await getEventBySlug(slug);
+    event = await getEventBySlug(decodedSlug);
   } catch (error) {
     console.error("Error fetching event:", error);
     notFound();
@@ -31,32 +35,46 @@ export default async function EventPage({ params }: EventPageProps) {
     notFound();
   }
 
-  // Increment view count
-  // TODO: Implement view tracking
+  // Fetch sibling occurrences if this is part of a series
+  const seriesOccurrences = event.series_id
+    ? await getSeriesOccurrences(event.series_id)
+    : [];
 
   return (
     <div className="flex min-h-screen flex-col">
       <MainNav />
-      <main className="flex-1">
+      <main className="flex-1 bg-background">
         <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
           <EventHero event={event} />
+
           <ActionButtons eventId={event.id} />
-          <VibeCheckForm eventId={event.id} />
-          <CommentsThread eventId={event.id} />
+
+          {/* Series Navigation */}
+          {seriesOccurrences.length > 1 && (
+            <SeriesPicker
+              currentSlug={event.slug}
+              occurrences={seriesOccurrences}
+            />
+          )}
+
+          <div className="mt-8">
+            <CommentsThread eventId={event.id} />
+          </div>
+
           <SponsorTile eventId={event.id} />
 
           {/* Source Attribution */}
           {event.source_url && (
-            <div className="mt-8 border-t border-border-default pt-8">
+            <div className="mt-12 border-t border-border-default pt-8">
               <p className="text-sm text-text-tertiary">
-                Source:{" "}
+                Discovered via{" "}
                 <a
                   href={event.source_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-brand hover:underline"
+                  className="font-medium text-text-secondary hover:text-brand-accent transition-colors"
                 >
-                  {event.source_name || "External"}
+                  {event.source_name || "External Source"}
                 </a>
               </p>
             </div>

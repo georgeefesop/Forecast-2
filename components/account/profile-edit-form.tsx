@@ -65,7 +65,7 @@ export function ProfileEditForm({ currentHandle, onUpdate }: ProfileEditFormProp
             minLength={3}
             maxLength={20}
             pattern="[a-zA-Z0-9_]+"
-            className="flex-1 rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+            className="flex-1 rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
             disabled={loading}
             required
           />

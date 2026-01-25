@@ -41,7 +41,7 @@ export default async function VenuesPage({ searchParams }: VenuesPageProps) {
           <div className="mb-8 flex flex-wrap gap-4">
             <select
               defaultValue={searchParams.city || "Limassol"}
-              className="rounded-md border border-border-default bg-background-surface px-3 py-2 text-sm text-text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+              className="rounded-md border border-border-default bg-background-surface px-3 py-2 text-sm text-text-primary focus:border-border-strong focus:outline-none"
             >
               <option value="Limassol">Limassol</option>
               <option value="Nicosia">Nicosia</option>
@@ -61,7 +61,7 @@ export default async function VenuesPage({ searchParams }: VenuesPageProps) {
                 <Link
                   key={venue.id}
                   href={`/venue/${venue.slug}`}
-                  className="block overflow-hidden rounded-lg border border-border-default bg-background-surface transition-all hover:border-brand hover:shadow-lg"
+                  className="block overflow-hidden rounded-lg border border-border-default bg-background-surface transition-all hover:shadow-md"
                 >
                   <div className="p-6">
                     <h3 className="mb-2 text-lg font-semibold text-text-primary">

@@ -13,17 +13,23 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("light");
+  // Get initial theme from localStorage or default to dark
+  const getInitialTheme = (): Theme => {
+    if (typeof window === "undefined") return "dark";
+    const stored = localStorage.getItem("theme") as Theme | null;
+    return stored || "dark";
+  };
+
+  const [theme, setThemeState] = useState<Theme>(getInitialTheme);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    if (typeof window === "undefined") return;
-    const stored = localStorage.getItem("theme") as Theme | null;
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const initialTheme = stored || (prefersDark ? "dark" : "light");
-    setThemeState(initialTheme);
-    applyTheme(initialTheme);
+    // Theme is already applied by the blocking script in layout.tsx
+    // Just sync the state with what's in the DOM
+    const root = document.documentElement;
+    const currentTheme = root.classList.contains("dark") ? "dark" : "light";
+    setThemeState(currentTheme);
   }, []);
 
   const applyTheme = (newTheme: Theme) => {

@@ -1,0 +1,1390 @@
+[
+  {
+    "id": 20614,
+    "date": "2026-01-20T08:41:59",
+    "date_gmt": "2026-01-20T06:41:59",
+    "guid": {
+      "rendered": "https://www.myticketcy.com/?post_type=performance&#038;p=20614"
+    },
+    "modified": "2026-01-20T08:41:59",
+    "modified_gmt": "2026-01-20T06:41:59",
+    "slug": "dance-the-spring-festival-2026",
+    "status": "publish",
+    "type": "performance",
+    "link": "https://www.myticketcy.com/performances/dance-the-spring-festival-2026/",
+    "title": {
+      "rendered": "Dance the Spring Festival 2026"
+    },
+    "content": {
+      "rendered": "",
+      "protected": false
+    },
+    "featured_media": 20615,
+    "template": "",
+    "categories": [],
+    "tags": [],
+    "class_list": [
+      "post-20614",
+      "performance",
+      "type-performance",
+      "status-publish",
+      "has-post-thumbnail",
+      "hentry"
+    ],
+    "acf": [],
+    "jetpack_sharing_enabled": true,
+    "_links": {
+      "self": [
+        {
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/performance/20614",
+          "targetHints": {
+            "allow": [
+              "GET"
+            ]
+          }
+        }
+      ],
+      "collection": [
+        {
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/performance"
+        }
+      ],
+      "about": [
+        {
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/types/performance"
+        }
+      ],
+      "wp:featuredmedia": [
+        {
+          "embeddable": true,
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/media/20615"
+        }
+      ],
+      "wp:attachment": [
+        {
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/media?parent=20614"
+        }
+      ],
+      "wp:term": [
+        {
+          "taxonomy": "category",
+          "embeddable": true,
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/categories?post=20614"
+        },
+        {
+          "taxonomy": "post_tag",
+          "embeddable": true,
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/tags?post=20614"
+        }
+      ],
+      "curies": [
+        {
+          "name": "wp",
+          "href": "https://api.w.org/{rel}",
+          "templated": true
+        }
+      ]
+    },
+    "_embedded": {
+      "wp:featuredmedia": [
+        {
+          "id": 20615,
+          "date": "2026-01-20T08:41:07",
+          "slug": "copy-of-dance-the-spring",
+          "type": "attachment",
+          "link": "https://www.myticketcy.com/performances/dance-the-spring-festival-2026/copy-of-dance-the-spring/",
+          "title": {
+            "rendered": "Copy of Dance the Spring"
+          },
+          "author": 1,
+          "featured_media": 0,
+          "jetpack_sharing_enabled": true,
+          "acf": [],
+          "caption": {
+            "rendered": ""
+          },
+          "alt_text": "",
+          "media_type": "image",
+          "mime_type": "image/png",
+          "media_details": {
+            "width": 1920,
+            "height": 1080,
+            "file": "2026/01/Copy-of-Dance-the-Spring.png",
+            "filesize": 2629249,
+            "sizes": {
+              "medium": {
+                "file": "Copy-of-Dance-the-Spring-300x169.png",
+                "width": 300,
+                "height": 169,
+                "filesize": 76384,
+                "mime_type": "image/png",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2026/01/Copy-of-Dance-the-Spring.png?fit=300%2C169&ssl=1"
+              },
+              "large": {
+                "file": "Copy-of-Dance-the-Spring-1024x576.png",
+                "width": 1024,
+                "height": 576,
+                "filesize": 634118,
+                "mime_type": "image/png",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2026/01/Copy-of-Dance-the-Spring.png?fit=1024%2C576&ssl=1"
+              },
+              "thumbnail": {
+                "file": "Copy-of-Dance-the-Spring-150x150.png",
+                "width": 150,
+                "height": 150,
+                "filesize": 31870,
+                "mime_type": "image/png",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2026/01/Copy-of-Dance-the-Spring.png?resize=150%2C150&ssl=1"
+              },
+              "medium_large": {
+                "file": "Copy-of-Dance-the-Spring-768x432.png",
+                "width": 768,
+                "height": 432,
+                "filesize": 392992,
+                "mime_type": "image/png",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2026/01/Copy-of-Dance-the-Spring.png?fit=768%2C432&ssl=1"
+              },
+              "1536x1536": {
+                "file": "Copy-of-Dance-the-Spring-1536x864.png",
+                "width": 1536,
+                "height": 864,
+                "filesize": 1208149,
+                "mime_type": "image/png",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2026/01/Copy-of-Dance-the-Spring.png?fit=1536%2C864&ssl=1"
+              },
+              "tc-speakers-size": {
+                "file": "Copy-of-Dance-the-Spring-500x500.png",
+                "width": 500,
+                "height": 500,
+                "filesize": 250485,
+                "mime_type": "image/png",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2026/01/Copy-of-Dance-the-Spring.png?resize=500%2C500&ssl=1"
+              },
+              "tc-speakers-slider": {
+                "file": "Copy-of-Dance-the-Spring-1200x600.png",
+                "width": 1200,
+                "height": 600,
+                "filesize": 748355,
+                "mime_type": "image/png",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2026/01/Copy-of-Dance-the-Spring.png?resize=1200%2C600&ssl=1"
+              },
+              "woocommerce_thumbnail": {
+                "file": "Copy-of-Dance-the-Spring-300x300.png",
+                "width": 300,
+                "height": 300,
+                "filesize": 106711,
+                "uncropped": false,
+                "mime_type": "image/png",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2026/01/Copy-of-Dance-the-Spring.png?resize=300%2C300&ssl=1"
+              },
+              "woocommerce_single": {
+                "file": "Copy-of-Dance-the-Spring-600x338.png",
+                "width": 600,
+                "height": 338,
+                "filesize": 258409,
+                "mime_type": "image/png",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2026/01/Copy-of-Dance-the-Spring.png?fit=600%2C338&ssl=1"
+              },
+              "woocommerce_gallery_thumbnail": {
+                "file": "Copy-of-Dance-the-Spring-100x100.png",
+                "width": 100,
+                "height": 100,
+                "filesize": 15548,
+                "mime_type": "image/png",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2026/01/Copy-of-Dance-the-Spring.png?resize=100%2C100&ssl=1"
+              },
+              "tc_all_events_image": {
+                "file": "Copy-of-Dance-the-Spring-1100x680.png",
+                "width": 1100,
+                "height": 680,
+                "filesize": 709999,
+                "mime_type": "image/png",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2026/01/Copy-of-Dance-the-Spring.png?resize=1100%2C680&ssl=1"
+              },
+              "full": {
+                "file": "Copy-of-Dance-the-Spring.png?fit=1920%2C1080&ssl=1",
+                "width": 1920,
+                "height": 1080,
+                "mime_type": "image/png",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2026/01/Copy-of-Dance-the-Spring.png?fit=1920%2C1080&ssl=1"
+              }
+            },
+            "image_meta": {
+              "aperture": "0",
+              "credit": "",
+              "camera": "",
+              "caption": "",
+              "created_timestamp": "0",
+              "copyright": "",
+              "focal_length": "0",
+              "iso": "0",
+              "shutter_speed": "0",
+              "title": "",
+              "orientation": "0",
+              "keywords": []
+            }
+          },
+          "source_url": "https://www.myticketcy.com/wp-content/uploads/2026/01/Copy-of-Dance-the-Spring.png",
+          "_links": {
+            "self": [
+              {
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/media/20615",
+                "targetHints": {
+                  "allow": [
+                    "GET"
+                  ]
+                }
+              }
+            ],
+            "collection": [
+              {
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/media"
+              }
+            ],
+            "about": [
+              {
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/types/attachment"
+              }
+            ],
+            "author": [
+              {
+                "embeddable": true,
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/users/1"
+              }
+            ],
+            "replies": [
+              {
+                "embeddable": true,
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/comments?post=20615"
+              }
+            ],
+            "wp:attached-to": [
+              {
+                "embeddable": true,
+                "post_type": "performance",
+                "id": 20614,
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/performance/20614"
+              }
+            ],
+            "curies": [
+              {
+                "name": "wp",
+                "href": "https://api.w.org/{rel}",
+                "templated": true
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": 20608,
+    "date": "2026-01-20T08:29:52",
+    "date_gmt": "2026-01-20T06:29:52",
+    "guid": {
+      "rendered": "https://www.myticketcy.com/?post_type=performance&#038;p=20608"
+    },
+    "modified": "2026-01-20T08:29:52",
+    "modified_gmt": "2026-01-20T06:29:52",
+    "slug": "love-to-dance-festival-2026",
+    "status": "publish",
+    "type": "performance",
+    "link": "https://www.myticketcy.com/performances/love-to-dance-festival-2026/",
+    "title": {
+      "rendered": "Love to Dance Festival 2026"
+    },
+    "content": {
+      "rendered": "",
+      "protected": false
+    },
+    "featured_media": 20609,
+    "template": "",
+    "categories": [],
+    "tags": [],
+    "class_list": [
+      "post-20608",
+      "performance",
+      "type-performance",
+      "status-publish",
+      "has-post-thumbnail",
+      "hentry"
+    ],
+    "acf": [],
+    "jetpack_sharing_enabled": true,
+    "_links": {
+      "self": [
+        {
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/performance/20608",
+          "targetHints": {
+            "allow": [
+              "GET"
+            ]
+          }
+        }
+      ],
+      "collection": [
+        {
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/performance"
+        }
+      ],
+      "about": [
+        {
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/types/performance"
+        }
+      ],
+      "wp:featuredmedia": [
+        {
+          "embeddable": true,
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/media/20609"
+        }
+      ],
+      "wp:attachment": [
+        {
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/media?parent=20608"
+        }
+      ],
+      "wp:term": [
+        {
+          "taxonomy": "category",
+          "embeddable": true,
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/categories?post=20608"
+        },
+        {
+          "taxonomy": "post_tag",
+          "embeddable": true,
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/tags?post=20608"
+        }
+      ],
+      "curies": [
+        {
+          "name": "wp",
+          "href": "https://api.w.org/{rel}",
+          "templated": true
+        }
+      ]
+    },
+    "_embedded": {
+      "wp:featuredmedia": [
+        {
+          "id": 20609,
+          "date": "2026-01-20T08:26:53",
+          "slug": "copy-of-love-to-dance-1",
+          "type": "attachment",
+          "link": "https://www.myticketcy.com/performances/love-to-dance-festival-2026/copy-of-love-to-dance-1/",
+          "title": {
+            "rendered": "Copy of Love to Dance (1)"
+          },
+          "author": 1,
+          "featured_media": 0,
+          "jetpack_sharing_enabled": true,
+          "acf": [],
+          "caption": {
+            "rendered": ""
+          },
+          "alt_text": "",
+          "media_type": "image",
+          "mime_type": "image/png",
+          "media_details": {
+            "width": 1920,
+            "height": 1080,
+            "file": "2026/01/Copy-of-Love-to-Dance-1.png",
+            "filesize": 4317210,
+            "sizes": {
+              "medium": {
+                "file": "Copy-of-Love-to-Dance-1-300x169.png",
+                "width": 300,
+                "height": 169,
+                "filesize": 100054,
+                "mime_type": "image/png",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2026/01/Copy-of-Love-to-Dance-1.png?fit=300%2C169&ssl=1"
+              },
+              "large": {
+                "file": "Copy-of-Love-to-Dance-1-1024x576.png",
+                "width": 1024,
+                "height": 576,
+                "filesize": 807328,
+                "mime_type": "image/png",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2026/01/Copy-of-Love-to-Dance-1.png?fit=1024%2C576&ssl=1"
+              },
+              "thumbnail": {
+                "file": "Copy-of-Love-to-Dance-1-150x150.png",
+                "width": 150,
+                "height": 150,
+                "filesize": 47607,
+                "mime_type": "image/png",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2026/01/Copy-of-Love-to-Dance-1.png?resize=150%2C150&ssl=1"
+              },
+              "medium_large": {
+                "file": "Copy-of-Love-to-Dance-1-768x432.png",
+                "width": 768,
+                "height": 432,
+                "filesize": 503647,
+                "mime_type": "image/png",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2026/01/Copy-of-Love-to-Dance-1.png?fit=768%2C432&ssl=1"
+              },
+              "1536x1536": {
+                "file": "Copy-of-Love-to-Dance-1-1536x864.png",
+                "width": 1536,
+                "height": 864,
+                "filesize": 1531197,
+                "mime_type": "image/png",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2026/01/Copy-of-Love-to-Dance-1.png?fit=1536%2C864&ssl=1"
+              },
+              "tc-speakers-size": {
+                "file": "Copy-of-Love-to-Dance-1-500x500.png",
+                "width": 500,
+                "height": 500,
+                "filesize": 378336,
+                "mime_type": "image/png",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2026/01/Copy-of-Love-to-Dance-1.png?resize=500%2C500&ssl=1"
+              },
+              "tc-speakers-slider": {
+                "file": "Copy-of-Love-to-Dance-1-1200x600.png",
+                "width": 1200,
+                "height": 600,
+                "filesize": 923524,
+                "mime_type": "image/png",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2026/01/Copy-of-Love-to-Dance-1.png?resize=1200%2C600&ssl=1"
+              },
+              "woocommerce_thumbnail": {
+                "file": "Copy-of-Love-to-Dance-1-300x300.png",
+                "width": 300,
+                "height": 300,
+                "filesize": 159822,
+                "uncropped": false,
+                "mime_type": "image/png",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2026/01/Copy-of-Love-to-Dance-1.png?resize=300%2C300&ssl=1"
+              },
+              "woocommerce_single": {
+                "file": "Copy-of-Love-to-Dance-1-600x338.png",
+                "width": 600,
+                "height": 338,
+                "filesize": 332739,
+                "mime_type": "image/png",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2026/01/Copy-of-Love-to-Dance-1.png?fit=600%2C338&ssl=1"
+              },
+              "woocommerce_gallery_thumbnail": {
+                "file": "Copy-of-Love-to-Dance-1-100x100.png",
+                "width": 100,
+                "height": 100,
+                "filesize": 22929,
+                "mime_type": "image/png",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2026/01/Copy-of-Love-to-Dance-1.png?resize=100%2C100&ssl=1"
+              },
+              "tc_all_events_image": {
+                "file": "Copy-of-Love-to-Dance-1-1100x680.png",
+                "width": 1100,
+                "height": 680,
+                "filesize": 971592,
+                "mime_type": "image/png",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2026/01/Copy-of-Love-to-Dance-1.png?resize=1100%2C680&ssl=1"
+              },
+              "full": {
+                "file": "Copy-of-Love-to-Dance-1.png?fit=1920%2C1080&ssl=1",
+                "width": 1920,
+                "height": 1080,
+                "mime_type": "image/png",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2026/01/Copy-of-Love-to-Dance-1.png?fit=1920%2C1080&ssl=1"
+              }
+            },
+            "image_meta": {
+              "aperture": "0",
+              "credit": "",
+              "camera": "",
+              "caption": "",
+              "created_timestamp": "0",
+              "copyright": "",
+              "focal_length": "0",
+              "iso": "0",
+              "shutter_speed": "0",
+              "title": "",
+              "orientation": "0",
+              "keywords": []
+            }
+          },
+          "source_url": "https://www.myticketcy.com/wp-content/uploads/2026/01/Copy-of-Love-to-Dance-1.png",
+          "_links": {
+            "self": [
+              {
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/media/20609",
+                "targetHints": {
+                  "allow": [
+                    "GET"
+                  ]
+                }
+              }
+            ],
+            "collection": [
+              {
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/media"
+              }
+            ],
+            "about": [
+              {
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/types/attachment"
+              }
+            ],
+            "author": [
+              {
+                "embeddable": true,
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/users/1"
+              }
+            ],
+            "replies": [
+              {
+                "embeddable": true,
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/comments?post=20609"
+              }
+            ],
+            "wp:attached-to": [
+              {
+                "embeddable": true,
+                "post_type": "performance",
+                "id": 20608,
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/performance/20608"
+              }
+            ],
+            "curies": [
+              {
+                "name": "wp",
+                "href": "https://api.w.org/{rel}",
+                "templated": true
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": 19849,
+    "date": "2025-12-08T19:43:47",
+    "date_gmt": "2025-12-08T17:43:47",
+    "guid": {
+      "rendered": "https://www.myticketcy.com/?post_type=performance&#038;p=19849"
+    },
+    "modified": "2026-01-12T10:56:43",
+    "modified_gmt": "2026-01-12T08:56:43",
+    "slug": "amenra-live",
+    "status": "publish",
+    "type": "performance",
+    "link": "https://www.myticketcy.com/performances/amenra-live/",
+    "title": {
+      "rendered": "Amenra Live"
+    },
+    "content": {
+      "rendered": "<p>This is more than a gig. Belgian band Amenra, for the first time, will perform live in Cyprus.</p>\n<p>Amenra live show it is an experience that gets under your skin. Born in the grey heart of Kortrijk, they have been crafting their own sound landscapes for years, blending post-metal, sludge, and hardcore, full of emotion, spirituality, and power. With hypnotic rhythms soaked in raw emotion, Amenra evokes an unparalleled atmosphere. Universal pain, spiritual hunger, and raw, poetic vocals that shift from screams to whispers. The band has an unparalleled ability to connect art and emotion and their immersive video projections and rituals also add an extra dimension to their intense live shows. You will walk away from the show and you will need to compose yourself, to recenter, to return to society from that place of inner reflection. Nothing will ever be the same after this show.</p>\n<p><strong>TICKETS:</strong><br />\nEarly Bird: │ €35 │ <span style=\"color: #ff0000\"><strong>sold out</strong></span><br />\nEarly Regular: │ €38 │ <strong style=\"color: #ff0000\">sold out</strong><br />\nFinal Release: │ €40 │ Available<br />\nAt the Door: │ €45 │ If any left</p>\n",
+      "protected": false
+    },
+    "featured_media": 19848,
+    "template": "",
+    "categories": [],
+    "tags": [],
+    "class_list": [
+      "post-19849",
+      "performance",
+      "type-performance",
+      "status-publish",
+      "has-post-thumbnail",
+      "hentry"
+    ],
+    "acf": [],
+    "jetpack_sharing_enabled": true,
+    "_links": {
+      "self": [
+        {
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/performance/19849",
+          "targetHints": {
+            "allow": [
+              "GET"
+            ]
+          }
+        }
+      ],
+      "collection": [
+        {
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/performance"
+        }
+      ],
+      "about": [
+        {
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/types/performance"
+        }
+      ],
+      "wp:featuredmedia": [
+        {
+          "embeddable": true,
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/media/19848"
+        }
+      ],
+      "wp:attachment": [
+        {
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/media?parent=19849"
+        }
+      ],
+      "wp:term": [
+        {
+          "taxonomy": "category",
+          "embeddable": true,
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/categories?post=19849"
+        },
+        {
+          "taxonomy": "post_tag",
+          "embeddable": true,
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/tags?post=19849"
+        }
+      ],
+      "curies": [
+        {
+          "name": "wp",
+          "href": "https://api.w.org/{rel}",
+          "templated": true
+        }
+      ]
+    },
+    "_embedded": {
+      "wp:featuredmedia": [
+        {
+          "id": 19848,
+          "date": "2025-12-08T19:41:14",
+          "slug": "tickets-3000x1500-1",
+          "type": "attachment",
+          "link": "https://www.myticketcy.com/?attachment_id=19848",
+          "title": {
+            "rendered": "Tickets-3000&#215;1500 (1)"
+          },
+          "author": 1,
+          "featured_media": 0,
+          "jetpack_sharing_enabled": true,
+          "acf": [],
+          "caption": {
+            "rendered": ""
+          },
+          "alt_text": "",
+          "media_type": "image",
+          "mime_type": "image/jpeg",
+          "media_details": {
+            "width": 2560,
+            "height": 1280,
+            "file": "2025/12/Tickets-3000x1500-1-scaled.jpg",
+            "filesize": 601606,
+            "sizes": {
+              "medium": {
+                "file": "Tickets-3000x1500-1-300x150.jpg",
+                "width": 300,
+                "height": 150,
+                "filesize": 13912,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/12/Tickets-3000x1500-1-scaled.jpg?fit=300%2C150&ssl=1"
+              },
+              "large": {
+                "file": "Tickets-3000x1500-1-1024x512.jpg",
+                "width": 1024,
+                "height": 512,
+                "filesize": 118663,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/12/Tickets-3000x1500-1-scaled.jpg?fit=1024%2C512&ssl=1"
+              },
+              "thumbnail": {
+                "file": "Tickets-3000x1500-1-150x150.jpg",
+                "width": 150,
+                "height": 150,
+                "filesize": 8048,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/12/Tickets-3000x1500-1-scaled.jpg?resize=150%2C150&ssl=1"
+              },
+              "medium_large": {
+                "file": "Tickets-3000x1500-1-768x384.jpg",
+                "width": 768,
+                "height": 384,
+                "filesize": 71778,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/12/Tickets-3000x1500-1-scaled.jpg?fit=768%2C384&ssl=1"
+              },
+              "1536x1536": {
+                "file": "Tickets-3000x1500-1-1536x768.jpg",
+                "width": 1536,
+                "height": 768,
+                "filesize": 244916,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/12/Tickets-3000x1500-1-scaled.jpg?fit=1536%2C768&ssl=1"
+              },
+              "2048x2048": {
+                "file": "Tickets-3000x1500-1-2048x1024.jpg",
+                "width": 2048,
+                "height": 1024,
+                "filesize": 405187,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/12/Tickets-3000x1500-1-scaled.jpg?fit=2048%2C1024&ssl=1"
+              },
+              "tc-speakers-size": {
+                "file": "Tickets-3000x1500-1-500x500.jpg",
+                "width": 500,
+                "height": 500,
+                "filesize": 60996,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/12/Tickets-3000x1500-1-scaled.jpg?resize=500%2C500&ssl=1"
+              },
+              "tc-speakers-slider": {
+                "file": "Tickets-3000x1500-1-1200x600.jpg",
+                "width": 1200,
+                "height": 600,
+                "filesize": 157394,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/12/Tickets-3000x1500-1-scaled.jpg?resize=1200%2C600&ssl=1"
+              },
+              "woocommerce_thumbnail": {
+                "file": "Tickets-3000x1500-1-300x300.jpg",
+                "width": 300,
+                "height": 300,
+                "filesize": 25912,
+                "uncropped": false,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/12/Tickets-3000x1500-1-scaled.jpg?resize=300%2C300&ssl=1"
+              },
+              "woocommerce_single": {
+                "file": "Tickets-3000x1500-1-600x300.jpg",
+                "width": 600,
+                "height": 300,
+                "filesize": 46819,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/12/Tickets-3000x1500-1-scaled.jpg?fit=600%2C300&ssl=1"
+              },
+              "woocommerce_gallery_thumbnail": {
+                "file": "Tickets-3000x1500-1-100x100.jpg",
+                "width": 100,
+                "height": 100,
+                "filesize": 4218,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/12/Tickets-3000x1500-1-scaled.jpg?resize=100%2C100&ssl=1"
+              },
+              "tc_all_events_image": {
+                "file": "Tickets-3000x1500-1-1100x680.jpg",
+                "width": 1100,
+                "height": 680,
+                "filesize": 160550,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/12/Tickets-3000x1500-1-scaled.jpg?resize=1100%2C680&ssl=1"
+              },
+              "full": {
+                "file": "Tickets-3000x1500-1-scaled.jpg?fit=2560%2C1280&ssl=1",
+                "width": 2560,
+                "height": 1280,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/12/Tickets-3000x1500-1-scaled.jpg?fit=2560%2C1280&ssl=1"
+              }
+            },
+            "image_meta": {
+              "aperture": "0",
+              "credit": "",
+              "camera": "",
+              "caption": "",
+              "created_timestamp": "0",
+              "copyright": "",
+              "focal_length": "0",
+              "iso": "0",
+              "shutter_speed": "0",
+              "title": "",
+              "orientation": "0",
+              "keywords": []
+            },
+            "original_image": "Tickets-3000x1500-1.jpg"
+          },
+          "source_url": "https://www.myticketcy.com/wp-content/uploads/2025/12/Tickets-3000x1500-1-scaled.jpg",
+          "_links": {
+            "self": [
+              {
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/media/19848",
+                "targetHints": {
+                  "allow": [
+                    "GET"
+                  ]
+                }
+              }
+            ],
+            "collection": [
+              {
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/media"
+              }
+            ],
+            "about": [
+              {
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/types/attachment"
+              }
+            ],
+            "author": [
+              {
+                "embeddable": true,
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/users/1"
+              }
+            ],
+            "replies": [
+              {
+                "embeddable": true,
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/comments?post=19848"
+              }
+            ],
+            "wp:attached-to": [
+              {
+                "embeddable": true,
+                "post_type": "product",
+                "id": 19845,
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/product/19845"
+              }
+            ],
+            "curies": [
+              {
+                "name": "wp",
+                "href": "https://api.w.org/{rel}",
+                "templated": true
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": 19562,
+    "date": "2025-11-26T07:25:39",
+    "date_gmt": "2025-11-26T05:25:39",
+    "guid": {
+      "rendered": "https://www.myticketcy.com/?post_type=performance&#038;p=19562"
+    },
+    "modified": "2025-11-26T11:11:51",
+    "modified_gmt": "2025-11-26T09:11:51",
+    "slug": "prodance-international-open-dance-festival",
+    "status": "publish",
+    "type": "performance",
+    "link": "https://www.myticketcy.com/performances/prodance-international-open-dance-festival/",
+    "title": {
+      "rendered": "ProDance International Open Dance Festival"
+    },
+    "content": {
+      "rendered": "",
+      "protected": false
+    },
+    "featured_media": 19563,
+    "template": "",
+    "categories": [],
+    "tags": [],
+    "class_list": [
+      "post-19562",
+      "performance",
+      "type-performance",
+      "status-publish",
+      "has-post-thumbnail",
+      "hentry"
+    ],
+    "acf": [],
+    "jetpack_sharing_enabled": true,
+    "_links": {
+      "self": [
+        {
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/performance/19562",
+          "targetHints": {
+            "allow": [
+              "GET"
+            ]
+          }
+        }
+      ],
+      "collection": [
+        {
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/performance"
+        }
+      ],
+      "about": [
+        {
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/types/performance"
+        }
+      ],
+      "wp:featuredmedia": [
+        {
+          "embeddable": true,
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/media/19563"
+        }
+      ],
+      "wp:attachment": [
+        {
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/media?parent=19562"
+        }
+      ],
+      "wp:term": [
+        {
+          "taxonomy": "category",
+          "embeddable": true,
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/categories?post=19562"
+        },
+        {
+          "taxonomy": "post_tag",
+          "embeddable": true,
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/tags?post=19562"
+        }
+      ],
+      "curies": [
+        {
+          "name": "wp",
+          "href": "https://api.w.org/{rel}",
+          "templated": true
+        }
+      ]
+    },
+    "_embedded": {
+      "wp:featuredmedia": [
+        {
+          "id": 19563,
+          "date": "2025-11-26T07:23:09",
+          "slug": "copy-of-copy-of-copy-of-logo-copa-1",
+          "type": "attachment",
+          "link": "https://www.myticketcy.com/performances/prodance-international-open-dance-festival/copy-of-copy-of-copy-of-logo-copa-1/",
+          "title": {
+            "rendered": "Copy of Copy of Copy of Logo Copa 1"
+          },
+          "author": 1,
+          "featured_media": 0,
+          "jetpack_sharing_enabled": true,
+          "acf": [],
+          "caption": {
+            "rendered": ""
+          },
+          "alt_text": "",
+          "media_type": "image",
+          "mime_type": "image/jpeg",
+          "media_details": {
+            "width": 1024,
+            "height": 1024,
+            "file": "2025/11/Copy-of-Copy-of-Copy-of-Logo-Copa-1.jpg",
+            "filesize": 140763,
+            "sizes": {
+              "medium": {
+                "file": "Copy-of-Copy-of-Copy-of-Logo-Copa-1-300x300.jpg",
+                "width": 300,
+                "height": 300,
+                "filesize": 21942,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/11/Copy-of-Copy-of-Copy-of-Logo-Copa-1.jpg?fit=300%2C300&ssl=1"
+              },
+              "thumbnail": {
+                "file": "Copy-of-Copy-of-Copy-of-Logo-Copa-1-150x150.jpg",
+                "width": 150,
+                "height": 150,
+                "filesize": 9771,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/11/Copy-of-Copy-of-Copy-of-Logo-Copa-1.jpg?resize=150%2C150&ssl=1"
+              },
+              "medium_large": {
+                "file": "Copy-of-Copy-of-Copy-of-Logo-Copa-1-768x768.jpg",
+                "width": 768,
+                "height": 768,
+                "filesize": 85797,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/11/Copy-of-Copy-of-Copy-of-Logo-Copa-1.jpg?fit=768%2C768&ssl=1"
+              },
+              "tc-speakers-size": {
+                "file": "Copy-of-Copy-of-Copy-of-Logo-Copa-1-500x500.jpg",
+                "width": 500,
+                "height": 500,
+                "filesize": 45508,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/11/Copy-of-Copy-of-Copy-of-Logo-Copa-1.jpg?resize=500%2C500&ssl=1"
+              },
+              "tc-speakers-slider": {
+                "file": "Copy-of-Copy-of-Copy-of-Logo-Copa-1-1024x600.jpg",
+                "width": 1024,
+                "height": 600,
+                "filesize": 105400,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/11/Copy-of-Copy-of-Copy-of-Logo-Copa-1.jpg?resize=1024%2C600&ssl=1"
+              },
+              "woocommerce_thumbnail": {
+                "file": "Copy-of-Copy-of-Copy-of-Logo-Copa-1-300x300.jpg",
+                "width": 300,
+                "height": 300,
+                "filesize": 21942,
+                "uncropped": false,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/11/Copy-of-Copy-of-Copy-of-Logo-Copa-1.jpg?resize=300%2C300&ssl=1"
+              },
+              "woocommerce_single": {
+                "file": "Copy-of-Copy-of-Copy-of-Logo-Copa-1-600x600.jpg",
+                "width": 600,
+                "height": 600,
+                "filesize": 59692,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/11/Copy-of-Copy-of-Copy-of-Logo-Copa-1.jpg?fit=600%2C600&ssl=1"
+              },
+              "woocommerce_gallery_thumbnail": {
+                "file": "Copy-of-Copy-of-Copy-of-Logo-Copa-1-100x100.jpg",
+                "width": 100,
+                "height": 100,
+                "filesize": 6986,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/11/Copy-of-Copy-of-Copy-of-Logo-Copa-1.jpg?resize=100%2C100&ssl=1"
+              },
+              "tc_all_events_image": {
+                "file": "Copy-of-Copy-of-Copy-of-Logo-Copa-1-1024x680.jpg",
+                "width": 1024,
+                "height": 680,
+                "filesize": 118277,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/11/Copy-of-Copy-of-Copy-of-Logo-Copa-1.jpg?resize=1024%2C680&ssl=1"
+              },
+              "full": {
+                "file": "Copy-of-Copy-of-Copy-of-Logo-Copa-1.jpg?fit=1024%2C1024&ssl=1",
+                "width": 1024,
+                "height": 1024,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/11/Copy-of-Copy-of-Copy-of-Logo-Copa-1.jpg?fit=1024%2C1024&ssl=1"
+              }
+            },
+            "image_meta": {
+              "aperture": "0",
+              "credit": "",
+              "camera": "",
+              "caption": "",
+              "created_timestamp": "0",
+              "copyright": "",
+              "focal_length": "0",
+              "iso": "0",
+              "shutter_speed": "0",
+              "title": "",
+              "orientation": "1",
+              "keywords": []
+            }
+          },
+          "source_url": "https://www.myticketcy.com/wp-content/uploads/2025/11/Copy-of-Copy-of-Copy-of-Logo-Copa-1.jpg",
+          "_links": {
+            "self": [
+              {
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/media/19563",
+                "targetHints": {
+                  "allow": [
+                    "GET"
+                  ]
+                }
+              }
+            ],
+            "collection": [
+              {
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/media"
+              }
+            ],
+            "about": [
+              {
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/types/attachment"
+              }
+            ],
+            "author": [
+              {
+                "embeddable": true,
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/users/1"
+              }
+            ],
+            "replies": [
+              {
+                "embeddable": true,
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/comments?post=19563"
+              }
+            ],
+            "wp:attached-to": [
+              {
+                "embeddable": true,
+                "post_type": "performance",
+                "id": 19562,
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/performance/19562"
+              }
+            ],
+            "curies": [
+              {
+                "name": "wp",
+                "href": "https://api.w.org/{rel}",
+                "templated": true
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": 19561,
+    "date": "2025-11-25T23:21:49",
+    "date_gmt": "2025-11-25T21:21:49",
+    "guid": {
+      "rendered": "https://www.myticketcy.com/?post_type=performance&#038;p=19561"
+    },
+    "modified": "2025-12-24T11:59:10",
+    "modified_gmt": "2025-12-24T09:59:10",
+    "slug": "copaa-championship-2026",
+    "status": "publish",
+    "type": "performance",
+    "link": "https://www.myticketcy.com/performances/copaa-championship-2026/",
+    "title": {
+      "rendered": "COPAA Championship 2026"
+    },
+    "content": {
+      "rendered": "",
+      "protected": false
+    },
+    "featured_media": 19550,
+    "template": "",
+    "categories": [],
+    "tags": [],
+    "class_list": [
+      "post-19561",
+      "performance",
+      "type-performance",
+      "status-publish",
+      "has-post-thumbnail",
+      "hentry"
+    ],
+    "acf": [],
+    "jetpack_sharing_enabled": true,
+    "_links": {
+      "self": [
+        {
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/performance/19561",
+          "targetHints": {
+            "allow": [
+              "GET"
+            ]
+          }
+        }
+      ],
+      "collection": [
+        {
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/performance"
+        }
+      ],
+      "about": [
+        {
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/types/performance"
+        }
+      ],
+      "wp:featuredmedia": [
+        {
+          "embeddable": true,
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/media/19550"
+        }
+      ],
+      "wp:attachment": [
+        {
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/media?parent=19561"
+        }
+      ],
+      "wp:term": [
+        {
+          "taxonomy": "category",
+          "embeddable": true,
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/categories?post=19561"
+        },
+        {
+          "taxonomy": "post_tag",
+          "embeddable": true,
+          "href": "https://www.myticketcy.com/wp-json/wp/v2/tags?post=19561"
+        }
+      ],
+      "curies": [
+        {
+          "name": "wp",
+          "href": "https://api.w.org/{rel}",
+          "templated": true
+        }
+      ]
+    },
+    "_embedded": {
+      "wp:featuredmedia": [
+        {
+          "id": 19550,
+          "date": "2025-11-25T23:04:00",
+          "slug": "copy-of-cyprus-cup-banner-1920-x-1080-px",
+          "type": "attachment",
+          "link": "https://www.myticketcy.com/tc-events/copaa-championship-28-3-2026/copy-of-cyprus-cup-banner-1920-x-1080-px/",
+          "title": {
+            "rendered": "Copy of Cyprus Cup banner (1920 x 1080 px)"
+          },
+          "author": 1,
+          "featured_media": 0,
+          "jetpack_sharing_enabled": true,
+          "acf": [],
+          "caption": {
+            "rendered": ""
+          },
+          "alt_text": "",
+          "media_type": "image",
+          "mime_type": "image/jpeg",
+          "media_details": {
+            "width": 1920,
+            "height": 1080,
+            "file": "2025/11/Copy-of-Cyprus-Cup-banner-1920-x-1080-px.jpg",
+            "filesize": 262403,
+            "sizes": {
+              "medium": {
+                "file": "Copy-of-Cyprus-Cup-banner-1920-x-1080-px-300x169.jpg",
+                "width": 300,
+                "height": 169,
+                "filesize": 18202,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/11/Copy-of-Cyprus-Cup-banner-1920-x-1080-px.jpg?fit=300%2C169&ssl=1"
+              },
+              "large": {
+                "file": "Copy-of-Cyprus-Cup-banner-1920-x-1080-px-1024x576.jpg",
+                "width": 1024,
+                "height": 576,
+                "filesize": 105832,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/11/Copy-of-Cyprus-Cup-banner-1920-x-1080-px.jpg?fit=1024%2C576&ssl=1"
+              },
+              "thumbnail": {
+                "file": "Copy-of-Cyprus-Cup-banner-1920-x-1080-px-150x150.jpg",
+                "width": 150,
+                "height": 150,
+                "filesize": 10395,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/11/Copy-of-Cyprus-Cup-banner-1920-x-1080-px.jpg?resize=150%2C150&ssl=1"
+              },
+              "medium_large": {
+                "file": "Copy-of-Cyprus-Cup-banner-1920-x-1080-px-768x432.jpg",
+                "width": 768,
+                "height": 432,
+                "filesize": 68952,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/11/Copy-of-Cyprus-Cup-banner-1920-x-1080-px.jpg?fit=768%2C432&ssl=1"
+              },
+              "1536x1536": {
+                "file": "Copy-of-Cyprus-Cup-banner-1920-x-1080-px-1536x864.jpg",
+                "width": 1536,
+                "height": 864,
+                "filesize": 188169,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/11/Copy-of-Cyprus-Cup-banner-1920-x-1080-px.jpg?fit=1536%2C864&ssl=1"
+              },
+              "tc-speakers-size": {
+                "file": "Copy-of-Cyprus-Cup-banner-1920-x-1080-px-500x500.jpg",
+                "width": 500,
+                "height": 500,
+                "filesize": 46919,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/11/Copy-of-Cyprus-Cup-banner-1920-x-1080-px.jpg?resize=500%2C500&ssl=1"
+              },
+              "tc-speakers-slider": {
+                "file": "Copy-of-Cyprus-Cup-banner-1920-x-1080-px-1200x600.jpg",
+                "width": 1200,
+                "height": 600,
+                "filesize": 124668,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/11/Copy-of-Cyprus-Cup-banner-1920-x-1080-px.jpg?resize=1200%2C600&ssl=1"
+              },
+              "woocommerce_thumbnail": {
+                "file": "Copy-of-Cyprus-Cup-banner-1920-x-1080-px-300x300.jpg",
+                "width": 300,
+                "height": 300,
+                "filesize": 23832,
+                "uncropped": false,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/11/Copy-of-Cyprus-Cup-banner-1920-x-1080-px.jpg?resize=300%2C300&ssl=1"
+              },
+              "woocommerce_single": {
+                "file": "Copy-of-Cyprus-Cup-banner-1920-x-1080-px-600x338.jpg",
+                "width": 600,
+                "height": 338,
+                "filesize": 48130,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/11/Copy-of-Cyprus-Cup-banner-1920-x-1080-px.jpg?fit=600%2C338&ssl=1"
+              },
+              "woocommerce_gallery_thumbnail": {
+                "file": "Copy-of-Cyprus-Cup-banner-1920-x-1080-px-100x100.jpg",
+                "width": 100,
+                "height": 100,
+                "filesize": 7356,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/11/Copy-of-Cyprus-Cup-banner-1920-x-1080-px.jpg?resize=100%2C100&ssl=1"
+              },
+              "tc_all_events_image": {
+                "file": "Copy-of-Cyprus-Cup-banner-1920-x-1080-px-1100x680.jpg",
+                "width": 1100,
+                "height": 680,
+                "filesize": 123879,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/11/Copy-of-Cyprus-Cup-banner-1920-x-1080-px.jpg?resize=1100%2C680&ssl=1"
+              },
+              "full": {
+                "file": "Copy-of-Cyprus-Cup-banner-1920-x-1080-px.jpg?fit=1920%2C1080&ssl=1",
+                "width": 1920,
+                "height": 1080,
+                "mime_type": "image/jpeg",
+                "source_url": "https://i0.wp.com/www.myticketcy.com/wp-content/uploads/2025/11/Copy-of-Cyprus-Cup-banner-1920-x-1080-px.jpg?fit=1920%2C1080&ssl=1"
+              }
+            },
+            "image_meta": {
+              "aperture": "0",
+              "credit": "",
+              "camera": "",
+              "caption": "",
+              "created_timestamp": "0",
+              "copyright": "",
+              "focal_length": "0",
+              "iso": "0",
+              "shutter_speed": "0",
+              "title": "",
+              "orientation": "1",
+              "keywords": []
+            }
+          },
+          "source_url": "https://www.myticketcy.com/wp-content/uploads/2025/11/Copy-of-Cyprus-Cup-banner-1920-x-1080-px.jpg",
+          "_links": {
+            "self": [
+              {
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/media/19550",
+                "targetHints": {
+                  "allow": [
+                    "GET"
+                  ]
+                }
+              }
+            ],
+            "collection": [
+              {
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/media"
+              }
+            ],
+            "about": [
+              {
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/types/attachment"
+              }
+            ],
+            "author": [
+              {
+                "embeddable": true,
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/users/1"
+              }
+            ],
+            "replies": [
+              {
+                "embeddable": true,
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/comments?post=19550"
+              }
+            ],
+            "wp:attached-to": [
+              {
+                "embeddable": true,
+                "post_type": "tc_events",
+                "id": 19548,
+                "href": "https://www.myticketcy.com/wp-json/wp/v2/tc_events/19548"
+              }
+            ],
+            "curies": [
+              {
+                "name": "wp",
+                "href": "https://api.w.org/{rel}",
+                "templated": true
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+]
