@@ -1,31 +1,27 @@
 import { auth } from "@/app/api/auth/[...nextauth]/route";
 import { getToken } from "next-auth/jwt";
-import { cookies } from "next/headers";
+import { NextRequest } from "next/server";
 import { db } from "@/lib/db/client";
 
 /**
  * Get the current session in API routes (NextAuth v5 compatible)
- * Uses getToken to read JWT from cookies, then fetches user data
+ * Tries auth() first, then falls back to reading JWT token from request cookies
  */
-export async function getSession() {
+export async function getSession(request?: NextRequest) {
   try {
     // Try auth() first (should work in NextAuth v5)
     let session = await auth();
     
-    // If auth() doesn't work, fall back to reading token from cookies
-    if (!session) {
+    // If auth() doesn't work and we have a request, try reading token from cookies
+    if (!session && request) {
       try {
-        const cookieStore = await cookies();
-        // Build cookie string from cookie store
-        const cookieString = cookieStore.getAll()
-          .map(c => `${c.name}=${c.value}`)
-          .join('; ');
-
-        if (cookieString) {
+        const cookieHeader = request.headers.get('cookie') || '';
+        
+        if (cookieHeader) {
           const token = await getToken({
             req: {
               headers: {
-                cookie: cookieString,
+                cookie: cookieHeader,
               },
             } as any,
             secret: process.env.NEXTAUTH_SECRET,
@@ -55,8 +51,7 @@ export async function getSession() {
           }
         }
       } catch (cookieError) {
-        // If cookies() fails, that's okay - just return null
-        console.log("Could not read cookies:", cookieError);
+        console.log("Could not read token from cookies:", cookieError);
       }
     }
     
