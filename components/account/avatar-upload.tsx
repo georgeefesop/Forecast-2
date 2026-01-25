@@ -268,6 +268,7 @@ export function AvatarUpload({
         {preview && (
           <Button
             type="button"
+            variant="default"
             onClick={handleUpload}
             disabled={uploading}
             className="w-full"
