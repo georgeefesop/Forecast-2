@@ -53,17 +53,17 @@ export function areEventsSimilar(
   // Similar titles (normalized)
   const title1 = normalizeTitle(event1.title);
   const title2 = normalizeTitle(event2.title);
-  
+
   // Don't match if both titles are generic (likely different events with bad titles)
   const genericTitles = ['agenda', 'events', 'event', 'whats on', 'what\'s on'];
   const isGeneric1 = genericTitles.includes(title1) || title1.length < 5;
   const isGeneric2 = genericTitles.includes(title2) || title2.length < 5;
-  
+
   if (isGeneric1 && isGeneric2) {
     // Both are generic - don't consider them duplicates unless they're from the same source
     return false;
   }
-  
+
   // Exact match after normalization
   if (title1 === title2) {
     return true;
@@ -98,7 +98,7 @@ export function parseDate(dateStr: string, timeStr?: string, contextYear?: numbe
 
   // Clean up the date string
   let cleaned = dateStr.trim();
-  
+
   // Try to extract year from the date string itself first
   let extractedYear: number | undefined;
   const yearMatch = cleaned.match(/\b(20\d{2})\b/);
@@ -133,18 +133,18 @@ export function parseDate(dateStr: string, timeStr?: string, contextYear?: numbe
       const parsedMonth = isoDate.getMonth();
       const parsedDay = isoDate.getDate();
       const currentYear = now.getFullYear();
-      
+
       // Try current year first
       const testDate = new Date(currentYear, parsedMonth, parsedDay);
       const monthsFromNow = (testDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30);
-      
+
       // If date this year is more than 6 months in the past, try next year
       // Otherwise use current year
       let year = currentYear;
       if (monthsFromNow < -6) {
         year = currentYear + 1;
       }
-      
+
       return new Date(year, parsedMonth, parsedDay);
     }
     return isoDate;
@@ -183,7 +183,7 @@ export function parseDate(dateStr: string, timeStr?: string, contextYear?: numbe
   };
 
   let normalized = cleaned.toLowerCase().trim();
-  
+
   // Replace Greek months
   for (const [greek, english] of Object.entries(greekMonths)) {
     normalized = normalized.replace(new RegExp(greek, 'gi'), english);
@@ -209,13 +209,13 @@ export function parseDate(dateStr: string, timeStr?: string, contextYear?: numbe
         day = parseInt(match[1]);
         const monthName = match[2].toLowerCase();
         month = monthMap[monthName];
-        year = match[3] ? parseInt(match[3]) : (contextYear || yearMatch ? parseInt(yearMatch[1]) : currentYear);
+        year = match[3] ? parseInt(match[3]) : (contextYear ? contextYear : (yearMatch ? parseInt(yearMatch[1]) : currentYear));
       } else if (pattern === patterns[1]) {
         // "Dec 14" format
         const monthName = match[1].toLowerCase();
         month = monthMap[monthName];
         day = parseInt(match[2]);
-        year = match[3] ? parseInt(match[3]) : (contextYear || yearMatch ? parseInt(yearMatch[1]) : currentYear);
+        year = match[3] ? parseInt(match[3]) : (contextYear ? contextYear : (yearMatch ? parseInt(yearMatch[1]) : currentYear));
       } else {
         // "14/12/2024" format
         day = parseInt(match[1]);
@@ -224,7 +224,7 @@ export function parseDate(dateStr: string, timeStr?: string, contextYear?: numbe
         if (year < 100) year += 2000;
       }
 
-        if (month !== undefined && day && day > 0 && day <= 31) {
+      if (month !== undefined && day && day > 0 && day <= 31) {
         // Determine year - prioritize in this order:
         // 1. Explicit year in date string (match[3])
         // 2. Year extracted from date string (extractedYear)
@@ -244,7 +244,7 @@ export function parseDate(dateStr: string, timeStr?: string, contextYear?: numbe
           const thisYearDate = new Date(currentYear, month, day);
           const now = new Date();
           const monthsDiff = (thisYearDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30);
-          
+
           // If date this year is more than 6 months in the past, assume next year
           if (monthsDiff < -6) {
             year = currentYear + 1;
@@ -252,7 +252,7 @@ export function parseDate(dateStr: string, timeStr?: string, contextYear?: numbe
             year = currentYear;
           }
         }
-        
+
         // Validate year is reasonable (2020-2027) and fix if needed
         if (year < 2020 || year > 2027) {
           // Year seems wrong - try to fix using context
@@ -265,7 +265,7 @@ export function parseDate(dateStr: string, timeStr?: string, contextYear?: numbe
             year = currentYear;
           }
         }
-        
+
         const date = new Date(year, month, day);
         if (!isNaN(date.getTime())) {
           return date;
@@ -277,7 +277,7 @@ export function parseDate(dateStr: string, timeStr?: string, contextYear?: numbe
   // Try parsing with native Date (fallback)
   const combined = timeStr ? `${normalized} ${timeStr}` : normalized;
   const parsed = new Date(combined);
-  
+
   if (!isNaN(parsed.getTime())) {
     // If year is before 2020, it's likely a parsing error
     if (parsed.getFullYear() < 2020) {
@@ -285,17 +285,17 @@ export function parseDate(dateStr: string, timeStr?: string, contextYear?: numbe
       const parsedMonth = parsed.getMonth();
       const parsedDay = parsed.getDate();
       const currentYear = now.getFullYear();
-      
+
       // Try current year first
       const testDate = new Date(currentYear, parsedMonth, parsedDay);
       const monthsFromNow = (testDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30);
-      
+
       // If date this year is more than 6 months in the past, try next year
       let year = currentYear;
       if (monthsFromNow < -6) {
         year = currentYear + 1;
       }
-      
+
       return new Date(year, parsedMonth, parsedDay);
     }
     return parsed;
@@ -311,7 +311,7 @@ export function parseDateRange(dateStr: string, contextYear?: number): { start: 
   if (!dateStr) return null;
 
   const cleaned = dateStr.trim();
-  
+
   // Handle date ranges (e.g., "14 - 28 Dec - Dec" or "25 - 04 Oct - Nov")
   const rangeMatch = cleaned.match(/^(\d{1,2})\s*[-–]\s*(\d{1,2})\s+(\w+)\s*[-–]\s*(\w+)/i);
   if (rangeMatch) {
@@ -339,7 +339,7 @@ export function parseDateRange(dateStr: string, contextYear?: number): { start: 
       }
     }
   }
-  
+
   // Fallback to single date
   const singleDate = parseDate(dateStr, undefined, contextYear);
   return singleDate ? { start: singleDate } : null;
