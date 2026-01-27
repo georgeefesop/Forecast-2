@@ -71,27 +71,30 @@ export default async function HomePage() {
               </FadeIn>
             </div>
 
-            {/* Filters Section (Now Always Visible) */}
+            {/* Main Content Area (Filters + Gallery) */}
             <div className="relative z-10">
-              <FadeIn delay={0.3}>
-                <FilterChips masked={true} />
-              </FadeIn>
-              <FadeIn delay={0.4}>
-                <div className="mt-4">
-                  <a
-                    href="/explore"
-                    className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors border-b border-transparent hover:border-text-primary"
-                  >
-                    Advanced Search →
-                  </a>
-                </div>
-              </FadeIn>
-            </div>
-          </div>
+              {/* Filters Section */}
+              <div className="mb-8">
+                <FadeIn delay={0.3}>
+                  <FilterChips masked={true} />
+                </FadeIn>
+                <FadeIn delay={0.4}>
+                  <div className="mt-4">
+                    <a
+                      href="/explore"
+                      className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors border-b border-transparent hover:border-text-primary"
+                    >
+                      Advanced Search →
+                    </a>
+                  </div>
+                </FadeIn>
+              </div>
 
-          {/* Gallery Wall */}
-          <div className="mb-16">
-            <GalleryGrid events={events} />
+              {/* Gallery Wall */}
+              <div className="mb-16">
+                <GalleryGrid events={events} />
+              </div>
+            </div>
           </div>
 
           {/* Newsletter CTA */}
