@@ -161,9 +161,9 @@ async function processSource(
         try {
           canonical = normalizeEvent(
             stub,
-            detail,
             adapter.name,
-            stub.url
+            stub.url,
+            detail
           );
         } catch (error: any) {
           const errorMsg = `[${adapter.name}] Normalization failed for ${stub.url}: ${error.message}`;
