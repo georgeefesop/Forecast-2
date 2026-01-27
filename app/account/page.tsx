@@ -97,7 +97,25 @@ function AccountPageContent() {
           <div className="mb-8 border-b border-border-default">
             <div className="flex gap-4">
               <button
-                className="border-b-2 border-brand-accent px-4 py-2 text-sm font-medium text-brand-accent transition-colors"
+                onClick={() => setActiveTab("activity")}
+                className={cn(
+                  "px-4 py-2 text-sm font-medium transition-colors border-b-2",
+                  activeTab === "activity"
+                    ? "border-brand-accent text-brand-accent"
+                    : "border-transparent text-text-secondary hover:text-text-primary"
+                )}
+              >
+                <MessageSquare className="mr-2 inline h-4 w-4" />
+                Recent Activity
+              </button>
+              <button
+                onClick={() => setActiveTab("settings")}
+                className={cn(
+                  "px-4 py-2 text-sm font-medium transition-colors border-b-2",
+                  activeTab === "settings"
+                    ? "border-brand-accent text-brand-accent"
+                    : "border-transparent text-text-secondary hover:text-text-primary"
+                )}
               >
                 <Settings className="mr-2 inline h-4 w-4" />
                 Settings
