@@ -1,12 +1,58 @@
+
 import { MainNav } from "@/components/nav/main-nav";
 import { Footer } from "@/components/footer";
-import { EventList } from "@/components/explore/event-list";
-import { getEvents } from "@/lib/db/queries/events";
+import { FadeIn } from "@/components/ui/fade-in";
+import { LiveEventFeed } from "@/components/home/live-event-feed";
 import { auth } from "@/app/api/auth/[...nextauth]/route";
+import { db } from "@/lib/db/client";
 import { redirect } from "next/navigation";
-import { Heart } from "lucide-react";
 
 export const dynamic = "force-dynamic";
+
+async function getSavedEvents(userId: string) {
+    const query = `
+    SELECT DISTINCT ON (e.id)
+      e.*,
+      v.name as venue_name,
+      v.slug as venue_slug,
+      v.city as venue_city,
+      (COALESCE(ec.interested_count, 0) + COALESCE(ec.going_count, 0) + COALESCE(ec.saves_count, 0)) as saved_count,
+      CASE WHEN $1::text IS NOT NULL THEN
+        EXISTS(
+          SELECT 1 FROM event_actions ea 
+          WHERE ea.event_id = e.id AND ea.user_id = $1 AND ea.type IN ('save', 'interested', 'going')
+        )
+      ELSE false END as user_saved
+    FROM events e
+    JOIN event_actions ea ON e.id = ea.event_id
+    LEFT JOIN venues v ON e.venue_id = v.id
+    LEFT JOIN event_counters ec ON e.id = ec.event_id
+    WHERE ea.user_id = $1
+      AND ea.type IN ('save', 'interested', 'going')
+      AND e.status = 'published'
+    ORDER BY e.id, e.start_at ASC
+  `;
+
+    const result = await db.query(query, [userId]);
+
+    return result.rows.map((row) => ({
+        ...row,
+        venue: row.venue_name
+            ? {
+                name: row.venue_name,
+                slug: row.venue_slug,
+                city: row.venue_city,
+            }
+            : undefined,
+        counters: {
+            interested_count: row.interested_count || 0,
+            going_count: row.going_count || 0,
+            saves_count: row.saves_count || 0,
+        },
+        saved_count: parseInt(row.saved_count) || 0,
+        user_saved: !!row.user_saved,
+    }));
+}
 
 export default async function SavedPage() {
     const session = await auth();
@@ -15,48 +61,31 @@ export default async function SavedPage() {
         redirect("/auth/signin?callbackUrl=/saved");
     }
 
-    const events = await getEvents({
-        interestedByUserId: session.user.id,
-        viewerId: session.user.id,
-        limit: 100, // Reasonable limit
-    });
+    const events = await getSavedEvents(session.user.id);
 
     return (
         <div className="flex min-h-screen flex-col">
             <MainNav />
             <main className="flex-1">
-                <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-                    <div className="mb-8 flex items-center gap-3">
-                        <div className="p-3 bg-red-50 rounded-full">
-                            <Heart className="h-8 w-8 text-red-500 fill-red-500" />
-                        </div>
-                        <div>
-                            <h1 className="text-fluid-3xl font-bold text-text-primary">
-                                Saved Events
-                            </h1>
-                            <p className="text-text-secondary mt-1">
-                                Events you are interested in attending.
-                            </p>
-                        </div>
-                    </div>
+                <div className="mx-auto max-w-[1248px] px-4 py-8 md:py-12 sm:px-6 lg:px-8">
+                    <FadeIn delay={0.1}>
+                        <h1 className="font-serif font-medium text-[clamp(28px,2.8vw,42px)] leading-[1.1] text-text-primary tracking-tight mb-8">
+                            Saved Events
+                        </h1>
+                    </FadeIn>
 
-                    {events.length > 0 ? (
-                        <EventList events={events} />
-                    ) : (
-                        <div className="flex flex-col items-center justify-center py-20 text-center bg-background-elevated rounded-xl border border-border-default">
-                            <div className="p-4 bg-background-surface rounded-full mb-4">
-                                <Heart className="h-10 w-10 text-text-tertiary" />
+                    {events.length === 0 ? (
+                        <FadeIn delay={0.2}>
+                            <div className="py-12 text-center border rounded-2xl border-dashed border-border-default">
+                                <p className="text-text-secondary">You haven't saved any events yet.</p>
+                                <a href="/explore" className="mt-4 inline-block text-brand-accent hover:underline font-medium">
+                                    Explore events
+                                </a>
                             </div>
-                            <h3 className="text-xl font-semibold text-text-primary mb-2">No saved events yet</h3>
-                            <p className="text-text-secondary max-w-md mb-6">
-                                Tap the heart icon on any event to save it here for later.
-                            </p>
-                            <a
-                                href="/explore"
-                                className="inline-flex items-center justify-center rounded-md bg-brand-accent px-6 py-2 text-sm font-medium text-text-inverse transition-colors hover:bg-brand-accent/90"
-                            >
-                                Explore Events
-                            </a>
+                        </FadeIn>
+                    ) : (
+                        <div className="mb-16">
+                            <LiveEventFeed initialEvents={events} />
                         </div>
                     )}
                 </div>

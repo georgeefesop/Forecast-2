@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
       LEFT JOIN venues v ON e.venue_id = v.id
       LEFT JOIN event_counters ec ON e.id = ec.event_id
       WHERE ea.user_id = $1
-      AND ea.type IN ('interested', 'going')
+      AND ea.type IN ('save', 'interested', 'going')
       ${timeCondition}
       ORDER BY e.id, e.start_at ${time === "past" ? "DESC" : "ASC"}
     `;

@@ -8,6 +8,7 @@ import { SeriesPicker } from "@/components/event/series-picker";
 import { CommentsThread } from "@/components/event/comments-thread";
 import { SponsorTile } from "@/components/event/sponsor-tile";
 import { AddToCalendar } from "@/components/event/add-to-calendar";
+import { auth } from "@/app/api/auth/[...nextauth]/route";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -20,13 +21,14 @@ interface EventPageProps {
 
 export default async function EventPage({ params }: EventPageProps) {
   const { slug } = await params;
+  const session = await auth();
 
   // Decode slug in case it's URL encoded
   const decodedSlug = decodeURIComponent(slug);
 
   let event;
   try {
-    event = await getEventBySlug(decodedSlug);
+    event = await getEventBySlug(decodedSlug, session?.user?.id);
   } catch (error) {
     console.error("Error fetching event:", error);
     notFound();
@@ -48,13 +50,11 @@ export default async function EventPage({ params }: EventPageProps) {
         <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
           <EventHero event={event} />
 
-
-
           <div className="flex flex-wrap items-start gap-3 justify-between">
             <ActionButtons
               eventId={event.id}
-              initialInterested={false} // We don't have this in getEventBySlug yet actually, need to check if user has liked
-              interestedCount={event.counters?.interested_count}
+              initialIsSaved={event.user_saved}
+              savedCount={event.saved_count}
             />
             <AddToCalendar event={event} />
           </div>

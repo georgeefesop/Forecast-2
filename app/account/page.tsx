@@ -16,30 +16,7 @@ function AccountPageContent() {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
   const isOnboarding = searchParams.get("onboarding") === "true";
-  const [activeTab, setActiveTab] = useState<"activity" | "settings">(
-    isOnboarding ? "settings" : "activity"
-  );
-
-  // Activity state
-  const [activityEvents, setActivityEvents] = useState<any[]>([]);
-  const [loadingActivity, setLoadingActivity] = useState(false);
-  const [timeFilter, setTimeFilter] = useState<"upcoming" | "past">("upcoming");
-
-  // Fetch activity when tab or filter is active
-  useEffect(() => {
-    if (activeTab === "activity" && session?.user) {
-      setLoadingActivity(true);
-      fetch(`/api/account/events?time=${timeFilter}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.events) {
-            setActivityEvents(data.events);
-          }
-        })
-        .catch((err) => console.error("Failed to fetch activity:", err))
-        .finally(() => setLoadingActivity(false));
-    }
-  }, [activeTab, timeFilter, session]);
+  const [activeTab, setActiveTab] = useState<"settings">("settings");
 
   // Auto-scroll to profile section on onboarding
   useEffect(() => {
@@ -97,18 +74,6 @@ function AccountPageContent() {
           <div className="mb-8 border-b border-border-default">
             <div className="flex gap-4">
               <button
-                onClick={() => setActiveTab("activity")}
-                className={cn(
-                  "px-4 py-2 text-sm font-medium transition-colors border-b-2",
-                  activeTab === "activity"
-                    ? "border-brand-accent text-brand-accent"
-                    : "border-transparent text-text-secondary hover:text-text-primary"
-                )}
-              >
-                <MessageSquare className="mr-2 inline h-4 w-4" />
-                Recent Activity
-              </button>
-              <button
                 onClick={() => setActiveTab("settings")}
                 className={cn(
                   "px-4 py-2 text-sm font-medium transition-colors border-b-2",
@@ -125,17 +90,6 @@ function AccountPageContent() {
 
           {/* Tab Content */}
           <div>
-            {activeTab === "activity" && (
-              <div className="space-y-8">
-                <div>
-                  <h2 className="text-xl font-semibold mb-6">Recent Activity</h2>
-                  <p className="text-text-secondary">
-                    Your recent interactions and submissions will appear here.
-                  </p>
-                </div>
-              </div>
-            )}
-
             {activeTab === "settings" && (
               <SettingsTabContent session={session} isOnboarding={isOnboarding} />
             )}

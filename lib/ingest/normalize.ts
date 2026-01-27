@@ -76,6 +76,13 @@ export function normalizeEvent(
   const venue = raw.venue ? {
     name: raw.venue.name.trim(),
     address: raw.venue.address?.trim(),
+    city: raw.venue.city?.trim() || 'Limassol', // Default to Limassol
+    area: raw.venue.area?.trim(),
+    type: raw.venue.type?.trim(),
+    websiteUrl: raw.venue.websiteUrl?.trim(),
+    instagramUrl: raw.venue.instagramUrl?.trim(),
+    phone: raw.venue.phone?.trim(),
+    email: raw.venue.email?.trim(),
   } : undefined;
 
   // Normalize description (limit length, clean HTML)

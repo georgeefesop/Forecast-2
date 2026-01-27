@@ -12,6 +12,8 @@ import { LimassolMarinaAdapter } from './sources/limassol-marina';
 import { LimassolTourismAdapter } from './sources/limassol-tourism';
 import { LimassolMunicipalityAdapter } from './sources/limassol-municipality';
 import { MoreAdapter } from './sources/more';
+import { RavePulseAdapter } from './sources/rave-pulse';
+import { CyprusUndergroundAdapter } from './sources/cyprus-underground';
 
 // Export source adapters
 export { AllAboutLimassolAdapter } from './sources/all-about-limassol';
@@ -19,6 +21,8 @@ export { LimassolMarinaAdapter } from './sources/limassol-marina';
 export { LimassolTourismAdapter } from './sources/limassol-tourism';
 export { LimassolMunicipalityAdapter } from './sources/limassol-municipality';
 export { MoreAdapter } from './sources/more';
+export { RavePulseAdapter } from './sources/rave-pulse';
+export { CyprusUndergroundAdapter } from './sources/cyprus-underground';
 
 // Import adapters
 import { SoldOutTicketBoxAdapter } from './sources/soldout-ticketbox';
@@ -36,6 +40,8 @@ export function getActiveAdapters() {
     new SoldOutTicketBoxAdapter(),
     new RialtoInterticketAdapter(),
     new MoreAdapter(),
+    new RavePulseAdapter(),
+    new CyprusUndergroundAdapter(),
   ];
 }
 

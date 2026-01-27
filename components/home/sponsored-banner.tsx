@@ -96,7 +96,7 @@ export async function SponsoredBanner({ variant = "horizontal" }: SponsoredBanne
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 opacity-70" />
             <time dateTime={new Date(event.start_at).toISOString()}>
-              {format(new Date(event.start_at), isVertical ? "MMM d 'at' h:mm a" : "EEEE, MMMM d 'at' h:mm a")}
+              {format(new Date(event.start_at), isVertical ? "EEE, MMM d 'at' h:mm a" : "EEEE, MMMM d 'at' h:mm a")}
             </time>
           </div>
           {event.venue && (

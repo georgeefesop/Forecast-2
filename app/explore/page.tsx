@@ -1,6 +1,7 @@
 import { MainNav } from "@/components/nav/main-nav";
 import { Footer } from "@/components/footer";
 import { FilterChips } from "@/components/filters/filter-chips";
+import { SavedEventsButton } from "@/components/account/saved-events-button";
 import { EventList } from "@/components/explore/event-list";
 import { SortSelect } from "@/components/explore/sort-select";
 import { getEvents } from "@/lib/db/queries/events";
@@ -18,6 +19,7 @@ interface ExplorePageProps {
     free?: string;
     sort?: string;
     language?: string;
+    venue?: string;
   };
 }
 
@@ -35,6 +37,7 @@ export default async function ExplorePage({ searchParams }: ExplorePageProps) {
       free: params.free === "true",
       search: params.q && params.q.trim() ? params.q : undefined,
       language: params.language && params.language.trim() ? params.language : undefined,
+      venue: params.venue && params.venue.trim() ? params.venue : undefined,
       limit: 500, // Increased from 50 to show more events
       viewerId: session?.user?.id,
     });
@@ -48,8 +51,8 @@ export default async function ExplorePage({ searchParams }: ExplorePageProps) {
   if (params.sort === "interested") {
     sortedEvents.sort(
       (a, b) =>
-        (b.counters?.interested_count || 0) -
-        (a.counters?.interested_count || 0)
+        (b.saved_count || 0) -
+        (a.saved_count || 0)
     );
   } else if (params.sort === "free") {
     sortedEvents.sort((a, b) => {
@@ -70,7 +73,10 @@ export default async function ExplorePage({ searchParams }: ExplorePageProps) {
           </h1>
 
           <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <FilterChips masked={false} />
+            <div className="flex items-center gap-4 flex-1">
+              <FilterChips masked={false} />
+              <SavedEventsButton />
+            </div>
             <p className="text-sm font-medium text-text-secondary whitespace-nowrap">
               {events.length} upcoming events
             </p>

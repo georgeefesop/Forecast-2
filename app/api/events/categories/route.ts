@@ -15,13 +15,13 @@ export async function GET() {
       WITH active_categories AS (
         SELECT category, COUNT(*) as cnt
         FROM events 
-        WHERE status = 'published' AND start_at >= NOW() AND category IS NOT NULL
+        WHERE status = 'published' AND start_at >= NOW() AND category IS NOT NULL AND is_primary_occurrence = TRUE
         GROUP BY category
       ),
       active_tags AS (
         SELECT unnest(tags) as tag, COUNT(*) as cnt
         FROM events
-        WHERE status = 'published' AND start_at >= NOW() AND tags IS NOT NULL
+        WHERE status = 'published' AND start_at >= NOW() AND tags IS NOT NULL AND is_primary_occurrence = TRUE
         GROUP BY tag
       )
       SELECT category, SUM(cnt) as count 

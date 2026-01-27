@@ -17,6 +17,13 @@ export interface RawEventDetail {
   venue?: {
     name: string;
     address?: string;
+    city?: string;
+    area?: string;
+    type?: string;
+    websiteUrl?: string;
+    instagramUrl?: string;
+    phone?: string;
+    email?: string;
   };
   address?: string;
   category?: string;
@@ -38,8 +45,15 @@ export interface CanonicalEvent {
   venue?: {
     name: string;
     address?: string;
+    city?: string;
+    area?: string;
     lat?: number;
     lng?: number;
+    type?: string;
+    websiteUrl?: string;
+    instagramUrl?: string;
+    phone?: string;
+    email?: string;
   };
   address?: string;
   lat?: number;

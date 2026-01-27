@@ -57,8 +57,8 @@ export async function CuratedSection({ title, filter }: CuratedSectionProps) {
             startAt={new Date(event.start_at)}
             venue={event.venue}
             imageUrl={event.local_image_url || event.image_url || undefined}
-            interestedCount={event.counters?.interested_count}
-            goingCount={event.counters?.going_count}
+            imageSizeKb={event.image_size_kb && !isNaN(Number(event.image_size_kb)) ? Number(event.image_size_kb) : null}
+            savedCount={event.saved_count}
             category={event.category || undefined}
             sourceName={event.source_name || undefined}
             priceMin={event.price_min}

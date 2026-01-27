@@ -42,9 +42,9 @@ export async function POST(
       active = true;
     }
 
-    // Get updated count
+    // Get updated unified count
     const counter = await db.query(
-      `SELECT ${type === "interested" ? "interested_count" : type === "going" ? "going_count" : "saves_count"} as count
+      `SELECT (COALESCE(interested_count, 0) + COALESCE(going_count, 0) + COALESCE(saves_count, 0)) as count
        FROM event_counters WHERE event_id = $1`,
       [eventId]
     );

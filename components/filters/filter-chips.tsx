@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { SourceDropdown } from "./source-dropdown";
+import { FilterDropdown } from "./filter-dropdown";
 
 const cities = ["Limassol", "Nicosia", "Larnaca", "Paphos", "Ayia Napa"];
 const dateOptions = [
@@ -28,6 +30,7 @@ interface FilterChipsProps {
 export function FilterChips({ masked = true }: FilterChipsProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Horizontal Wheel Scroll logic
@@ -52,6 +55,7 @@ export function FilterChips({ masked = true }: FilterChipsProps) {
   }, []);
 
   const [showMoreFilters, setShowMoreFilters] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [categories, setCategories] = useState<{ name: string, count: number }[]>([
     { name: "Music", count: 0 },
     { name: "Theatre", count: 0 },
@@ -60,7 +64,17 @@ export function FilterChips({ masked = true }: FilterChipsProps) {
   ]);
 
   // Fetch active categories on mount
+  const [facetCounts, setFacetCounts] = useState<{
+    cities: { value: string; count: number }[];
+    languages: { value: string; count: number }[];
+    sources: { value: string; count: number }[];
+    venues: { value: string; label?: string; count: number }[];
+    dates: { value: string; count: number }[];
+  }>({ cities: [], languages: [], sources: [], venues: [], dates: [] });
+
+  // Fetch active categories and facets on mount
   useEffect(() => {
+    // Categories
     fetch('/api/events/categories')
       .then(res => res.json())
       .then(data => {
@@ -71,7 +85,7 @@ export function FilterChips({ masked = true }: FilterChipsProps) {
             count: c.count
           }));
 
-          // Deduplicate by name, summing counts if duplicates exist (rare due to API group by)
+          // Deduplicate by name, summing counts if duplicates exist
           const uniqueMap = new Map<string, number>();
           formatted.forEach((item: { name: string, count: number }) => {
             const current = uniqueMap.get(item.name) || 0;
@@ -83,13 +97,42 @@ export function FilterChips({ masked = true }: FilterChipsProps) {
         }
       })
       .catch(err => console.error("Failed to fetch categories:", err));
+
+    // Facets
+    fetch('/api/events/facets')
+      .then(res => res.json())
+      .then(data => {
+        // Validate data structure before setting state
+        if (data && Array.isArray(data.cities)) {
+          setFacetCounts(data);
+        }
+      })
+      .catch(err => console.error("Failed to fetch facets:", err));
   }, []);
+
+  // Helper to get count for a label
+  const getCityLabel = (city: string) => {
+    const found = facetCounts.cities?.find(c => c.value === city);
+    return found ? `${city} (${found.count})` : city;
+  };
+
+  const getDateLabel = (opt: { value: string, label: string }) => {
+    const found = facetCounts.dates?.find(d => d.value === opt.value);
+    return found ? `${opt.label} (${found.count})` : opt.label;
+  };
+
+  const getLanguageLabel = (opt: { value: string, label: string }) => {
+    const found = facetCounts.languages?.find(l => l.value === opt.value);
+    return found ? `${opt.label} (${found.count})` : opt.label;
+  };
 
   const city = searchParams.get("city") || "";
   const date = searchParams.get("date") || "";
   const category = searchParams.get("category") || "";
   const free = searchParams.get("free") === "true";
   const language = searchParams.get("language") || "";
+  const sources = searchParams.get("sources") || "";
+  const venue = searchParams.get("venue") || "";
 
   const updateFilter = (key: string, value: string | null) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -99,7 +142,9 @@ export function FilterChips({ masked = true }: FilterChipsProps) {
       params.delete(key);
     }
     // Use replace to avoid cluttering history with filter changes
-    router.replace(`/explore?${params.toString()}`);
+    // If on homepage, update current URL. Otherwise, go to explore.
+    const targetPath = pathname === "/" ? "/" : "/explore";
+    router.replace(`${targetPath}?${params.toString()}`, { scroll: false });
   };
 
   const toggleFree = () => {
@@ -109,17 +154,13 @@ export function FilterChips({ masked = true }: FilterChipsProps) {
     } else {
       params.set("free", "true");
     }
-    router.replace(`/explore?${params.toString()}`);
+    const targetPath = pathname === "/" ? "/" : "/explore";
+    router.replace(`${targetPath}?${params.toString()}`, { scroll: false });
   };
 
-  const commonSelectListClass = "h-10 cursor-pointer appearance-none rounded-full border px-4 pr-8 text-sm font-medium transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-text-primary";
-
-  const getSelectClass = (isActive: boolean) => cn(
-    commonSelectListClass,
-    isActive
-      ? "bg-text-primary text-text-inverse border-text-primary shadow-md hover:bg-text-primary/90"
-      : "bg-bg-surface text-text-primary border-border-subtle hover:bg-bg-elevated hover:border-border-default"
-  );
+  const buttonBaseClass = "group flex h-10 items-center justify-center gap-2 rounded-full border px-4 text-sm font-medium transition-all duration-200 shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-text-primary cursor-pointer";
+  const buttonActiveClass = "bg-white text-text-primary border-text-primary shadow-sm hover:bg-[#EBE5DE]";
+  const buttonInactiveClass = "bg-text-primary text-text-inverse border-border-subtle hover:bg-[#EBE5DE] hover:text-text-primary";
 
   return (
     <div className="w-full overflow-hidden">
@@ -130,76 +171,55 @@ export function FilterChips({ masked = true }: FilterChipsProps) {
           masked && "mask-fade-right"
         )}>
         {/* City Select */}
-        <div className="relative shrink-0">
-          <select
-            value={city}
-            onChange={(e) => updateFilter("city", e.target.value || null)}
-            className={getSelectClass(!!city)}
-          >
-            <option value="" className="bg-bg-surface text-text-primary">All Cities</option>
-            {cities.map((c) => (
-              <option key={c} value={c} className="bg-bg-surface text-text-primary">
-                {c}
-              </option>
-            ))}
-          </select>
-          <div className={cn(
-            "pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 transition-colors",
-            city ? "text-text-inverse/70" : "text-text-tertiary"
-          )}>
-            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-        </div>
+        <FilterDropdown
+          label="City"
+          options={cities.map(c => ({ value: c, label: getCityLabel(c) }))}
+          selectedValues={city ? [city] : []}
+          onSelect={(val) => updateFilter("city", val === city ? null : val)}
+          onClear={() => updateFilter("city", null)}
+          open={activeDropdown === "city"}
+          onOpenChange={(isOpen) => setActiveDropdown(prev => isOpen ? "city" : (prev === "city" ? null : prev))}
+        />
 
         {/* Date Select */}
-        <div className="relative shrink-0">
-          <select
-            value={date}
-            onChange={(e) => updateFilter("date", e.target.value || null)}
-            className={getSelectClass(!!date)}
-          >
-            <option value="" className="bg-bg-surface text-text-primary">All Dates</option>
-            {dateOptions.map((opt) => (
-              <option key={opt.value} value={opt.value} className="bg-bg-surface text-text-primary">
-                {opt.label}
-              </option>
-            ))}
-          </select>
-          <div className={cn(
-            "pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 transition-colors",
-            date ? "text-text-inverse/70" : "text-text-tertiary"
-          )}>
-            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-        </div>
+        <FilterDropdown
+          label="Date"
+          options={dateOptions.map(o => ({ ...o, label: getDateLabel(o) }))}
+          selectedValues={date ? [date] : []}
+          onSelect={(val) => updateFilter("date", val === date ? null : val)}
+          onClear={() => updateFilter("date", null)}
+          open={activeDropdown === "date"}
+          onOpenChange={(isOpen) => setActiveDropdown(prev => isOpen ? "date" : (prev === "date" ? null : prev))}
+        />
 
         {/* Language Select */}
-        <div className="relative shrink-0">
-          <select
-            value={language}
-            onChange={(e) => updateFilter("language", e.target.value || null)}
-            className={getSelectClass(!!language)}
-          >
-            <option value="" className="bg-bg-surface text-text-primary">All Languages</option>
-            {languageOptions.map((opt) => (
-              <option key={opt.value} value={opt.value} className="bg-bg-surface text-text-primary">
-                {opt.label}
-              </option>
-            ))}
-          </select>
-          <div className={cn(
-            "pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 transition-colors",
-            language ? "text-text-inverse/70" : "text-text-tertiary"
-          )}>
-            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-        </div>
+        <FilterDropdown
+          label="Language"
+          options={languageOptions.map(l => ({ ...l, label: getLanguageLabel(l) }))}
+          selectedValues={language ? [language] : []}
+          onSelect={(val) => updateFilter("language", val === language ? null : val)}
+          onClear={() => updateFilter("language", null)}
+          open={activeDropdown === "language"}
+          onOpenChange={(isOpen) => setActiveDropdown(prev => isOpen ? "language" : (prev === "language" ? null : prev))}
+        />
+
+        {/* Source Filter */}
+        <SourceDropdown
+          open={activeDropdown === "source"}
+          onOpenChange={(isOpen) => setActiveDropdown(prev => isOpen ? "source" : (prev === "source" ? null : prev))}
+          counts={facetCounts.sources}
+        />
+
+        {/* Venue Filter */}
+        <FilterDropdown
+          label="Venue"
+          options={facetCounts.venues.map(v => ({ value: v.value, label: `${v.label || v.value} (${v.count})` }))}
+          selectedValues={venue ? [venue] : []}
+          onSelect={(val) => updateFilter("venue", val === venue ? null : val)}
+          onClear={() => updateFilter("venue", null)}
+          open={activeDropdown === "venue"}
+          onOpenChange={(isOpen) => setActiveDropdown(prev => isOpen ? "venue" : (prev === "venue" ? null : prev))}
+        />
 
         {/* Category Tags */}
         <div className="flex items-center gap-2 shrink-0">
@@ -208,10 +228,8 @@ export function FilterChips({ masked = true }: FilterChipsProps) {
               key={cat.name}
               onClick={() => updateFilter("category", category === cat.name ? null : cat.name)}
               className={cn(
-                "group flex h-10 items-center justify-center gap-2 rounded-full border px-4 text-sm font-medium transition-all duration-200 shrink-0 whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-text-primary",
-                category === cat.name
-                  ? "bg-text-primary text-text-inverse border-text-primary shadow-md hover:bg-text-primary/90"
-                  : "bg-bg-surface text-text-primary border-border-subtle hover:bg-bg-elevated hover:border-border-default"
+                buttonBaseClass,
+                category === cat.name ? buttonActiveClass : buttonInactiveClass
               )}
             >
               <span>{cat.name}</span>
@@ -231,10 +249,8 @@ export function FilterChips({ masked = true }: FilterChipsProps) {
         <button
           onClick={toggleFree}
           className={cn(
-            "group flex h-10 items-center justify-center gap-2 rounded-full border px-4 text-sm font-medium transition-all duration-200 shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-text-primary",
-            free
-              ? "bg-text-primary text-text-inverse border-text-primary shadow-md hover:bg-text-primary/90"
-              : "bg-bg-surface text-text-primary border-border-subtle hover:bg-bg-elevated hover:border-border-default"
+            buttonBaseClass,
+            free ? buttonActiveClass : buttonInactiveClass
           )}
         >
           Free
@@ -251,13 +267,14 @@ export function FilterChips({ masked = true }: FilterChipsProps) {
         </Button>
 
         {/* Clear Filters */}
-        {(date || category || free || city || language) && (
+        {(date || category || free || city || language || sources || venue) && (
           <Button
             variant="ghost"
             size="sm"
             onClick={() => {
               const params = new URLSearchParams();
-              router.replace(`/explore?${params.toString()}`);
+              const targetPath = pathname === "/" ? "/" : "/explore";
+              router.replace(`${targetPath}?${params.toString()}`, { scroll: false });
             }}
             className="text-text-tertiary shrink-0 h-10 rounded-full"
           >
@@ -271,14 +288,14 @@ export function FilterChips({ masked = true }: FilterChipsProps) {
       </div>
 
       {/* Active Filters Display */}
-      {(date || category || free || city || language) && (
+      {(date || category || free || city || language || sources || venue) && (
         <div className="flex flex-wrap gap-2 mt-4">
           {city && (
             <span className="inline-flex items-center gap-1 rounded-full border border-brand-accent/30 bg-brand-accent/10 px-3 py-1 text-sm text-brand-accent">
               {city}
               <button
                 onClick={() => updateFilter("city", null)}
-                className="ml-1 text-brand-accent/70 hover:text-brand-accent"
+                className="ml-1 text-brand-accent/70 hover:text-brand-accent cursor-pointer"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -289,7 +306,7 @@ export function FilterChips({ masked = true }: FilterChipsProps) {
               {dateOptions.find((opt) => opt.value === date)?.label}
               <button
                 onClick={() => updateFilter("date", null)}
-                className="ml-1 text-brand-accent/70 hover:text-brand-accent"
+                className="ml-1 text-brand-accent/70 hover:text-brand-accent cursor-pointer"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -300,7 +317,7 @@ export function FilterChips({ masked = true }: FilterChipsProps) {
               {languageOptions.find((opt) => opt.value === language)?.label || language}
               <button
                 onClick={() => updateFilter("language", null)}
-                className="ml-1 text-brand-accent/70 hover:text-brand-accent"
+                className="ml-1 text-brand-accent/70 hover:text-brand-accent cursor-pointer"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -311,7 +328,7 @@ export function FilterChips({ masked = true }: FilterChipsProps) {
               {category}
               <button
                 onClick={() => updateFilter("category", null)}
-                className="ml-1 text-brand-accent/70 hover:text-brand-accent"
+                className="ml-1 text-brand-accent/70 hover:text-brand-accent cursor-pointer"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -322,7 +339,36 @@ export function FilterChips({ masked = true }: FilterChipsProps) {
               Free
               <button
                 onClick={toggleFree}
-                className="ml-1 text-brand-accent/70 hover:text-brand-accent"
+                className="ml-1 text-brand-accent/70 hover:text-brand-accent cursor-pointer"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </span>
+          )}
+          {sources && sources.split(",").map((s) => (
+            <span key={s} className="inline-flex items-center gap-1 rounded-full border border-brand-accent/30 bg-brand-accent/10 px-3 py-1 text-sm text-brand-accent">
+              {s.split("_").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}
+              <button
+                onClick={() => {
+                  const currentParams = new URLSearchParams(searchParams.toString());
+                  const list = sources.split(",").filter((item) => item !== s);
+                  if (list.length > 0) currentParams.set("sources", list.join(","));
+                  else currentParams.delete("sources");
+                  const targetPath = pathname === "/" ? "/" : "/explore";
+                  router.replace(`${targetPath}?${currentParams.toString()}`, { scroll: false });
+                }}
+                className="ml-1 text-brand-accent/70 hover:text-brand-accent cursor-pointer"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </span>
+          ))}
+          {venue && (
+            <span className="inline-flex items-center gap-1 rounded-full border border-brand-accent/30 bg-brand-accent/10 px-3 py-1 text-sm text-brand-accent">
+              {venue}
+              <button
+                onClick={() => updateFilter("venue", null)}
+                className="ml-1 text-brand-accent/70 hover:text-brand-accent cursor-pointer"
               >
                 <X className="h-3 w-3" />
               </button>

@@ -38,17 +38,23 @@ export function GalleryGrid({ events, className }: GalleryGridProps) {
                         )}
 
                         {/* Right Column: 2x2 Grid (Next 4 items) */}
-                        <div className="lg:col-span-5 grid grid-cols-2 gap-4 h-full">
-                            {chunk.slice(1, 5).map((event, eventIdx) => (
-                                <div key={event.id} className="min-h-[180px]">
-                                    <EventCard
-                                        {...mapEventToProps(event)}
-                                        size="small"
-                                        className="h-full w-full"
-                                        index={baseIndex + eventIdx + 1}
-                                    />
-                                </div>
-                            ))}
+                        <div className="lg:col-span-5 grid grid-cols-2 grid-rows-2 gap-4 h-full">
+                            {/* Explicitly map positions to prevent stretching if fewer than 4 items */}
+                            {[0, 1, 2, 3].map((pos) => {
+                                const event = chunk[pos + 1];
+                                if (!event) return <div key={`empty-${pos}`} className="hidden lg:block" />; // spacer
+
+                                return (
+                                    <div key={event.id} className="min-h-[180px] h-full">
+                                        <EventCard
+                                            {...mapEventToProps(event)}
+                                            size="small"
+                                            className="h-full w-full"
+                                            index={baseIndex + pos + 1}
+                                        />
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 );
@@ -65,12 +71,15 @@ function mapEventToProps(event: any) {
         startAt: new Date(event.start_at),
         venue: event.venue,
         imageUrl: event.local_image_url || event.image_url || undefined,
-        interestedCount: event.counters?.interested_count,
-        goingCount: event.counters?.going_count,
+        savedCount: event.saved_count,
         category: event.category || undefined,
         sourceName: event.source_name || undefined,
         priceMin: event.price_min,
         isSeries: event.series_id !== null,
-        isInterested: event.user_interested,
+        isSaved: event.user_saved,
+        description: event.description || undefined,
+        imageSizeKb: event.image_size_kb && !isNaN(Number(event.image_size_kb))
+            ? Number(event.image_size_kb)
+            : null,
     };
 }

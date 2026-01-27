@@ -2,15 +2,18 @@
 
 import { useState } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 import { MainNav } from "@/components/nav/main-nav";
 import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
+import { Suspense } from "react";
 
-export default function SubmitPage() {
+function SubmitPageContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -19,8 +22,9 @@ export default function SubmitPage() {
     description: "",
     startAt: "",
     endAt: "",
-    city: "Limassol",
-    venue: "",
+    city: searchParams.get("city") || "Limassol",
+    venue: searchParams.get("venueName") || "", // If we have name
+    venueId: searchParams.get("venue") || "", // If we have ID
     address: "",
     category: "",
     tags: "",
@@ -31,6 +35,19 @@ export default function SubmitPage() {
     adultOnly: false,
     image: null as File | null,
   });
+
+  // Pre-fill from URL if params change (useful if navigating while page open)
+  useEffect(() => {
+    const venueId = searchParams.get("venue");
+    const city = searchParams.get("city");
+    if (venueId || city) {
+      setFormData(prev => ({
+        ...prev,
+        venueId: venueId || prev.venueId,
+        city: city || prev.city
+      }));
+    }
+  }, [searchParams]);
 
   if (status === "loading") {
     return (
@@ -184,16 +201,37 @@ export default function SubmitPage() {
                   <label className="block text-sm font-medium text-text-primary mb-2">
                     Venue or Address *
                   </label>
-                  <input
-                    type="text"
-                    value={formData.address}
-                    onChange={(e) =>
-                      setFormData({ ...formData, address: e.target.value })
-                    }
-                    placeholder="Enter venue name or full address"
-                    required
-                    className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
-                  />
+                  {formData.venueId ? (
+                    <div className="flex items-center gap-2 rounded-md border border-border-default bg-background-elevated px-4 py-3">
+                      <div className="h-8 w-8 flex items-center justify-center rounded-full bg-brand-accent/10 text-brand-accent">
+                        🏛️
+                      </div>
+                      <div>
+                        <p className="font-semibold text-text-primary">
+                          {searchParams.get("venueName") || "Selected Venue"}
+                        </p>
+                        <p className="text-xs text-text-secondary">Pre-selected venue</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, venueId: "" })}
+                        className="ml-auto text-text-tertiary hover:text-text-primary"
+                      >
+                        Change
+                      </button>
+                    </div>
+                  ) : (
+                    <input
+                      type="text"
+                      value={formData.address}
+                      onChange={(e) =>
+                        setFormData({ ...formData, address: e.target.value })
+                      }
+                      placeholder="Enter venue name or full address"
+                      required
+                      className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
+                    />
+                  )}
                 </div>
 
                 <Button type="button" onClick={() => setStep(2)} className="w-full">
@@ -366,5 +404,13 @@ export default function SubmitPage() {
       </main>
       <Footer />
     </div>
+  );
+}
+
+export default function SubmitPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center text-text-secondary">Loading...</div>}>
+      <SubmitPageContent />
+    </Suspense>
   );
 }

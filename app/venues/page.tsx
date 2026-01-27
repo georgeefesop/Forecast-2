@@ -1,8 +1,9 @@
 import { MainNav } from "@/components/nav/main-nav";
 import { Footer } from "@/components/footer";
 import { getVenues } from "@/lib/db/queries/venues";
-import Link from "next/link";
-import { MapPin } from "lucide-react";
+import { VenueCard } from "@/components/venue/venue-card";
+import { VenueFilters } from "@/components/venue/venue-filters";
+import { FadeIn } from "@/components/ui/fade-in";
 
 export const dynamic = "force-dynamic";
 
@@ -11,21 +12,26 @@ interface VenuesPageProps {
     city?: string;
     type?: string;
     q?: string;
+    sort?: "active" | "trending" | "az";
   };
 }
 
 export default async function VenuesPage({ searchParams }: VenuesPageProps) {
+  // Await searchParams for Next.js 15+ readiness
+  const params = await Promise.resolve(searchParams);
+
   let venues: any[] = [];
   try {
     venues = await getVenues({
-    city: searchParams.city || "Limassol",
-    type: searchParams.type || undefined,
-    search: searchParams.q || undefined,
-    limit: 100,
+      // Default to Limassol if no city param provided, as per spec B2.
+      city: params.city === undefined ? "Limassol" : (params.city === "" ? undefined : params.city),
+      type: params.type || undefined,
+      search: params.q || undefined,
+      sort: params.sort || "active",
+      limit: 100,
     });
   } catch (error) {
     console.error("Error fetching venues:", error);
-    // Continue with empty array
   }
 
   return (
@@ -33,53 +39,39 @@ export default async function VenuesPage({ searchParams }: VenuesPageProps) {
       <MainNav />
       <main className="flex-1">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <h1 className="mb-6 text-fluid-3xl font-bold text-text-primary">
-            Venues
-          </h1>
+          <FadeIn>
+            <h1 className="mb-2 text-fluid-3xl font-bold text-text-primary">
+              The Pulse of the City
+            </h1>
+            <p className="mb-8 text-lg text-text-secondary max-w-2xl">
+              Discover the spaces shaping the culture. From underground clubs to open-air stages.
+            </p>
+          </FadeIn>
 
-          {/* Filters */}
-          <div className="mb-8 flex flex-wrap gap-4">
-            <select
-              defaultValue={searchParams.city || "Limassol"}
-              className="rounded-md border border-border-default bg-background-surface px-3 py-2 text-sm text-text-primary focus:border-border-strong focus:outline-none"
-            >
-              <option value="Limassol">Limassol</option>
-              <option value="Nicosia">Nicosia</option>
-              <option value="Larnaca">Larnaca</option>
-              <option value="Paphos">Paphos</option>
-            </select>
+          <div className="mb-8">
+            <VenueFilters />
           </div>
 
           {/* Results */}
           {venues.length === 0 ? (
-            <div className="py-12 text-center">
-              <p className="text-text-secondary">No venues found.</p>
+            <div className="py-16 text-center border rounded-xl border-dashed border-border-default">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-background-elevated">
+                <span className="text-2xl">🔍</span>
+              </div>
+              <h3 className="text-lg font-medium text-text-primary">No venues found</h3>
+              <p className="text-text-secondary mt-1 max-w-sm mx-auto">
+                We couldn't find any venues matching your filters in {params.city || "Limassol"}.
+              </p>
+              <div className="mt-6">
+                <a href="/venues" className="text-brand-accent hover:underline font-medium">Clear filters</a>
+              </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {venues.map((venue) => (
-                <Link
-                  key={venue.id}
-                  href={`/venue/${venue.slug}`}
-                  className="block overflow-hidden rounded-lg border border-border-default bg-background-surface transition-all hover:shadow-md"
-                >
-                  <div className="p-6">
-                    <h3 className="mb-2 text-lg font-semibold text-text-primary">
-                      {venue.name}
-                    </h3>
-                    {venue.address && (
-                      <div className="mb-2 flex items-center gap-2 text-sm text-text-secondary">
-                        <MapPin className="h-4 w-4" />
-                        <span>{venue.address}</span>
-                      </div>
-                    )}
-                    {venue.type && (
-                      <span className="inline-block rounded-full bg-background-elevated px-3 py-1 text-xs text-text-secondary">
-                        {venue.type}
-                      </span>
-                    )}
-                  </div>
-                </Link>
+            <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {venues.map((venue, index) => (
+                <FadeIn key={venue.id} delay={index * 0.05}>
+                  <VenueCard venue={venue} />
+                </FadeIn>
               ))}
             </div>
           )}

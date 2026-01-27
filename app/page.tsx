@@ -2,22 +2,46 @@ import { MainNav } from "@/components/nav/main-nav";
 import { Footer } from "@/components/footer";
 import { SearchBar } from "@/components/search/search-bar";
 import { FilterChips } from "@/components/filters/filter-chips";
+import { ClearFiltersButton } from "@/components/filters/clear-filters-button";
+import { SavedEventsButton } from "@/components/account/saved-events-button";
 import { SponsoredBanner } from "@/components/home/sponsored-banner";
-import { GalleryGrid } from "@/components/home/gallery-grid";
+import { LiveEventFeed } from "@/components/home/live-event-feed";
 import { FadeIn } from "@/components/ui/fade-in";
 import { getEvents } from "@/lib/db/queries/events";
 import { auth } from "@/app/api/auth/[...nextauth]/route";
 
 export const dynamic = "force-dynamic";
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
   const session = await auth();
+
+  // Parse filters from URL
+  const sourcesStr = typeof searchParams.sources === 'string' ? searchParams.sources : undefined;
+  const sources = sourcesStr ? sourcesStr.split(",") : undefined;
+
+  const city = typeof searchParams.city === 'string' ? searchParams.city : undefined;
+  const date = typeof searchParams.date === 'string' ? searchParams.date : undefined;
+  const category = typeof searchParams.category === 'string' ? searchParams.category : undefined;
+  const venue = typeof searchParams.venue === 'string' ? searchParams.venue : undefined;
+  const free = searchParams.free === 'true';
+
+  const hasFilters = !!(city || date || category || free || sources || venue || searchParams.q);
 
   // Fetch primary occurrences for the gallery wall
   const events = await getEvents({
     primaryOnly: true,
     limit: 40,
     viewerId: session?.user?.id,
+    sources,
+    city,
+    date,
+    category,
+    venue,
+    free
   });
 
   return (
@@ -79,20 +103,24 @@ export default async function HomePage() {
                   <FilterChips masked={true} />
                 </FadeIn>
                 <FadeIn delay={0.4}>
-                  <div className="mt-4">
-                    <a
-                      href="/explore"
-                      className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors border-b border-transparent hover:border-text-primary"
-                    >
-                      Advanced Search →
-                    </a>
+                  <div className="mt-4 flex items-center justify-between w-full">
+                    <div className="flex items-center gap-4">
+                      <a
+                        href="/explore"
+                        className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors border-b border-transparent hover:border-text-primary"
+                      >
+                        Advanced Search →
+                      </a>
+                      <ClearFiltersButton />
+                    </div>
+                    <SavedEventsButton />
                   </div>
                 </FadeIn>
               </div>
 
-              {/* Gallery Wall */}
+              {/* Live Event Feed (Gallery Wall) */}
               <div className="mb-16">
-                <GalleryGrid events={events} />
+                <LiveEventFeed initialEvents={events} />
               </div>
             </div>
           </div>

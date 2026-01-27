@@ -5,44 +5,44 @@ import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import { Heart, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { toggleInterest } from "@/lib/actions/interactions";
+import { toggleSave } from '@/lib/actions/interactions';
 import { cn } from "@/lib/utils";
 
 interface ActionButtonsProps {
   eventId: string;
-  initialInterested?: boolean;
-  interestedCount?: number;
+  initialIsSaved?: boolean;
+  savedCount?: number;
 }
 
 export function ActionButtons({
   eventId,
-  initialInterested = false,
-  interestedCount = 0,
+  initialIsSaved = false,
+  savedCount = 0,
 }: ActionButtonsProps) {
   const { data: session } = useSession();
   const router = useRouter();
   const pathname = usePathname();
 
-  const [interested, setInterested] = useState(initialInterested);
-  const [count, setCount] = useState(interestedCount);
+  const [isSaved, setIsSaved] = useState(initialIsSaved);
+  const [count, setCount] = useState(savedCount);
   const [isPending, startTransition] = useTransition();
 
-  const handleToggleInterest = async () => {
+  const handleToggleSave = async () => {
     if (!session) {
       router.push(`/auth/signin?callbackUrl=${encodeURIComponent(pathname)}`);
       return;
     }
 
     // Optimistic update
-    const newValue = !interested;
-    setInterested(newValue);
+    const newValue = !isSaved;
+    setIsSaved(newValue);
     setCount(prev => newValue ? prev + 1 : Math.max(0, prev - 1));
 
     startTransition(async () => {
-      const result = await toggleInterest(eventId, pathname);
+      const result = await toggleSave(eventId, pathname);
       if (result.error) {
         // Revert
-        setInterested(!newValue);
+        setIsSaved(!newValue);
         setCount(prev => !newValue ? prev + 1 : Math.max(0, prev - 1));
       }
     });
@@ -78,13 +78,13 @@ export function ActionButtons({
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-3">
         <Button
-          variant={interested ? "default" : "outline"}
-          onClick={handleToggleInterest}
+          variant={isSaved ? "default" : "outline"}
+          onClick={handleToggleSave}
           disabled={isPending}
-          className={cn(interested && "bg-red-500 hover:bg-red-600 text-white border-red-500")}
+          className={cn(isSaved && "bg-red-500 hover:bg-red-600 text-white border-red-500")}
         >
-          <Heart className={cn("mr-2 h-4 w-4", interested ? "fill-current" : "")} />
-          {interested ? "Interested" : "Interested"}
+          <Heart className={cn("mr-2 h-4 w-4", isSaved ? "fill-current" : "")} />
+          {isSaved ? "Saved" : "Save"}
         </Button>
 
         <Button variant="outline" onClick={handleShare}>
@@ -96,7 +96,7 @@ export function ActionButtons({
       {/* Counts */}
       {count > 0 && (
         <div className="text-sm text-text-secondary font-medium">
-          {count} people interested
+          {count} people saved this
         </div>
       )}
     </div>

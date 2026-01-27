@@ -35,7 +35,8 @@ export interface Event {
     going_count: number;
     saves_count: number;
   };
-  user_interested?: boolean;
+  saved_count?: number;
+  user_saved?: boolean;
 }
 
 export interface GetEventsOptions {
@@ -54,6 +55,9 @@ export interface GetEventsOptions {
   language?: string;
   interestedByUserId?: string;
   viewerId?: string;
+  sources?: string[];
+  venue?: string;
+  hideLowQuality?: boolean;
 }
 
 export async function getEvents(options: GetEventsOptions = {}): Promise<Event[]> {
@@ -70,7 +74,9 @@ export async function getEvents(options: GetEventsOptions = {}): Promise<Event[]
     seriesId,
     excludeSeriesId,
     hasCoordinates,
-    language
+    language,
+    sources,
+    hideLowQuality
   } = options;
 
   let query = `
@@ -79,15 +85,13 @@ export async function getEvents(options: GetEventsOptions = {}): Promise<Event[]
       v.name as venue_name,
       v.slug as venue_slug,
       v.city as venue_city,
-      ec.interested_count,
-      ec.going_count,
-      ec.saves_count,
+      (COALESCE(ec.interested_count, 0) + COALESCE(ec.going_count, 0) + COALESCE(ec.saves_count, 0)) as saved_count,
       CASE WHEN $1::text IS NOT NULL THEN
         EXISTS(
           SELECT 1 FROM event_actions ea 
-          WHERE ea.event_id = e.id AND ea.user_id = $1 AND ea.type = 'interested'
+          WHERE ea.event_id = e.id AND ea.user_id = $1 AND ea.type IN ('save', 'interested', 'going')
         )
-      ELSE false END as user_interested
+      ELSE false END as user_saved
     FROM events e
     LEFT JOIN venues v ON e.venue_id = v.id
     LEFT JOIN event_counters ec ON e.id = ec.event_id
@@ -110,7 +114,7 @@ export async function getEvents(options: GetEventsOptions = {}): Promise<Event[]
   }
 
   if (category) {
-    query += ` AND (LOWER(e.category) = LOWER($${paramIndex}) OR $${paramIndex} = ANY(SELECT LOWER(unnest(e.tags))))`;
+    query += ` AND (LOWER(e.category) = LOWER($${paramIndex}) OR LOWER($${paramIndex}) = ANY(SELECT LOWER(unnest(e.tags))))`;
     params.push(category);
     paramIndex++;
   }
@@ -125,15 +129,35 @@ export async function getEvents(options: GetEventsOptions = {}): Promise<Event[]
     paramIndex++;
   }
 
+  if (options.venue) {
+    query += ` AND v.slug = $${paramIndex}`;
+    params.push(options.venue);
+    paramIndex++;
+  }
+
   if (date) {
     if (date === "today") {
       query += ` AND DATE(e.start_at) = CURRENT_DATE`;
     } else if (date === "weekend") {
-      query += ` AND EXTRACT(DOW FROM e.start_at) IN (5, 6, 0) AND e.start_at >= CURRENT_DATE`;
+      // Upcoming weekend: From now until next Monday.
+      // If today is Sunday, this covers rest of today.
+      query += ` 
+        AND e.start_at >= CURRENT_DATE 
+        AND e.start_at < DATE_TRUNC('week', CURRENT_DATE) + INTERVAL '7 days'
+        AND EXTRACT(DOW FROM e.start_at) IN (5, 6, 0)
+      `;
     } else if (date === "week") {
-      query += ` AND e.start_at >= CURRENT_DATE AND e.start_at <= CURRENT_DATE + INTERVAL '7 days'`;
+      // This week: From now until next Monday (end of current week).
+      query += ` 
+        AND e.start_at >= CURRENT_DATE 
+        AND e.start_at < DATE_TRUNC('week', CURRENT_DATE) + INTERVAL '7 days'
+      `;
     } else if (date === "month") {
-      query += ` AND e.start_at >= CURRENT_DATE AND e.start_at <= CURRENT_DATE + INTERVAL '30 days'`;
+      // This month: From now until start of next month.
+      query += ` 
+        AND e.start_at >= CURRENT_DATE 
+        AND e.start_at < DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month'
+      `;
     } else if (date === "past") {
       query += ` AND e.start_at < NOW()`;
     }
@@ -141,8 +165,17 @@ export async function getEvents(options: GetEventsOptions = {}): Promise<Event[]
     query += ` AND e.start_at >= NOW()`;
   }
 
+  if (sources && sources.length > 0) {
+    query += ` AND e.source_name = ANY($${paramIndex}::text[])`;
+    params.push(sources);
+    paramIndex++;
+  }
+
   if (primaryOnly) {
     query += ` AND e.is_primary_occurrence = TRUE`;
+  }
+
+  if (hideLowQuality) {
     query += ` AND (e.image_size_kb IS NULL OR e.image_size_kb >= 20)`;
   }
 
@@ -174,7 +207,7 @@ export async function getEvents(options: GetEventsOptions = {}): Promise<Event[]
       SELECT 1 FROM event_actions ea 
       WHERE ea.event_id = e.id 
       AND ea.user_id = $${paramIndex} 
-      AND ea.type = 'interested'
+      AND ea.type IN ('save', 'interested', 'going')
     )`;
     params.push(options.interestedByUserId);
     paramIndex++;
@@ -211,7 +244,8 @@ export async function getEvents(options: GetEventsOptions = {}): Promise<Event[]
       going_count: row.going_count || 0,
       saves_count: row.saves_count || 0,
     },
-    user_interested: !!row.user_interested,
+    saved_count: parseInt(row.saved_count) || 0,
+    user_saved: !!row.user_saved,
   }));
 }
 
@@ -234,7 +268,7 @@ export async function getSeriesOccurrences(seriesId: string): Promise<Event[]> {
   return result.rows;
 }
 
-export async function getEventBySlug(slug: string): Promise<Event | null> {
+export async function getEventBySlug(slug: string, viewerId?: string): Promise<Event | null> {
   // Trim and normalize the slug
   const normalizedSlug = slug.trim();
 
@@ -245,15 +279,19 @@ export async function getEventBySlug(slug: string): Promise<Event | null> {
       v.name as venue_name,
       v.slug as venue_slug,
       v.city as venue_city,
-      ec.interested_count,
-      ec.going_count,
-      ec.saves_count
+      (COALESCE(ec.interested_count, 0) + COALESCE(ec.going_count, 0) + COALESCE(ec.saves_count, 0)) as saved_count,
+      CASE WHEN $2::text IS NOT NULL THEN
+        EXISTS(
+          SELECT 1 FROM event_actions ea 
+          WHERE ea.event_id = e.id AND ea.user_id = $2 AND ea.type IN ('save', 'interested', 'going')
+        )
+      ELSE false END as user_saved
     FROM events e
     LEFT JOIN venues v ON e.venue_id = v.id
     LEFT JOIN event_counters ec ON e.id = ec.event_id
     WHERE e.slug = $1 AND e.status = 'published'
     `,
-    [normalizedSlug]
+    [normalizedSlug, viewerId || null]
   );
 
   if (result.rows.length === 0) {
@@ -275,6 +313,8 @@ export async function getEventBySlug(slug: string): Promise<Event | null> {
       going_count: row.going_count || 0,
       saves_count: row.saves_count || 0,
     },
+    saved_count: parseInt(row.saved_count) || 0,
+    user_saved: !!row.user_saved,
   };
 }
 
@@ -286,16 +326,13 @@ export async function getPopularEvents(limit: number = 10): Promise<Event[]> {
       v.name as venue_name,
       v.slug as venue_slug,
       v.city as venue_city,
-      ec.interested_count,
-      ec.going_count,
-      ec.saves_count
+      (COALESCE(ec.interested_count, 0) + COALESCE(ec.going_count, 0) + COALESCE(ec.saves_count, 0)) as saved_count
     FROM events e
     LEFT JOIN venues v ON e.venue_id = v.id
     LEFT JOIN event_counters ec ON e.id = ec.event_id
     WHERE e.status = 'published' 
       AND e.start_at >= NOW()
-      AND ec.last_activity_at >= NOW() - INTERVAL '7 days'
-    ORDER BY (ec.interested_count + ec.going_count) DESC, ec.last_activity_at DESC, e.id ASC
+    ORDER BY (COALESCE(ec.interested_count, 0) + COALESCE(ec.going_count, 0) + COALESCE(ec.saves_count, 0)) DESC, ec.last_activity_at DESC, e.id ASC
     LIMIT $1
     `,
     [limit]
@@ -315,5 +352,6 @@ export async function getPopularEvents(limit: number = 10): Promise<Event[]> {
       going_count: row.going_count || 0,
       saves_count: row.saves_count || 0,
     },
+    saved_count: parseInt(row.saved_count) || 0,
   }));
 }

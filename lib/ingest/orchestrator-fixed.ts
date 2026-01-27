@@ -227,7 +227,7 @@ async function getImageSizeKb(url: string): Promise<number | null> {
     const response = await fetch(url, { method: 'HEAD' });
     const length = response.headers.get('content-length');
     if (length) {
-      return Math.round(parseInt(length) / 1024);
+      return Math.floor(parseInt(length) / 1024);
     }
   } catch (e) {
     // Silently fail
@@ -290,7 +290,7 @@ function getLocalFileSizeKb(publicPath: string): number | null {
     const rawPath = publicPath.replace(/^\/uploads\/events\//, '');
     const fullPath = path.join(process.cwd(), 'public', 'uploads', 'events', rawPath);
     const stats = fs.statSync(fullPath);
-    return Math.round(stats.size / 1024);
+    return Math.floor(stats.size / 1024);
   } catch (e) {
     return null;
   }

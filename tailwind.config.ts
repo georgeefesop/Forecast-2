@@ -38,6 +38,7 @@ const config: Config = {
           accent: "var(--color-brand-accent)",
           "accent-hover": "var(--color-brand-accent-hover)",
           "accent-active": "var(--color-brand-accent-active)",
+          parchment: "#EBE5DE",
         },
       },
       spacing: {

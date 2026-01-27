@@ -21,8 +21,7 @@ interface EventCardProps {
     city: string;
   };
   imageUrl?: string;
-  interestedCount?: number;
-  goingCount?: number;
+  savedCount?: number;
   category?: string;
   isPromoted?: boolean;
   className?: string;
@@ -32,6 +31,8 @@ interface EventCardProps {
   isSeries?: boolean;
   size?: 'small' | 'wide' | 'tall' | 'big' | 'hero';
   index?: number;
+  description?: string;
+  imageSizeKb?: number | null;
 }
 
 export function EventCard({
@@ -41,8 +42,7 @@ export function EventCard({
   startAt,
   venue,
   imageUrl,
-  interestedCount = 0,
-  goingCount = 0,
+  savedCount = 0,
   category,
   isPromoted = false,
   className,
@@ -51,9 +51,15 @@ export function EventCard({
   seriesId,
   isSeries = false,
   size = 'small',
-  isInterested = false,
+  isSaved = false,
   index = 0,
-}: EventCardProps & { isInterested?: boolean }) {
+  description,
+  imageSizeKb,
+}: EventCardProps & { isSaved?: boolean }) {
+
+  // Deterministically select a marble placeholder based on id/index
+  const placeholderIndex = (index + (id.charCodeAt(0) || 0)) % 5 + 1;
+  const placeholderImage = `/placeholders/marble-${placeholderIndex}.png`;
 
   const isHero = size === 'hero';
 
@@ -68,6 +74,13 @@ export function EventCard({
   const [scrollDistance, setScrollDistance] = useState(0);
 
   const [isTouch, setIsTouch] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  // Consider image valid if: URL exists, no load error, AND (size is unknown OR size >= 20kb)
+  // Raised to 20kb to catch low-quality images (like Amphibia ~14.8kb)
+  const isSizeValid = imageSizeKb === null || imageSizeKb === undefined || imageSizeKb >= 20;
+  const hasImage = Boolean(imageUrl && !imageError && isSizeValid);
+
 
   useEffect(() => {
     // Check for touch capability
@@ -95,8 +108,8 @@ export function EventCard({
       y: 0,
       scale: 1,
       transition: {
-        delay: (i % 8) * 0.1 + (Math.random() * 0.05), // Distinct 'one-by-one' stagger, capped to reuse pool
-        duration: 0.8,
+        delay: (i % 8) * 0.05 + (Math.random() * 0.02), // Refined faster stagger
+        duration: 0.4,
         ease: [0.16, 1, 0.3, 1] // Apple-style 'expo' out
       }
     })
@@ -160,7 +173,7 @@ export function EventCard({
         href={`/event/${slug}`}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: "-50px" }}
+        viewport={{ once: true, margin: "200px" }}
         custom={index}
         whileHover="hover"
         whileTap="tap"
@@ -174,29 +187,49 @@ export function EventCard({
         )}
       >
         <motion.div variants={imageVariants} className="relative h-full w-full">
-          {imageUrl ? (
+          {hasImage ? (
             <Image
-              src={imageUrl}
+              src={encodeURI(imageUrl!)}
               alt={title}
               fill
               className="object-cover"
               priority
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
+              onError={() => setImageError(true)}
+              onLoad={() => {
+                // Success
+              }}
             />
           ) : (
-            <div className="flex h-full items-center justify-center bg-gray-200">
-              <Calendar className="h-16 w-16 text-gray-400" />
-            </div>
+            <>
+              <Image
+                src={placeholderImage}
+                alt=""
+                fill
+                className="object-cover"
+                priority
+              />
+            </>
           )}
         </motion.div>
+
+        {/* Top-Left Pills (Series & Category) */}
+        <div className="absolute top-6 left-6 z-10 flex flex-col items-start gap-2">
+          {isSeries && (
+            <span className="inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider shadow-sm bg-[#F0EFEA] text-text-primary border border-border-subtle">
+              Series
+            </span>
+          )}
+          {category && (
+            <span className="inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider shadow-sm bg-[#F0EFEA] text-text-primary border border-border-subtle">
+              {category}
+            </span>
+          )}
+        </div>
 
         {/* Hero Content Wrapped in Glass */}
         <div className="absolute bottom-0 left-0 right-0 border-t border-white/20 bg-gradient-to-b from-white/10 to-transparent backdrop-blur-[15px] transition-all duration-500">
           <div className="p-8">
-            {isSeries && (
-              <span className="inline-block rounded-full bg-white/20 backdrop-blur-md px-3 py-1 text-xs font-bold uppercase tracking-wider text-white mb-4">
-                Series
-              </span>
-            )}
             <div ref={titleContainerRef} className="overflow-hidden mb-4 relative max-w-full">
               <motion.h3
                 ref={titleTextRef}
@@ -207,6 +240,11 @@ export function EventCard({
                 {displayTitle}
               </motion.h3>
             </div>
+            {description && (
+              <p className="text-white/80 text-sm md:text-base mb-4 line-clamp-1 max-w-[90%] font-medium">
+                {description}
+              </p>
+            )}
             <div className="flex items-center gap-x-4 gap-y-2 text-white/90 text-base md:text-lg font-medium min-w-0 pr-20">
               <div className="flex items-center gap-1.5 flex-shrink-0">
                 <Calendar className="h-5 w-5 flex-shrink-0" />
@@ -226,10 +264,10 @@ export function EventCard({
         <div className="absolute bottom-8 right-8 z-10">
           <HeartButton
             eventId={id}
-            initialInterestedCount={interestedCount}
-            initialIsInterested={isInterested}
+            initialSavedCount={savedCount}
+            initialIsSaved={isSaved}
             size="lg"
-            className="text-white hover:text-red-500 drop-shadow-md"
+            className="text-white drop-shadow-md transition-colors"
           />
         </div>
       </MotionLink>
@@ -242,7 +280,7 @@ export function EventCard({
       href={`/event/${slug}`}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: "-50px" }}
+      viewport={{ once: true, margin: "200px" }}
       custom={index}
       whileHover="hover"
       whileTap="tap"
@@ -256,31 +294,41 @@ export function EventCard({
       )}
     >
       {/* Image Area - Fixed 16:9 Aspect */}
-      <div className="relative aspect-[16/9] w-full overflow-hidden bg-gray-100">
-        <motion.div variants={imageVariants} className="h-full w-full">
-          {imageUrl ? (
+      <div className={cn("relative aspect-[16/9] w-full overflow-hidden", hasImage ? "bg-[#F0EFEA]" : "bg-black")}>
+        <motion.div variants={imageVariants} className="relative h-full w-full">
+          {hasImage ? (
             <Image
-              src={imageUrl}
+              src={encodeURI(imageUrl!)}
               alt={title}
               fill
               className="object-cover"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              onError={() => setImageError(true)}
+              onLoad={(img) => {
+                // Success
+              }}
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-gray-300">
-              <Calendar className="h-10 w-10" />
-            </div>
+            <>
+              <Image
+                src={placeholderImage}
+                alt=""
+                fill
+                className="object-cover"
+              />
+            </>
           )}
         </motion.div>
 
         {/* Badges Overlay */}
         <div className="absolute top-3 left-3 flex gap-2 z-10">
           {isSeries && (
-            <span className="rounded-full border-t border-white/20 bg-gradient-to-b from-white/10 to-transparent backdrop-blur-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm drop-shadow-md">
+            <span className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider shadow-sm drop-shadow-md bg-[#F0EFEA] text-text-primary border border-border-subtle">
               Series
             </span>
           )}
           {category && (
-            <span className="rounded-full border-t border-white/20 bg-gradient-to-b from-white/10 to-transparent backdrop-blur-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm drop-shadow-md transition-all">
+            <span className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider shadow-sm drop-shadow-md transition-all bg-[#F0EFEA] text-text-primary border border-border-subtle">
               {category}
             </span>
           )}
@@ -306,28 +354,25 @@ export function EventCard({
             <time className="font-medium">{format(startAt, "EEE, MMM d • h:mm a")}</time>
           </div>
           <div className="flex items-center gap-1.5">
-            <MapPin className="h-3.5 w-3.5 opacity-70" />
+            <MapPin className="h-3.5 w-3.5 opacity-70 flex-shrink-0" />
             <span className="line-clamp-1 opacity-90">{venue?.name || "Limassol"}</span>
           </div>
         </div>
 
         {/* Footer: Price Pill */}
-        <div className="mt-3 pt-3 border-t border-border-subtle/50 flex items-center justify-between">
+        <div className="mt-4 flex items-center justify-between">
           <span className={cn(
-            "rounded-full px-2.5 py-0.5 text-[11px] font-bold tracking-wide border",
-            !priceMin
-              ? "border-transparent bg-brand-accent/10 text-brand-accent"
-              : "border-border-default text-text-secondary"
+            "rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wider border border-border-default text-text-primary bg-transparent"
           )}>
             {!priceMin ? "FREE" : `€${Math.round(priceMin)}`}
           </span>
 
           <HeartButton
             eventId={id}
-            initialInterestedCount={interestedCount}
-            initialIsInterested={isInterested}
+            initialSavedCount={savedCount}
+            initialIsSaved={isSaved}
             size="sm"
-            className="text-text-tertiary hover:text-red-500 transition-colors"
+            className="text-text-primary transition-colors"
           />
         </div>
       </div>

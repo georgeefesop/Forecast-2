@@ -230,7 +230,7 @@ async function getImageSizeKb(url: string): Promise<number | null> {
     const response = await fetch(url, { method: 'HEAD' });
     const length = response.headers.get('content-length');
     if (length) {
-      return Math.round(parseInt(length) / 1024);
+      return Math.floor(parseInt(length) / 1024);
     }
   } catch (e) {
     // Silently fail
@@ -293,7 +293,7 @@ function getLocalFileSizeKb(publicPath: string): number | null {
     const rawPath = publicPath.replace(/^\/uploads\/events\//, '');
     const fullPath = path.join(process.cwd(), 'public', 'uploads', 'events', rawPath);
     const stats = fs.statSync(fullPath);
-    return Math.round(stats.size / 1024);
+    return Math.floor(stats.size / 1024);
   } catch (e) {
     return null;
   }
@@ -329,13 +329,34 @@ export async function upsertEvent(
       .replace(/(^-|-$)/g, '');
 
     const venueResult = await db.query(
-      `INSERT INTO venues (name, slug, city, address)
-       VALUES ($1, $2, $3, $4)
+      `INSERT INTO venues (
+         name, slug, city, address, 
+         area, type, website_url, instagram_url, phone, email
+       )
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
        ON CONFLICT (slug) DO UPDATE 
          SET name = EXCLUDED.name, 
-             address = EXCLUDED.address
+             address = COALESCE(EXCLUDED.address, venues.address),
+             city = COALESCE(EXCLUDED.city, venues.city),
+             area = COALESCE(EXCLUDED.area, venues.area),
+             type = COALESCE(EXCLUDED.type, venues.type),
+             website_url = COALESCE(EXCLUDED.website_url, venues.website_url),
+             instagram_url = COALESCE(EXCLUDED.instagram_url, venues.instagram_url),
+             phone = COALESCE(EXCLUDED.phone, venues.phone),
+             email = COALESCE(EXCLUDED.email, venues.email)
        RETURNING id`,
-      [event.venue.name, venueSlug, event.city, event.venue.address || null]
+      [
+        event.venue.name,
+        venueSlug,
+        event.venue.city || event.city,
+        event.venue.address || null,
+        event.venue.area || null,
+        event.venue.type || null,
+        event.venue.websiteUrl || null,
+        event.venue.instagramUrl || null,
+        event.venue.phone || null,
+        event.venue.email || null
+      ]
     );
     venueId = venueResult.rows[0]?.id;
   }
