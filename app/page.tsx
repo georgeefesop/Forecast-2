@@ -4,60 +4,94 @@ import { SearchBar } from "@/components/search/search-bar";
 import { FilterChips } from "@/components/filters/filter-chips";
 import { SponsoredBanner } from "@/components/home/sponsored-banner";
 import { GalleryGrid } from "@/components/home/gallery-grid";
+import { FadeIn } from "@/components/ui/fade-in";
 import { getEvents } from "@/lib/db/queries/events";
+import { auth } from "@/app/api/auth/[...nextauth]/route";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
+  const session = await auth();
+
   // Fetch primary occurrences for the gallery wall
   const events = await getEvents({
     primaryOnly: true,
     limit: 40,
+    viewerId: session?.user?.id,
   });
 
   return (
     <div className="flex min-h-screen flex-col">
       <MainNav />
       <main className="flex-1">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          {/* Header & Search */}
-          <div className="mb-12 flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
-            <div className="max-w-2xl">
-              <h1 className="text-fluid-4xl font-black tracking-tight text-text-primary leading-[1.1]">
-                Everything happening <br />
-                in <span className="text-brand-accent italic">Cyprus</span>
-              </h1>
-              <p className="mt-4 text-fluid-lg text-text-secondary">
-                Curated events, venues, and experiences across the island.
-              </p>
+        <div className="mx-auto max-w-[1248px] px-4 py-8 md:py-12 sm:px-6 lg:px-8 relative">
+          {/* Hero Section - 2 Column Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mb-16 items-start">
+
+            {/* Left Column: Content + Filters */}
+            <div className="lg:col-span-7 flex flex-col">
+              <FadeIn delay={0.1}>
+                <h1 className="font-serif font-medium text-[clamp(34px,3.4vw,56px)] leading-[1.1] text-text-primary tracking-tight">
+                  Everything happening <br /> in <span className="italic text-brand-accent">Cyprus</span>
+                </h1>
+              </FadeIn>
+
+              <FadeIn delay={0.2}>
+                <p className="mt-4 text-[clamp(14px,1.1vw,18px)] leading-[1.6] text-text-secondary max-w-[52ch]">
+                  Curated events, venues, and experiences across the island. Discover the best of culture, nightlife, and community.
+                </p>
+              </FadeIn>
+
+
             </div>
-            <div className="w-full md:w-96">
-              <SearchBar />
+
+            {/* Right Column: Search (Floating) */}
+            <div className="lg:col-span-5 lg:flex lg:justify-end lg:pt-2">
+              <div className="w-full max-w-[480px]">
+                <SearchBar />
+              </div>
             </div>
           </div>
 
-          {/* Filter Row */}
-          <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-            <FilterChips />
-            <a
-              href="/explore"
-              className="text-sm font-semibold text-brand-accent hover:underline"
-            >
-              Advanced Search →
-            </a>
+          {/* Sponsored Banner & Filters Container */}
+          <div className="relative mb-8 w-full">
+            {/* Desktop: Floating Sidebar Ad (Left Gutter) */}
+            <div className="hidden 2xl:block absolute -left-[320px] top-0 w-[280px] h-full pointer-events-none">
+              <div className="sticky top-24 pointer-events-auto">
+                <FadeIn delay={0.4}>
+                  <SponsoredBanner variant="vertical" />
+                </FadeIn>
+              </div>
+            </div>
+
+            {/* Mobile/Tablet: Banner above filters */}
+            <div className="2xl:hidden mb-8">
+              <FadeIn delay={0.4}>
+                <SponsoredBanner variant="horizontal" />
+              </FadeIn>
+            </div>
+
+            {/* Filters Section (Now Always Visible) */}
+            <div className="relative z-10">
+              <FadeIn delay={0.3}>
+                <FilterChips masked={true} />
+              </FadeIn>
+              <FadeIn delay={0.4}>
+                <div className="mt-4">
+                  <a
+                    href="/explore"
+                    className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors border-b border-transparent hover:border-text-primary"
+                  >
+                    Advanced Search →
+                  </a>
+                </div>
+              </FadeIn>
+            </div>
           </div>
 
           {/* Gallery Wall */}
           <div className="mb-16">
-            <h2 className="mb-6 text-fluid-2xl font-bold text-text-primary">
-              The Wall
-            </h2>
             <GalleryGrid events={events} />
-          </div>
-
-          {/* Sponsored Banner */}
-          <div className="mb-16">
-            <SponsoredBanner />
           </div>
 
           {/* Newsletter CTA */}

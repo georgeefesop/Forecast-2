@@ -219,13 +219,12 @@ export function SettingsTabContent({ session, isOnboarding = false }: SettingsTa
           </div>
 
           {/* Handle/Username (Editable) */}
-          <div 
+          <div
             id="profile-section"
-            className={`rounded-lg border p-4 transition-all ${
-              isOnboarding 
-                ? "border-brand-accent bg-brand-accent/10" 
+            className={`rounded-lg border p-4 transition-all ${isOnboarding
+                ? "border-brand-accent bg-brand-accent/10"
                 : "border-border-default bg-background-surface"
-            }`}
+              }`}
           >
             {isOnboarding && (
               <div className="mb-3 rounded-md bg-background-elevated p-3 text-sm text-text-primary">
@@ -237,17 +236,17 @@ export function SettingsTabContent({ session, isOnboarding = false }: SettingsTa
             )}
             <ProfileEditForm
               currentHandle={session.user.handle || ""}
+              currentGender={profile?.gender}
               onUpdate={fetchProfile}
             />
           </div>
 
           {/* Birthday/Age */}
-          <div 
-            className={`rounded-lg border p-4 transition-all ${
-              isOnboarding && !profile?.birthday
-                ? "border-brand-accent bg-brand-accent/10" 
+          <div
+            className={`rounded-lg border p-4 transition-all ${isOnboarding && !profile?.birthday
+                ? "border-brand-accent bg-brand-accent/10"
                 : "border-border-default bg-background-surface"
-            }`}
+              }`}
           >
             <div className="flex items-center gap-3 mb-3">
               <Calendar className="h-5 w-5 text-text-secondary" />

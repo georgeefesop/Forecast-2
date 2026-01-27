@@ -120,7 +120,10 @@ export class SoldOutTicketBoxAdapter implements SourceAdapter {
       venue: location ? { name: location } : undefined,
       category: category,
       imageUrl: imageUrl,
-      tags: [category]
+      tags: [category],
+      language: stub.url.includes('/lang/el') || stub.url.includes('/lang/gr') ? 'el'
+        : stub.url.includes('/lang/ru') ? 'ru'
+          : 'en'
     };
   }
 
@@ -146,7 +149,10 @@ export class SoldOutTicketBoxAdapter implements SourceAdapter {
       ticketUrl: raw.url,
       sourceName: this.name,
       sourceUrl: raw.url,
-      sourceExternalId: raw.url
+      sourceExternalId: raw.url,
+      language: raw.url.includes('/lang/el') || raw.url.includes('/lang/gr') ? 'el'
+        : raw.url.includes('/lang/ru') ? 'ru'
+          : 'en'
     };
   }
 }

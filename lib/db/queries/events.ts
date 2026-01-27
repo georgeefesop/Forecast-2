@@ -35,9 +35,10 @@ export interface Event {
     going_count: number;
     saves_count: number;
   };
+  user_interested?: boolean;
 }
 
-export async function getEvents(filters: {
+export interface GetEventsOptions {
   city?: string;
   category?: string;
   date?: string;
@@ -46,7 +47,32 @@ export async function getEvents(filters: {
   limit?: number;
   offset?: number;
   primaryOnly?: boolean;
-}): Promise<Event[]> {
+  ids?: string[];
+  seriesId?: string;
+  excludeSeriesId?: string;
+  hasCoordinates?: boolean;
+  language?: string;
+  interestedByUserId?: string;
+  viewerId?: string;
+}
+
+export async function getEvents(options: GetEventsOptions = {}): Promise<Event[]> {
+  const {
+    limit = 50,
+    offset = 0,
+    date,
+    category,
+    city,
+    free,
+    search,
+    primaryOnly,
+    ids,
+    seriesId,
+    excludeSeriesId,
+    hasCoordinates,
+    language
+  } = options;
+
   let query = `
     SELECT 
       e.*,
@@ -55,84 +81,120 @@ export async function getEvents(filters: {
       v.city as venue_city,
       ec.interested_count,
       ec.going_count,
-      ec.saves_count
+      ec.saves_count,
+      CASE WHEN $1::text IS NOT NULL THEN
+        EXISTS(
+          SELECT 1 FROM event_actions ea 
+          WHERE ea.event_id = e.id AND ea.user_id = $1 AND ea.type = 'interested'
+        )
+      ELSE false END as user_interested
     FROM events e
     LEFT JOIN venues v ON e.venue_id = v.id
     LEFT JOIN event_counters ec ON e.id = ec.event_id
     WHERE e.status = 'published'
   `;
-  const params: any[] = [];
-  let paramIndex = 1;
+  const viewerId = options.viewerId || null;
+  const params: any[] = [viewerId];
+  let paramIndex = 2;
 
-  if (filters.city) {
-    // Check both event city and venue city (case-insensitive)
-    // Match if either the event's city or the venue's city matches
+  if (language) {
+    query += ` AND e.language = $${paramIndex}`;
+    params.push(language);
+    paramIndex++;
+  }
+
+  if (city) {
     query += ` AND (LOWER(e.city) = LOWER($${paramIndex}) OR (v.city IS NOT NULL AND LOWER(v.city) = LOWER($${paramIndex})))`;
-    params.push(filters.city);
+    params.push(city);
     paramIndex++;
   }
 
-  if (filters.category) {
-    // Case-insensitive category matching using primary category OR tags
+  if (category) {
     query += ` AND (LOWER(e.category) = LOWER($${paramIndex}) OR $${paramIndex} = ANY(SELECT LOWER(unnest(e.tags))))`;
-    params.push(filters.category);
+    params.push(category);
     paramIndex++;
   }
 
-  if (filters.free) {
+  if (free) {
     query += ` AND (e.price_min IS NULL OR e.price_min = 0)`;
   }
 
-  if (filters.search) {
+  if (search) {
     query += ` AND (e.title ILIKE $${paramIndex} OR e.description ILIKE $${paramIndex})`;
-    params.push(`%${filters.search}%`);
+    params.push(`%${search}%`);
     paramIndex++;
   }
 
-  if (filters.date) {
-    if (filters.date === "today") {
+  if (date) {
+    if (date === "today") {
       query += ` AND DATE(e.start_at) = CURRENT_DATE`;
-    } else if (filters.date === "weekend") {
+    } else if (date === "weekend") {
       query += ` AND EXTRACT(DOW FROM e.start_at) IN (5, 6, 0) AND e.start_at >= CURRENT_DATE`;
-    } else if (filters.date === "week") {
+    } else if (date === "week") {
       query += ` AND e.start_at >= CURRENT_DATE AND e.start_at <= CURRENT_DATE + INTERVAL '7 days'`;
-    } else if (filters.date === "month") {
+    } else if (date === "month") {
       query += ` AND e.start_at >= CURRENT_DATE AND e.start_at <= CURRENT_DATE + INTERVAL '30 days'`;
-    } else if (filters.date === "past") {
+    } else if (date === "past") {
       query += ` AND e.start_at < NOW()`;
     }
   } else {
-    // Default to future events if no date filter (unless past is explicitly requested via date filter)
     query += ` AND e.start_at >= NOW()`;
   }
 
-  if (filters.primaryOnly) {
+  if (primaryOnly) {
     query += ` AND e.is_primary_occurrence = TRUE`;
-    // Filter out low quality images from the wall as requested
     query += ` AND (e.image_size_kb IS NULL OR e.image_size_kb >= 20)`;
   }
 
-  // Sort: High Res first, then Date
-  const sortDir = filters.date === "past" ? "DESC" : "ASC";
-
-  // Custom sorting for homepage/wall (when primaryOnly is true)
-  if (filters.primaryOnly) {
-    // Prefer local images or valid images
-    query += ` ORDER BY e.is_high_res DESC, (e.local_image_url IS NOT NULL) DESC, e.start_at ${sortDir}`;
-  } else {
-    query += ` ORDER BY e.is_high_res DESC, e.start_at ${sortDir}`;
-  }
-
-  if (filters.limit) {
-    query += ` LIMIT $${paramIndex}`;
-    params.push(filters.limit);
+  if (ids && ids.length > 0) {
+    query += ` AND e.id = ANY($${paramIndex}::uuid[])`;
+    params.push(ids);
     paramIndex++;
   }
 
-  if (filters.offset) {
-    query += ` OFFSET $${paramIndex}`;
-    params.push(filters.offset);
+  if (seriesId) {
+    query += ` AND e.series_id = $${paramIndex}`;
+    params.push(seriesId);
+    paramIndex++;
   }
+
+  if (excludeSeriesId) {
+    query += ` AND (e.series_id IS NULL OR e.series_id != $${paramIndex})`;
+    params.push(excludeSeriesId);
+    paramIndex++;
+  }
+
+  if (hasCoordinates) {
+    // Logic for coordinates check if implemented (e.g. venue lat/lng)
+    // For now omitting to match previous logic complexity unless needed
+  }
+
+  if (options.interestedByUserId) {
+    query += ` AND EXISTS (
+      SELECT 1 FROM event_actions ea 
+      WHERE ea.event_id = e.id 
+      AND ea.user_id = $${paramIndex} 
+      AND ea.type = 'interested'
+    )`;
+    params.push(options.interestedByUserId);
+    paramIndex++;
+  }
+
+  const sortDir = date === "past" ? "DESC" : "ASC";
+
+  if (primaryOnly) {
+    query += ` ORDER BY e.is_high_res DESC, (e.local_image_url IS NOT NULL) DESC, e.start_at ${sortDir}, e.id ASC`;
+  } else {
+    query += ` ORDER BY e.is_high_res DESC, e.start_at ${sortDir}, e.id ASC`;
+  }
+
+  query += ` LIMIT $${paramIndex}`;
+  params.push(limit);
+  paramIndex++;
+
+  query += ` OFFSET $${paramIndex}`;
+  params.push(offset);
+  paramIndex++; // Good practice even if last
 
   const result = await db.query(query, params);
   return result.rows.map((row) => ({
@@ -149,6 +211,7 @@ export async function getEvents(filters: {
       going_count: row.going_count || 0,
       saves_count: row.saves_count || 0,
     },
+    user_interested: !!row.user_interested,
   }));
 }
 
@@ -232,7 +295,7 @@ export async function getPopularEvents(limit: number = 10): Promise<Event[]> {
     WHERE e.status = 'published' 
       AND e.start_at >= NOW()
       AND ec.last_activity_at >= NOW() - INTERVAL '7 days'
-    ORDER BY (ec.interested_count + ec.going_count) DESC, ec.last_activity_at DESC
+    ORDER BY (ec.interested_count + ec.going_count) DESC, ec.last_activity_at DESC, e.id ASC
     LIMIT $1
     `,
     [limit]

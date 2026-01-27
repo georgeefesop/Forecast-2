@@ -240,7 +240,7 @@ export class LimassolMunicipalityAdapter implements SourceAdapter {
       dateText = $('.date, .event-date, time, [datetime], [class*="date"]')
         .first()
         .text()
-        .trim() || $('[datetime]').first().attr('datetime');
+        .trim() || $('[datetime]').first().attr('datetime') || '';
     }
 
     // Parse the date
@@ -269,7 +269,8 @@ export class LimassolMunicipalityAdapter implements SourceAdapter {
             startAt = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
           } else {
             // Fallback to parseDate utility
-            startAt = parseDate(dateText);
+            const parsed = parseDate(dateText);
+            if (parsed) startAt = parsed;
           }
         }
       }
@@ -346,6 +347,7 @@ export class LimassolMunicipalityAdapter implements SourceAdapter {
       tags: tags.length > 0 ? tags : undefined,
       imageUrl: imageUrl ? new URL(imageUrl, stub.url).href : undefined,
       ticketUrl: ticketUrl ? new URL(ticketUrl, stub.url).href : undefined,
+      language: 'en' // Scraped from /en/calendar
     };
   }
 

@@ -7,12 +7,14 @@ import { Loader2, Check } from "lucide-react";
 
 interface ProfileEditFormProps {
   currentHandle: string;
+  currentGender?: string | null;
   onUpdate?: () => void;
 }
 
-export function ProfileEditForm({ currentHandle, onUpdate }: ProfileEditFormProps) {
+export function ProfileEditForm({ currentHandle, currentGender, onUpdate }: ProfileEditFormProps) {
   const { data: session, update } = useSession();
   const [handle, setHandle] = useState(currentHandle || "");
+  const [gender, setGender] = useState(currentGender || "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -28,12 +30,12 @@ export function ProfileEditForm({ currentHandle, onUpdate }: ProfileEditFormProp
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ handle }),
+        body: JSON.stringify({ handle, gender }),
       });
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || "Failed to update handle");
+        throw new Error(data.error || "Failed to update profile");
       }
 
       // Update session
@@ -44,7 +46,7 @@ export function ProfileEditForm({ currentHandle, onUpdate }: ProfileEditFormProp
 
       onUpdate?.();
     } catch (err: any) {
-      setError(err.message || "Failed to update username");
+      setError(err.message || "Failed to update profile");
     } finally {
       setLoading(false);
     }
@@ -69,29 +71,53 @@ export function ProfileEditForm({ currentHandle, onUpdate }: ProfileEditFormProp
             disabled={loading}
             required
           />
-          <Button type="submit" disabled={loading || handle === currentHandle}>
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : success ? (
-              <>
-                <Check className="mr-2 h-4 w-4" />
-                Saved
-              </>
-            ) : (
-              "Save"
-            )}
-          </Button>
         </div>
-        {error && (
-          <p className="mt-2 text-sm text-semantic-error">{error}</p>
-        )}
         <p className="mt-2 text-xs text-text-tertiary">
           3-20 characters, letters, numbers, and underscores only
         </p>
       </div>
+
+      <div>
+        <label className="block text-sm font-medium text-text-primary mb-2">
+          Gender
+        </label>
+        <select
+          value={gender}
+          onChange={(e) => setGender(e.target.value)}
+          className="w-full rounded-md border border-border-default bg-background-surface px-3 py-2 text-text-primary focus:border-border-strong focus:outline-none"
+          disabled={loading}
+        >
+          <option value="">Select gender (optional)</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+          <option value="non_binary">Non-binary</option>
+          <option value="prefer_not_to_say">Prefer not to say</option>
+        </select>
+      </div>
+
+      <div className="flex justify-end pt-2">
+        <Button
+          type="submit"
+          disabled={loading || (handle === currentHandle && gender === (currentGender || ""))}
+        >
+          {loading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Saving...
+            </>
+          ) : success ? (
+            <>
+              <Check className="mr-2 h-4 w-4" />
+              Saved
+            </>
+          ) : (
+            "Save Changes"
+          )}
+        </Button>
+      </div>
+      {error && (
+        <p className="mt-2 text-sm text-semantic-error">{error}</p>
+      )}
     </form>
   );
 }

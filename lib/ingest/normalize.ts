@@ -10,9 +10,9 @@ const DEFAULT_TIMEZONE = 'Europe/Nicosia';
 
 export function normalizeEvent(
   stub: RawEventStub,
-  detail?: RawEventDetail,
   sourceName: string,
-  sourceUrl: string
+  sourceUrl: string,
+  detail?: RawEventDetail
 ): CanonicalEvent {
   // Merge stub and detail
   const raw = { ...stub, ...detail };
@@ -21,7 +21,7 @@ export function normalizeEvent(
   // Priority: detail.startAt > detail date text > stub.dateHint
   let startAt: Date;
   let endAt: Date | undefined = raw.endAt;
-  
+
   if (raw.startAt) {
     // Date already parsed from detail page
     startAt = raw.startAt;
@@ -30,7 +30,7 @@ export function normalizeEvent(
     // Extract year from URL for context (most reliable)
     const urlYearMatch = stub.url.match(/\b(202[4-6])\b/);
     const urlYear = urlYearMatch ? parseInt(urlYearMatch[1]) : undefined;
-    
+
     // Try to parse as range first
     const rangeResult = parseDateRange(stub.dateHint, urlYear);
     if (rangeResult) {
@@ -58,7 +58,7 @@ export function normalizeEvent(
     // If no date hint, reject this event - we need a date
     throw new Error(`No date available for event: ${stub.url}`);
   }
-  
+
   // Validate date is not too far in the past (reject events older than 1 day)
   // This allows events that just happened to be shown, but filters out old events
   const now = new Date();
@@ -86,7 +86,7 @@ export function normalizeEvent(
       .replace(/<[^>]*>/g, ' ')
       .replace(/\s+/g, ' ')
       .trim();
-    
+
     // Limit to 500 chars
     if (description.length > 500) {
       description = description.substring(0, 497) + '...';
@@ -111,5 +111,25 @@ export function normalizeEvent(
     sourceName,
     sourceUrl,
     sourceExternalId,
+    language: detectLanguage(raw.title.trim(), description, (raw as any).language),
   };
+}
+
+function detectLanguage(title: string, description: string | undefined, hint?: string): string {
+  // 1. Strong signal: Character detection in title
+  if (/[α-ωΑ-Ω]/.test(title)) return 'el';
+  if (/[а-яА-Я]/.test(title)) return 'ru';
+
+  // 2. Secondary signal: Character detection in description
+  if (description) {
+    if (/[α-ωΑ-Ω]/.test(description)) return 'el';
+    if (/[а-яА-Я]/.test(description)) return 'ru';
+  }
+
+  // 3. Fallback: Use hint from adapter
+  if (hint && ['el', 'ru', 'en'].includes(hint)) {
+    return hint;
+  }
+
+  return 'en';
 }

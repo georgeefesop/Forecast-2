@@ -134,6 +134,9 @@ export class RialtoInterticketAdapter implements SourceAdapter {
       category: primaryCategory,
       tags: categories, // Store all categories in tags
       priceMin,
+      language: /[α-ωΑ-Ω]/.test(title + description) ? 'el'
+        : /[а-яА-Я]/.test(title + description) ? 'ru'
+          : 'en'
     };
   }
 

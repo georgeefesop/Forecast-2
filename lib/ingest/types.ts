@@ -26,6 +26,7 @@ export interface RawEventDetail {
   priceMin?: number;
   priceMax?: number;
   currency?: string;
+  language?: string;
 }
 
 export interface CanonicalEvent {
@@ -55,6 +56,7 @@ export interface CanonicalEvent {
   sourceExternalId: string;
   isHighRes?: boolean;
   imageSizeKb?: number;
+  language?: string; // 'en', 'el', 'ru' etc.
 }
 
 export interface SourceAdapter {

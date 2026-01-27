@@ -145,7 +145,10 @@ export class MoreAdapter implements SourceAdapter {
             detail.imageUrl = detail.imageUrl.replace(/\/thumbs\//, '/assets/').split('?')[0];
         }
 
-        return detail;
+        return {
+            ...detail,
+            language: 'en' // Scraped from /cy-en/
+        };
     }
 
     mapToCanonical(raw: RawEventStub & Partial<RawEventDetail>): CanonicalEvent {

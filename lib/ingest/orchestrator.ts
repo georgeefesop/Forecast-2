@@ -164,9 +164,9 @@ async function processSource(
         try {
           canonical = normalizeEvent(
             stub,
-            detail,
             adapter.name,
-            stub.url
+            stub.url,
+            detail
           );
         } catch (error: any) {
           const errorMsg = `[${adapter.name}] Normalization failed for ${stub.url}: ${error.message}`;
@@ -393,7 +393,8 @@ export async function upsertEvent(
         series_id = $17,
         is_high_res = $18,
         image_size_kb = $19,
-        local_image_url = $20
+        local_image_url = $20,
+        language = $21
        WHERE id = $16
        RETURNING id`;
 
@@ -417,7 +418,8 @@ export async function upsertEvent(
       seriesId,
       event.isHighRes || false,
       finalImageSizeKb,
-      localImageUrl
+      localImageUrl,
+      event.language || 'en'
     ];
 
     console.log('DEBUG UPDATE EXISTING - QUERY', query);
@@ -465,7 +467,8 @@ export async function upsertEvent(
           series_id = $17,
           is_high_res = $18,
           image_size_kb = $19,
-          local_image_url = $20
+          local_image_url = $20,
+          language = $21
          WHERE slug = $16`;
 
       const params = [
@@ -488,7 +491,8 @@ export async function upsertEvent(
         seriesId,
         event.isHighRes || false,
         finalImageSizeKb,
-        localImageUrl
+        localImageUrl,
+        event.language || 'en'
       ];
 
       console.log('DEBUG QUERY:', query);
@@ -512,8 +516,8 @@ export async function upsertEvent(
           title, slug, description, start_at, end_at, city, venue_id,
           address_text, category, tags, price_min, price_max,
           currency, image_url, ticket_url, status,
-          source_name, source_url, source_external_id, last_seen_at, series_id, is_high_res, image_size_kb, local_image_url
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, 'published', $16, $17, $18, NOW(), $19, $20, $21, $22)`,
+          source_name, source_url, source_external_id, last_seen_at, series_id, is_high_res, image_size_kb, local_image_url, language
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, 'published', $16, $17, $18, NOW(), $19, $20, $21, $22, $23)`,
         [
           event.title,
           slug,
@@ -536,7 +540,8 @@ export async function upsertEvent(
           seriesId,
           event.isHighRes || false,
           finalImageSizeKb,
-          localImageUrl
+          localImageUrl,
+          event.language || 'en'
         ]
       );
       return true; // Created

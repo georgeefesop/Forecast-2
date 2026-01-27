@@ -53,12 +53,13 @@ export function EventList({ events }: EventListProps) {
             {/* Grid View */}
             {view === "grid" && (
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {events.map((event) => (
+                    {events.map((event, index) => (
                         <EventCard
                             key={event.id}
                             id={event.id}
                             slug={event.slug}
                             title={event.title}
+                            index={index}
                             startAt={new Date(event.start_at)}
                             venue={event.venue}
                             imageUrl={event.image_url || undefined}
@@ -67,6 +68,7 @@ export function EventList({ events }: EventListProps) {
                             category={event.category || undefined}
                             sourceName={event.source_name || undefined}
                             priceMin={event.price_min}
+                            isInterested={event.user_interested}
                         />
                     ))}
                 </div>
@@ -103,12 +105,19 @@ export function EventList({ events }: EventListProps) {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
-                                                <a
-                                                    href={`/event/${event.slug}`}
-                                                    className="font-medium text-text-primary hover:text-brand-accent transition-colors"
-                                                >
-                                                    {event.title}
-                                                </a>
+                                                {(() => {
+                                                    const displayTitle = event.title === event.title.toUpperCase() && event.title.length > 3
+                                                        ? event.title.charAt(0) + event.title.slice(1).toLowerCase()
+                                                        : event.title;
+                                                    return (
+                                                        <a
+                                                            href={`/event/${event.slug}`}
+                                                            className="font-serif font-medium text-text-primary hover:text-brand-accent transition-colors"
+                                                        >
+                                                            {displayTitle}
+                                                        </a>
+                                                    );
+                                                })()}
                                             </td>
                                             <td className="px-6 py-4">
                                                 {event.venue ? (

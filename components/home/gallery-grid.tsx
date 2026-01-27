@@ -13,62 +13,64 @@ interface GalleryGridProps {
 export function GalleryGrid({ events, className }: GalleryGridProps) {
     if (!events || events.length === 0) return null;
 
+    // chunk events into groups of 5 for the pattern
+    const chunks = [];
+    for (let i = 0; i < events.length; i += 5) {
+        chunks.push(events.slice(i, i + 5));
+    }
+
     return (
-        <div className={cn(
-            "grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 md:auto-rows-[18rem] gap-4 max-w-7xl mx-auto grid-flow-dense",
-            className
-        )}>
-            {events.map((event, index) => {
-                // Determine layout spans based on a repeating 10-slot pattern
-                const patternIndex = index % 10;
-                let span = "col-span-1 row-span-1";
-                let size: 'small' | 'wide' | 'tall' | 'big' = 'small';
-
-                // Slot 0: Huge Hero (2x2)
-                if (patternIndex === 0) {
-                    span = "md:col-span-2 md:row-span-2";
-                    size = 'big';
-                }
-                // Slot 4: Wide Landscape (2x1)
-                else if (patternIndex === 4) {
-                    span = "md:col-span-2 md:row-span-1";
-                    size = 'wide';
-                }
-                // Slot 5: Tall Portrait (1x2)
-                else if (patternIndex === 5) {
-                    span = "md:col-span-1 md:row-span-2";
-                    size = 'tall';
-                }
-                // Slot 9: Secondary Hero (2x2)
-                else if (patternIndex === 9) {
-                    span = "md:col-span-2 md:row-span-2";
-                    size = 'big';
-                }
-
+        <div className={cn("flex flex-col gap-12", className)}>
+            {chunks.map((chunk, chunkIndex) => {
+                const baseIndex = chunkIndex * 5;
                 return (
-                    <div
-                        key={event.id}
-                        className={cn("flex min-h-0 min-w-0", span)}
-                    >
-                        <EventCard
-                            id={event.id}
-                            slug={event.slug}
-                            title={event.title}
-                            startAt={new Date(event.start_at)}
-                            venue={event.venue}
-                            imageUrl={event.local_image_url || event.image_url || undefined}
-                            interestedCount={event.counters?.interested_count}
-                            goingCount={event.counters?.going_count}
-                            category={event.category || undefined}
-                            sourceName={event.source_name || undefined}
-                            priceMin={event.price_min}
-                            isSeries={event.series_id !== null}
-                            size={size}
-                            className="h-full w-full"
-                        />
+                    <div key={chunkIndex} className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:h-[600px]">
+                        {/* Left Column: Hero Card (1st item) */}
+                        {chunk[0] && (
+                            <div className="lg:col-span-7 h-[400px] lg:h-auto">
+                                <EventCard
+                                    {...mapEventToProps(chunk[0])}
+                                    size="hero"
+                                    className="h-full w-full"
+                                    index={baseIndex}
+                                />
+                            </div>
+                        )}
+
+                        {/* Right Column: 2x2 Grid (Next 4 items) */}
+                        <div className="lg:col-span-5 grid grid-cols-2 gap-4 h-full">
+                            {chunk.slice(1, 5).map((event, eventIdx) => (
+                                <div key={event.id} className="min-h-[180px]">
+                                    <EventCard
+                                        {...mapEventToProps(event)}
+                                        size="small"
+                                        className="h-full w-full"
+                                        index={baseIndex + eventIdx + 1}
+                                    />
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 );
             })}
         </div>
     );
+}
+
+function mapEventToProps(event: any) {
+    return {
+        id: event.id,
+        slug: event.slug,
+        title: event.title,
+        startAt: new Date(event.start_at),
+        venue: event.venue,
+        imageUrl: event.local_image_url || event.image_url || undefined,
+        interestedCount: event.counters?.interested_count,
+        goingCount: event.counters?.going_count,
+        category: event.category || undefined,
+        sourceName: event.source_name || undefined,
+        priceMin: event.price_min,
+        isSeries: event.series_id !== null,
+        isInterested: event.user_interested,
+    };
 }

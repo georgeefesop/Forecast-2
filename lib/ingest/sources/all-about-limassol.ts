@@ -22,7 +22,7 @@ export class AllAboutLimassolAdapter implements SourceAdapter {
     // Find event links - structure may vary, try common patterns
     $('article, .event-item, .agenda-item, a[href*="/event"], a[href*="/agenda"]').each((_, el) => {
       const $el = $(el);
-      
+
       // Try to find link
       const link = $el.find('a').first().attr('href') || $el.attr('href');
       if (!link) return;
@@ -31,26 +31,32 @@ export class AllAboutLimassolAdapter implements SourceAdapter {
       let url: string;
       if (link.startsWith('http')) {
         url = link;
-      } else if (link.startsWith('/')) {
-        // Absolute path from root
-        try {
-          const baseUrlObj = new URL(this.baseUrl);
-          url = `${baseUrlObj.protocol}//${baseUrlObj.host}${link}`;
-        } catch {
-          url = new URL(link, this.baseUrl).href;
-        }
       } else {
-        // Relative path
-        url = new URL(link, this.baseUrl).href;
+        // Remove leading / if present
+        const cleanLink = link.startsWith('/') ? link.substring(1) : link;
+
+        // If cleanLink already starts with 'en/agenda', append to domain root
+        if (cleanLink.startsWith('en/agenda') || cleanLink.startsWith('en/events')) {
+          url = `https://allaboutlimassol.com/${cleanLink}`;
+        } else {
+          // Otherwise resolve against current base (which is .../en/agenda/)
+          // But safer to just use domain root if we can
+          url = new URL(link, 'https://allaboutlimassol.com/').href;
+        }
       }
-      
-      // Clean up duplicate path segments
+
+      // Clean up duplicate path segments if any remain
       url = url.replace(/([^:]\/)\/+/g, '$1');
+
+      // Double check for duplicated en/agenda
+      if (url.includes('/en/agenda/en/agenda/')) {
+        url = url.replace('/en/agenda/en/agenda/', '/en/agenda/');
+      }
 
       // Extract title - avoid date-like patterns
       let title = $el.find('h2, h3, .title, .event-title').first().text().trim() ||
-                   $el.text().trim().split('\n')[0].trim();
-      
+        $el.text().trim().split('\n')[0].trim();
+
       // If title looks like a date range, try to find a better title
       // But allow generic titles like "Agenda" or "Events" through - detail() will fix them
       if (title.match(/^\d{1,2}\s*[-–]\s*\d{1,2}/)) {
@@ -67,7 +73,7 @@ export class AllAboutLimassolAdapter implements SourceAdapter {
           }
         }
       }
-      
+
       // Final validation - only reject pure date ranges, allow generic titles (detail() will fix)
       if (!title || title.length < 3 || title.match(/^\d{1,2}\s*[-–]\s*\d{1,2}(\s+\w+)?$/)) {
         return;
@@ -75,11 +81,11 @@ export class AllAboutLimassolAdapter implements SourceAdapter {
 
       // Extract date hint
       const dateText = $el.find('.date, .event-date, time').first().text().trim() ||
-                      $el.text().match(/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/)?.[0];
+        $el.text().match(/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/)?.[0];
 
       // Extract image
-      const imageUrl = $el.find('img').first().attr('src') || 
-                      $el.find('img').first().attr('data-src');
+      const imageUrl = $el.find('img').first().attr('src') ||
+        $el.find('img').first().attr('data-src');
 
       stubs.push({
         title,
@@ -98,7 +104,7 @@ export class AllAboutLimassolAdapter implements SourceAdapter {
 
         const fullUrl = url.startsWith('http') ? url : new URL(url, this.baseUrl).href;
         const title = $link.text().trim() || $link.find('h1, h2, h3').first().text().trim();
-        
+
         if (title && title.length > 3) {
           stubs.push({
             title,
@@ -118,7 +124,7 @@ export class AllAboutLimassolAdapter implements SourceAdapter {
 
     // Extract title from detail page - prioritize actual event titles
     let title = stub.title;
-    
+
     // Try multiple selectors in order of preference
     const titleSelectors = [
       'h1',
@@ -131,7 +137,7 @@ export class AllAboutLimassolAdapter implements SourceAdapter {
       'meta[property="og:title"]',
       'title'
     ];
-    
+
     for (const selector of titleSelectors) {
       let detailTitle: string;
       if (selector.startsWith('meta')) {
@@ -139,24 +145,24 @@ export class AllAboutLimassolAdapter implements SourceAdapter {
       } else {
         detailTitle = $(selector).first().text().trim();
       }
-      
+
       // If we found a better title (not a date range or generic), use it
-      if (detailTitle && detailTitle.length > 3 && 
-          !detailTitle.match(/^\d{1,2}\s*[-–]\s*\d{1,2}/) &&
-          !detailTitle.match(/^(agenda|events?|all about limassol)$/i) &&
-          detailTitle.length < 200) { // Reasonable title length
+      if (detailTitle && detailTitle.length > 3 &&
+        !detailTitle.match(/^\d{1,2}\s*[-–]\s*\d{1,2}/) &&
+        !detailTitle.match(/^(agenda|events?|all about limassol)$/i) &&
+        detailTitle.length < 200) { // Reasonable title length
         title = detailTitle;
         break;
       }
     }
-    
+
     // If still generic, try extracting from description first sentence
     if ((title.match(/^(agenda|events?)$/i) || title.length < 5) && $('.content, .event-description, article p').length > 0) {
       const firstPara = $('.content, .event-description, article p').first().text().trim();
       const firstSentence = firstPara.split(/[.!?]/)[0].trim();
       if (firstSentence && firstSentence.length > 10 && firstSentence.length < 100 &&
-          !firstSentence.match(/^\d{1,2}\s*[-–]/) &&
-          firstSentence[0] === firstSentence[0].toUpperCase()) {
+        !firstSentence.match(/^\d{1,2}\s*[-–]/) &&
+        firstSentence[0] === firstSentence[0].toUpperCase()) {
         title = firstSentence;
       }
     }
@@ -167,7 +173,7 @@ export class AllAboutLimassolAdapter implements SourceAdapter {
       // Skip this event - page doesn't exist
       throw new Error('Event page not found (404)');
     }
-    
+
     // Extract description
     const description = $('.content, .event-description, article p, .description')
       .first()
@@ -177,14 +183,14 @@ export class AllAboutLimassolAdapter implements SourceAdapter {
 
     // Extract date/time
     let dateText = $('.date, .event-date, time, [datetime]').first().text().trim() ||
-                    $('[datetime]').first().attr('datetime');
-    
+      $('[datetime]').first().attr('datetime');
+
     // Extract year from page content for context
     const pageText = $('body').text();
     const yearMatch = pageText.match(/\b(202[4-6])\b/);
     const contextYear = yearMatch ? parseInt(yearMatch[1]) : undefined;
-    
-    const startAt = dateText ? parseDate(dateText, undefined, contextYear) : undefined;
+    const parsedDate = dateText ? parseDate(dateText, undefined, contextYear) : undefined;
+    const startAt = parsedDate || undefined;
 
     // Extract venue
     const venueName = $('.venue, .location, [class*="venue"]').first().text().trim();
@@ -205,7 +211,7 @@ export class AllAboutLimassolAdapter implements SourceAdapter {
 
     // Extract image
     const imageUrl = $('img[src*="event"], .event-image img, article img').first().attr('src') ||
-                    stub.imageUrl;
+      stub.imageUrl;
 
     return {
       title,
@@ -217,6 +223,7 @@ export class AllAboutLimassolAdapter implements SourceAdapter {
       tags: tags.length > 0 ? tags : undefined,
       imageUrl: imageUrl ? new URL(imageUrl, stub.url).href : undefined,
       ticketUrl: ticketUrl ? new URL(ticketUrl, stub.url).href : undefined,
+      language: 'en' // Scraped from /en/agenda/
     };
   }
 

@@ -1,65 +1,51 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { Heart, UserCheck, Share2 } from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
+import { Heart, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toggleInterest } from "@/lib/actions/interactions";
+import { cn } from "@/lib/utils";
 
 interface ActionButtonsProps {
   eventId: string;
   initialInterested?: boolean;
-  initialGoing?: boolean;
   interestedCount?: number;
-  goingCount?: number;
 }
 
 export function ActionButtons({
   eventId,
   initialInterested = false,
-  initialGoing = false,
   interestedCount = 0,
-  goingCount = 0,
 }: ActionButtonsProps) {
   const { data: session } = useSession();
   const router = useRouter();
-  const [interested, setInterested] = useState(initialInterested);
-  const [going, setGoing] = useState(initialGoing);
-  const [interestedCountState, setInterestedCount] = useState(interestedCount);
-  const [goingCountState, setGoingCount] = useState(goingCount);
-  const [loading, setLoading] = useState<"interested" | "going" | null>(null);
+  const pathname = usePathname();
 
-  const handleAction = async (type: "interested" | "going") => {
+  const [interested, setInterested] = useState(initialInterested);
+  const [count, setCount] = useState(interestedCount);
+  const [isPending, startTransition] = useTransition();
+
+  const handleToggleInterest = async () => {
     if (!session) {
-      router.push("/auth/signin");
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(pathname)}`);
       return;
     }
 
-    if (loading) return; // Prevent multiple clicks
+    // Optimistic update
+    const newValue = !interested;
+    setInterested(newValue);
+    setCount(prev => newValue ? prev + 1 : Math.max(0, prev - 1));
 
-    setLoading(type);
-    try {
-      const response = await fetch(`/api/events/${eventId}/actions`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (type === "interested") {
-          setInterested(data.active);
-          setInterestedCount(data.count);
-        } else if (type === "going") {
-          setGoing(data.active);
-          setGoingCount(data.count);
-        }
+    startTransition(async () => {
+      const result = await toggleInterest(eventId, pathname);
+      if (result.error) {
+        // Revert
+        setInterested(!newValue);
+        setCount(prev => !newValue ? prev + 1 : Math.max(0, prev - 1));
       }
-    } catch (error) {
-      console.error("Action error:", error);
-    } finally {
-      setLoading(null);
-    }
+    });
   };
 
   const handleShare = async () => {
@@ -80,6 +66,7 @@ export function ActionButtons({
       // Fallback: copy to clipboard
       try {
         await navigator.clipboard.writeText(currentUrl);
+        // Could show a toast here
       } catch (error) {
         console.error("Failed to copy to clipboard:", error);
       }
@@ -87,46 +74,31 @@ export function ActionButtons({
   };
 
   return (
-    <div>
+    <div className="flex flex-col gap-3">
       {/* Action Buttons */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
+      <div className="flex flex-wrap gap-3">
         <Button
           variant={interested ? "default" : "outline"}
-          onClick={() => handleAction("interested")}
-          disabled={loading === "interested"}
+          onClick={handleToggleInterest}
+          disabled={isPending}
+          className={cn(interested && "bg-red-500 hover:bg-red-600 text-white border-red-500")}
         >
-          <Heart />
-          {loading === "interested" ? "Updating..." : "Interested"}
-        </Button>
-
-        <Button
-          variant={going ? "default" : "outline"}
-          onClick={() => handleAction("going")}
-          disabled={loading === "going"}
-        >
-          <UserCheck />
-          {loading === "going" ? "Updating..." : "Going"}
+          <Heart className={cn("mr-2 h-4 w-4", interested ? "fill-current" : "")} />
+          {interested ? "Interested" : "Interested"}
         </Button>
 
         <Button variant="outline" onClick={handleShare}>
-          <Share2 />
+          <Share2 className="mr-2 h-4 w-4" />
           Share
         </Button>
       </div>
 
       {/* Counts */}
-      <div>
-        {interestedCountState > 0 && (
-          <div>
-            <span>{interestedCountState}</span> interested
-          </div>
-        )}
-        {goingCountState > 0 && (
-          <div>
-            <span>{goingCountState}</span> going
-          </div>
-        )}
-      </div>
+      {count > 0 && (
+        <div className="text-sm text-text-secondary font-medium">
+          {count} people interested
+        </div>
+      )}
     </div>
   );
 }

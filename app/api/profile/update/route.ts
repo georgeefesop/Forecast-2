@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { handle } = await request.json();
+    const { handle, gender } = await request.json();
 
     if (!handle || typeof handle !== "string") {
       return NextResponse.json(
@@ -32,6 +32,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate gender if provided
+    const validGenders = ['male', 'female', 'non_binary', 'prefer_not_to_say'];
+    if (gender && !validGenders.includes(gender)) {
+      return NextResponse.json({ error: "Invalid gender selection" }, { status: 400 });
+    }
+
     // Check if handle is taken
     const existing = await db.query(
       "SELECT user_id FROM profiles WHERE handle = $1 AND user_id != $2",
@@ -47,8 +53,8 @@ export async function POST(request: NextRequest) {
 
     // Update profile
     await db.query(
-      "UPDATE profiles SET handle = $1 WHERE user_id = $2",
-      [handle, session.user.id]
+      "UPDATE profiles SET handle = $1, gender = $2 WHERE user_id = $3",
+      [handle, gender || null, session.user.id]
     );
 
     return NextResponse.json({ success: true });

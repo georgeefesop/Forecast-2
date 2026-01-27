@@ -7,6 +7,7 @@ import { ActionButtons } from "@/components/event/action-buttons";
 import { SeriesPicker } from "@/components/event/series-picker";
 import { CommentsThread } from "@/components/event/comments-thread";
 import { SponsorTile } from "@/components/event/sponsor-tile";
+import { AddToCalendar } from "@/components/event/add-to-calendar";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -47,7 +48,16 @@ export default async function EventPage({ params }: EventPageProps) {
         <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
           <EventHero event={event} />
 
-          <ActionButtons eventId={event.id} />
+
+
+          <div className="flex flex-wrap items-start gap-3 justify-between">
+            <ActionButtons
+              eventId={event.id}
+              initialInterested={false} // We don't have this in getEventBySlug yet actually, need to check if user has liked
+              interestedCount={event.counters?.interested_count}
+            />
+            <AddToCalendar event={event} />
+          </div>
 
           {/* Series Navigation */}
           {seriesOccurrences.length > 1 && (

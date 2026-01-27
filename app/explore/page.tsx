@@ -1,11 +1,10 @@
-
 import { MainNav } from "@/components/nav/main-nav";
 import { Footer } from "@/components/footer";
 import { FilterChips } from "@/components/filters/filter-chips";
 import { EventList } from "@/components/explore/event-list";
 import { SortSelect } from "@/components/explore/sort-select";
 import { getEvents } from "@/lib/db/queries/events";
-import { format } from "date-fns";
+import { auth } from "@/app/api/auth/[...nextauth]/route";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -18,10 +17,12 @@ interface ExplorePageProps {
     category?: string;
     free?: string;
     sort?: string;
+    language?: string;
   };
 }
 
 export default async function ExplorePage({ searchParams }: ExplorePageProps) {
+  const session = await auth();
   // Ensure searchParams is properly handled (Next.js 15 compatibility)
   const params = await Promise.resolve(searchParams);
 
@@ -33,7 +34,9 @@ export default async function ExplorePage({ searchParams }: ExplorePageProps) {
       date: params.date && params.date.trim() ? params.date : undefined,
       free: params.free === "true",
       search: params.q && params.q.trim() ? params.q : undefined,
+      language: params.language && params.language.trim() ? params.language : undefined,
       limit: 500, // Increased from 50 to show more events
+      viewerId: session?.user?.id,
     });
   } catch (error) {
     console.error("Error fetching events:", error);
@@ -66,16 +69,15 @@ export default async function ExplorePage({ searchParams }: ExplorePageProps) {
             Explore Events
           </h1>
 
-          {/* Filters */}
-          <div className="mb-8">
-            <FilterChips />
+          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <FilterChips masked={false} />
+            <p className="text-sm font-medium text-text-secondary whitespace-nowrap">
+              {events.length} upcoming events
+            </p>
           </div>
 
           {/* Sort */}
-          <div className="mb-6 flex items-center justify-between">
-            <p className="text-sm text-text-secondary">
-              {events.length} event{events.length !== 1 ? "s" : ""} found
-            </p>
+          <div className="mb-6 flex items-center justify-end">
             <SortSelect />
           </div>
 

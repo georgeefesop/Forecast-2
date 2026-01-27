@@ -22,7 +22,7 @@ export class LimassolMarinaAdapter implements SourceAdapter {
     // Find event items - try various selectors
     $('.event, .event-item, article, .whats-on-item, [class*="event"]').each((_, el) => {
       const $el = $(el);
-      
+
       // Find link
       const link = $el.find('a').first().attr('href') || $el.attr('href');
       if (!link) return;
@@ -41,13 +41,13 @@ export class LimassolMarinaAdapter implements SourceAdapter {
       } else {
         url = new URL(link, this.baseUrl).href;
       }
-      
+
       // Clean up duplicate path segments
       url = url.replace(/([^:]\/)\/+/g, '$1');
 
       // Extract title - prioritize heading elements, avoid date-like patterns
       let title = $el.find('h1, h2, h3, h4, .title, .event-title, .name').first().text().trim();
-      
+
       // If title looks like a date range (e.g., "25 - 26"), try to find a better title
       // But allow generic titles through - detail() will fix them
       if (title.match(/^\d{1,2}\s*[-–]\s*\d{1,2}/)) {
@@ -66,7 +66,7 @@ export class LimassolMarinaAdapter implements SourceAdapter {
           }
         }
       }
-      
+
       // Final validation - only reject pure date ranges, allow generic titles (detail() will fix)
       if (!title || title.length < 3 || title.match(/^\d{1,2}\s*[-–]\s*\d{1,2}(\s+\w+)?$/)) {
         return;
@@ -77,28 +77,28 @@ export class LimassolMarinaAdapter implements SourceAdapter {
         .first()
         .text()
         .trim();
-      
+
       // Also try datetime attribute
       if (!dateText) {
         dateText = $el.find('time[datetime]').attr('datetime') ||
-                   $el.find('[datetime]').attr('datetime');
+          $el.find('[datetime]').attr('datetime') || '';
       }
-      
+
       // Try to extract from the element's text content (look for date patterns)
       if (!dateText) {
         const elementText = $el.text();
         // Look for date patterns in the element text
         const datePattern = elementText.match(/\b(\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s*20\d{2}?)\b/i) ||
-                          elementText.match(/\b((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2},?\s*20\d{2}?)\b/i) ||
-                          elementText.match(/\b(\d{1,2}[\/\-]\d{1,2}[\/\-]20\d{2}?)\b/);
+          elementText.match(/\b((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2},?\s*20\d{2}?)\b/i) ||
+          elementText.match(/\b(\d{1,2}[\/\-]\d{1,2}[\/\-]20\d{2}?)\b/);
         if (datePattern && datePattern[1]) {
           dateText = datePattern[1];
         }
       }
 
       // Extract image
-      const imageUrl = $el.find('img').first().attr('src') || 
-                      $el.find('img').first().attr('data-src');
+      const imageUrl = $el.find('img').first().attr('src') ||
+        $el.find('img').first().attr('data-src');
 
       stubs.push({
         title,
@@ -117,7 +117,7 @@ export class LimassolMarinaAdapter implements SourceAdapter {
 
         const fullUrl = url.startsWith('http') ? url : new URL(url, this.baseUrl).href;
         const title = $link.text().trim();
-        
+
         if (title && title.length > 3 && !title.match(/^(read more|learn more|view|see all)$/i)) {
           stubs.push({
             title,
@@ -141,12 +141,12 @@ export class LimassolMarinaAdapter implements SourceAdapter {
       .first()
       .text()
       .trim();
-    
+
     // If detail page has a better title (not a date range), use it
     if (detailTitle && detailTitle.length > 3 && !detailTitle.match(/^\d{1,2}\s*[-–]\s*\d{1,2}/)) {
       title = detailTitle;
     }
-    
+
     // Extract year from page content (for date parsing context)
     const pageText = $('body').text();
     const yearMatch = pageText.match(/\b(202[4-6])\b/); // Look for 2024, 2025, or 2026
@@ -158,19 +158,19 @@ export class LimassolMarinaAdapter implements SourceAdapter {
       .first()
       .text()
       .trim() || $('[datetime]').first().attr('datetime');
-    
+
     // Try more specific selectors
     if (!dateText) {
       dateText = $('time[datetime]').attr('datetime') ||
-                 $('[data-date]').attr('data-date') ||
-                 $('.when, .event-when, .date-time, .event-time').first().text().trim();
+        $('[data-date]').attr('data-date') ||
+        $('.when, .event-when, .date-time, .event-time').first().text().trim();
     }
-    
+
     // Also try to get date from stub.dateHint if detail page doesn't have it
     if (!dateText && stub.dateHint) {
       dateText = stub.dateHint;
     }
-    
+
     // If still no date, try to extract from entire page content
     if (!dateText) {
       const pageText = $('body').text();
@@ -183,7 +183,7 @@ export class LimassolMarinaAdapter implements SourceAdapter {
         // Also try without year (will use context year)
         /\b(\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*)\b/i,
       ];
-      
+
       for (const pattern of datePatterns) {
         const matches = pageText.match(pattern);
         if (matches && matches[1]) {
@@ -192,7 +192,7 @@ export class LimassolMarinaAdapter implements SourceAdapter {
         }
       }
     }
-    
+
     // Extract year from URL or title if present (e.g., "limassol-motion-2024", "come-out-2024")
     // This is critical for events that have years in their URLs
     let urlYear: number | undefined;
@@ -200,13 +200,14 @@ export class LimassolMarinaAdapter implements SourceAdapter {
     if (urlYearMatch) {
       urlYear = parseInt(urlYearMatch[1]);
     }
-    
+
     // Use URL year as context if no year found in page
     // URL year takes precedence as it's more reliable
     const finalContextYear = urlYear || contextYear;
-    
-    const startAt = dateText ? parseDate(dateText, undefined, finalContextYear) : undefined;
-    
+
+    const parsedDate = dateText ? parseDate(dateText, undefined, contextYear) : undefined;
+    const startAt = parsedDate || undefined;
+
     // Extract description
     const description = $('.content, .description, .event-description, article p, main p')
       .first()
@@ -219,7 +220,7 @@ export class LimassolMarinaAdapter implements SourceAdapter {
 
     // Extract address (usually the marina address)
     const address = $('.address, [class*="address"], .location').first().text().trim() ||
-                    'Limassol Marina, Limassol, Cyprus';
+      'Limassol Marina, Limassol, Cyprus';
 
     // Extract category
     const category = $('.category, .tag, [class*="category"]').first().text().trim();
@@ -243,6 +244,7 @@ export class LimassolMarinaAdapter implements SourceAdapter {
       category,
       imageUrl: imageUrl ? new URL(imageUrl, stub.url).href : undefined,
       ticketUrl: ticketUrl ? new URL(ticketUrl, stub.url).href : undefined,
+      language: 'en' // Scraped from implicit English site
     };
   }
 

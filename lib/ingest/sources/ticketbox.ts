@@ -9,7 +9,8 @@ export class TicketBoxAdapter implements SourceAdapter {
 
     async list(): Promise<RawEventStub[]> {
         console.log('[TicketBox] Fetching event list...');
-        const html = await fetchWithRetry(this.baseUrl);
+        const response = await fetchWithRetry(this.baseUrl);
+        const html = await response.text();
         const $ = cheerio.load(html);
         const events: RawEventStub[] = [];
 
@@ -24,14 +25,16 @@ export class TicketBoxAdapter implements SourceAdapter {
                 const fullUrl = link.startsWith('http') ? link : this.baseUrl + link;
                 // Basic stub
                 events.push({
-                    sourceId: fullUrl,
                     url: fullUrl,
                     title: title,
-                    dateString: $(el).find('.date, time').text().trim(),
-                    image: $(el).find('img').attr('src') || $(el).find('img').attr('data-src'),
+                    dateHint: $(el).find('.date, time').text().trim(),
+                    imageUrl: $(el).find('img').attr('src') || $(el).find('img').attr('data-src'),
+                    // @ts-ignore - passing extra data
                     location: $(el).find('.location, .venue').text().trim(),
-                    price: $(el).find('.price').text().trim()
-                });
+                    // @ts-ignore - passing extra data
+                    price: $(el).find('.price').text().trim(),
+                    sourceId: fullUrl
+                } as RawEventStub);
             }
         });
 
@@ -44,11 +47,11 @@ export class TicketBoxAdapter implements SourceAdapter {
                 if (link && title && title.length > 5) {
                     const fullUrl = link.startsWith('http') ? link : this.baseUrl + link;
                     events.push({
-                        sourceId: fullUrl,
                         url: fullUrl,
                         title: title,
-                        dateString: '', // Populated in detail
-                    });
+                        dateHint: '', // Populated in detail
+                        imageUrl: ''
+                    } as RawEventStub);
                 }
             });
         }
@@ -58,25 +61,31 @@ export class TicketBoxAdapter implements SourceAdapter {
     }
 
     async detail(stub: RawEventStub): Promise<RawEventDetail> {
-        const html = await fetchWithRetry(stub.url);
+        const response = await fetchWithRetry(stub.url);
+        const html = await response.text();
         const $ = cheerio.load(html);
 
         // Refined Extraction
         const title = $('h1').first().text().trim() || stub.title;
         const description = $('.description, .content, #event-details').text().trim();
-        const image = $('img.main-image, .event-image img').attr('src') || stub.image;
-        const dateString = $('.date-time, .event-date').text().trim() || stub.dateString;
-        const location = $('.venue, .location-address').text().trim() || stub.location;
-        const price = $('.price-info').text().trim() || stub.price;
+        const image = $('img.main-image, .event-image img').attr('src') || stub.imageUrl;
+        const dateString = $('.date-time, .event-date').text().trim() || stub.dateHint;
+        const location = $('.venue, .location-address').text().trim() || (stub as any).location;
+        const price = $('.price-info').text().trim() || (stub as any).price;
 
         return {
             title,
             description,
-            image,
-            dateString,
-            location,
-            price,
-            categories: ['Tickets'] // Default until we find category tags
+            imageUrl: image,
+            venue: location ? { name: location } : undefined,
+            priceMin: price ? parseFloat(price) : undefined, // Very basic parsing
+            category: 'Tickets', // Default until we find category tags
+            tags: ['Tickets'],
+            language: stub.url.includes('/en') ? 'en' : 'el' // Basic inference
         };
+    }
+
+    mapToCanonical(raw: RawEventStub & Partial<RawEventDetail>): any {
+        return raw;
     }
 }

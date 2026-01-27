@@ -29,10 +29,10 @@ export class LimassolTourismAdapter implements SourceAdapter {
         // Find event items
         $('.event, .event-item, article, .blog-post, [class*="event"], [class*="post"]').each((_, el) => {
           const $el = $(el);
-          
+
           const link = $el.find('a').first().attr('href') || $el.attr('href');
           if (!link) return;
-          
+
           // Filter out invalid URLs (list pages, not event pages)
           if (link.includes('/events/') && !link.match(/\/events\/[^\/]+$/)) {
             return; // Skip list pages like /events/ or /events/?page=1
@@ -52,12 +52,12 @@ export class LimassolTourismAdapter implements SourceAdapter {
           } else {
             url = new URL(link, this.baseUrl).href;
           }
-          
+
           // Clean up duplicate path segments
           url = url.replace(/([^:]\/)\/+/g, '$1');
 
           let title = $el.find('h2, h3, h4, .title, .post-title, .entry-title').first().text().trim();
-          
+
           // If title looks like a date range, try to find a better title
           // But allow generic titles like "Agenda" or "Events" through - detail() will fix them
           if (title.match(/^\d{1,2}\s*[-–]\s*\d{1,2}/)) {
@@ -74,7 +74,7 @@ export class LimassolTourismAdapter implements SourceAdapter {
               }
             }
           }
-          
+
           // Final validation - only reject pure date ranges, allow generic titles (detail() will fix)
           if (!title || title.length < 3 || title.match(/^\d{1,2}\s*[-–]\s*\d{1,2}(\s+\w+)?$/)) {
             return;
@@ -85,8 +85,8 @@ export class LimassolTourismAdapter implements SourceAdapter {
             .text()
             .trim();
 
-          const imageUrl = $el.find('img').first().attr('src') || 
-                          $el.find('img').first().attr('data-src');
+          const imageUrl = $el.find('img').first().attr('src') ||
+            $el.find('img').first().attr('data-src');
 
           stubs.push({
             title,
@@ -100,11 +100,11 @@ export class LimassolTourismAdapter implements SourceAdapter {
 
         // If no events found, try generic link approach
         if (!pageHasEvents) {
-            $('a[href*="event"], a[href*="calendar"]').each((_, el) => {
+          $('a[href*="event"], a[href*="calendar"]').each((_, el) => {
             const $link = $(el);
             const url = $link.attr('href');
             if (!url) return;
-            
+
             // Filter out invalid URLs (list pages, not event pages)
             if (url.includes('/events/') && !url.match(/\/events\/[^\/]+$/)) {
               return; // Skip list pages
@@ -112,7 +112,7 @@ export class LimassolTourismAdapter implements SourceAdapter {
 
             const fullUrl = url.startsWith('http') ? url : new URL(url, this.baseUrl).href;
             const title = $link.text().trim() || $link.find('h1, h2, h3').first().text().trim();
-            
+
             if (title && title.length > 3) {
               stubs.push({
                 title,
@@ -146,7 +146,7 @@ export class LimassolTourismAdapter implements SourceAdapter {
 
     // Extract title from detail page - prioritize actual event titles
     let title = stub.title;
-    
+
     // Try multiple selectors in order of preference
     const titleSelectors = [
       'h1',
@@ -161,7 +161,7 @@ export class LimassolTourismAdapter implements SourceAdapter {
       'meta[property="og:title"]',
       'title'
     ];
-    
+
     for (const selector of titleSelectors) {
       let detailTitle: string;
       if (selector.startsWith('meta')) {
@@ -169,24 +169,24 @@ export class LimassolTourismAdapter implements SourceAdapter {
       } else {
         detailTitle = $(selector).first().text().trim();
       }
-      
+
       // If we found a better title (not a date range or generic), use it
-      if (detailTitle && detailTitle.length > 3 && 
-          !detailTitle.match(/^\d{1,2}\s*[-–]\s*\d{1,2}/) &&
-          !detailTitle.match(/^(agenda|events?|limassol tourism|events calendar)$/i) &&
-          detailTitle.length < 200) { // Reasonable title length
+      if (detailTitle && detailTitle.length > 3 &&
+        !detailTitle.match(/^\d{1,2}\s*[-–]\s*\d{1,2}/) &&
+        !detailTitle.match(/^(agenda|events?|limassol tourism|events calendar)$/i) &&
+        detailTitle.length < 200) { // Reasonable title length
         title = detailTitle;
         break;
       }
     }
-    
+
     // If still generic, try extracting from description first sentence
     if ((title.match(/^(agenda|events?)$/i) || title.length < 5) && $('.content, .entry-content, .post-content, article p').length > 0) {
       const firstPara = $('.content, .entry-content, .post-content, article p').first().text().trim();
       const firstSentence = firstPara.split(/[.!?]/)[0].trim();
       if (firstSentence && firstSentence.length > 10 && firstSentence.length < 100 &&
-          !firstSentence.match(/^\d{1,2}\s*[-–]/) &&
-          firstSentence[0] === firstSentence[0].toUpperCase()) {
+        !firstSentence.match(/^\d{1,2}\s*[-–]/) &&
+        firstSentence[0] === firstSentence[0].toUpperCase()) {
         title = firstSentence;
       }
     }
@@ -197,7 +197,7 @@ export class LimassolTourismAdapter implements SourceAdapter {
       // Skip this event - page doesn't exist
       throw new Error('Event page not found (404)');
     }
-    
+
     // Extract description
     const description = $('.content, .entry-content, .post-content, article p, .description, main p')
       .first()
@@ -210,20 +210,21 @@ export class LimassolTourismAdapter implements SourceAdapter {
       .first()
       .text()
       .trim() || $('[datetime]').first().attr('datetime');
-    
+
     // Also try to get date from stub.dateHint if detail page doesn't have it
     if (!dateText && stub.dateHint) {
       dateText = stub.dateHint;
     }
-    
+
     // Extract year from page content, URL, or title for context
     const pageText = $('body').text();
-    const yearMatch = pageText.match(/\b(202[4-6])\b/) || 
-                      stub.url.match(/\b(202[4-6])\b/) ||
-                      title.match(/\b(202[4-6])\b/);
+    const yearMatch = pageText.match(/\b(202[4-6])\b/) ||
+      stub.url.match(/\b(202[4-6])\b/) ||
+      title.match(/\b(202[4-6])\b/);
     const contextYear = yearMatch ? parseInt(yearMatch[1]) : undefined;
-    
-    const startAt = dateText ? parseDate(dateText, undefined, contextYear) : undefined;
+
+    const parsedDate = dateText ? parseDate(dateText, undefined, contextYear) : undefined;
+    const startAt = parsedDate || undefined;
 
     // Extract venue
     const venueName = $('.venue, .location, [class*="venue"], [class*="location"]')
@@ -260,6 +261,7 @@ export class LimassolTourismAdapter implements SourceAdapter {
       tags: tags.length > 0 ? tags : undefined,
       imageUrl: imageUrl ? new URL(imageUrl, stub.url).href : undefined,
       ticketUrl: ticketUrl ? new URL(ticketUrl, stub.url).href : undefined,
+      language: 'en' // Scraped from /en/blog
     };
   }
 

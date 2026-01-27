@@ -1,8 +1,15 @@
+"use client";
+
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Calendar, MapPin, Users } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { HeartButton } from "@/components/event/heart-button";
+import { motion, type Variants } from "motion/react";
+
+const MotionLink = motion.create(Link);
 
 interface EventCardProps {
   id: string;
@@ -23,7 +30,8 @@ interface EventCardProps {
   priceMin?: number | null;
   seriesId?: string | null;
   isSeries?: boolean;
-  size?: 'small' | 'wide' | 'tall' | 'big';
+  size?: 'small' | 'wide' | 'tall' | 'big' | 'hero';
+  index?: number;
 }
 
 export function EventCard({
@@ -42,129 +50,287 @@ export function EventCard({
   priceMin,
   seriesId,
   isSeries = false,
-  size = 'wide',
-}: EventCardProps) {
+  size = 'small',
+  isInterested = false,
+  index = 0,
+}: EventCardProps & { isInterested?: boolean }) {
 
-  // Determine image sizing based on card size
-  // For 'big' and 'tall' (multi-row), we let the image fill the available space (flex-1)
-  // For 'small' and 'wide' (single-row), we enforce aspect ratio to keep them uniform
+  const isHero = size === 'hero';
 
-  const useFlexImage = size === 'big' || size === 'tall';
+  // Prevent link click when clicking heart
+  const onHeartClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
 
-  let imageClass = "relative w-full overflow-hidden bg-background-elevated";
-  if (useFlexImage) {
-    imageClass += " flex-1 min-h-0"; // Grow to fill height
-  } else {
-    imageClass += " shrink-0"; // Fixed height based on aspect ratio
-    if (size === 'small') imageClass += " aspect-[4/3]";
-    else imageClass += " aspect-[2/1]"; // wide
+  const titleContainerRef = useRef<HTMLDivElement>(null);
+  const titleTextRef = useRef<HTMLHeadingElement>(null);
+  const [scrollDistance, setScrollDistance] = useState(0);
+
+  const [isTouch, setIsTouch] = useState(false);
+
+  useEffect(() => {
+    // Check for touch capability
+    if (typeof window !== "undefined") {
+      setIsTouch(window.matchMedia("(hover: none) and (pointer: coarse)").matches);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (titleContainerRef.current && titleTextRef.current) {
+      const containerWidth = titleContainerRef.current.offsetWidth;
+      const textWidth = titleTextRef.current.scrollWidth;
+      if (textWidth > containerWidth) {
+        setScrollDistance(textWidth - containerWidth + 40); // 40px buffer
+      } else {
+        setScrollDistance(0);
+      }
+    }
+  }, [title]);
+
+  const entryVariants: Variants = {
+    hidden: { opacity: 0, y: 40, scale: 0.98 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        delay: (i % 8) * 0.1 + (Math.random() * 0.05), // Distinct 'one-by-one' stagger, capped to reuse pool
+        duration: 0.8,
+        ease: [0.16, 1, 0.3, 1] // Apple-style 'expo' out
+      }
+    })
+  };
+
+  const cardVariants: Variants = {
+    rest: {
+      scale: 1,
+      y: 0,
+      boxShadow: "0 1px 3px 0 rgba(40, 30, 20, 0.08), 0 1px 2px -1px rgba(40, 30, 20, 0.08)"
+    },
+    hover: {
+      transition: { duration: 0.4, ease: "easeOut" }
+    },
+    tap: {
+      scale: 0.99,
+      transition: { type: "spring", stiffness: 400, damping: 15 }
+    }
+  };
+
+  const heroTitleVariants: Variants = {
+    rest: { x: 0 },
+    hover: {
+      x: scrollDistance > 0 ? -scrollDistance : 0,
+      transition: {
+        duration: scrollDistance > 0 ? scrollDistance / (isHero ? 120 : 60) : 0, // Slower for small cards (60), fast for hero (120)
+        ease: "linear",
+        repeat: scrollDistance > 0 ? Infinity : 0,
+        repeatType: "reverse" as const,
+        repeatDelay: 1 // 1 second pause at each end
+      }
+    }
+  };
+
+  const normalizeTitle = (text: string) => {
+    if (!text) return text;
+    // If it's all caps (and not just single letter/number), normalize to better case
+    if (text.length > 3 && text === text.toUpperCase() && text !== text.toLowerCase()) {
+      return text.charAt(0) + text.slice(1).toLowerCase();
+    }
+    return text;
+  };
+
+  const displayTitle = normalizeTitle(title);
+
+  const isSpecificEvent = title.toLowerCase().includes("εποχή") || title.toLowerCase().includes("epochi");
+  const targetScale = isHero && isSpecificEvent ? 1.05 : 1;
+
+  const imageVariants: Variants = {
+    hidden: { scale: targetScale },
+    visible: { scale: targetScale },
+    hover: {
+      scale: targetScale,
+      transition: { duration: 0.7, ease: [0.33, 1, 0.68, 1] }
+    }
+  };
+
+  if (isHero) {
+    return (
+      <MotionLink
+        href={`/event/${slug}`}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-50px" }}
+        custom={index}
+        whileHover="hover"
+        whileTap="tap"
+        variants={{
+          ...entryVariants,
+          ...cardVariants
+        }}
+        className={cn(
+          "group relative block h-full w-full overflow-hidden rounded-[22px] bg-gray-100 !no-underline transition-all hover:shadow-lg border border-white",
+          className
+        )}
+      >
+        <motion.div variants={imageVariants} className="relative h-full w-full">
+          {imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt={title}
+              fill
+              className="object-cover"
+              priority
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center bg-gray-200">
+              <Calendar className="h-16 w-16 text-gray-400" />
+            </div>
+          )}
+        </motion.div>
+
+        {/* Hero Content Wrapped in Glass */}
+        <div className="absolute bottom-0 left-0 right-0 border-t border-white/20 bg-gradient-to-b from-white/10 to-transparent backdrop-blur-[15px] transition-all duration-500">
+          <div className="p-8">
+            {isSeries && (
+              <span className="inline-block rounded-full bg-white/20 backdrop-blur-md px-3 py-1 text-xs font-bold uppercase tracking-wider text-white mb-4">
+                Series
+              </span>
+            )}
+            <div ref={titleContainerRef} className="overflow-hidden mb-4 relative max-w-full">
+              <motion.h3
+                ref={titleTextRef}
+                variants={heroTitleVariants}
+                animate={isTouch ? "hover" : undefined}
+                className="font-serif text-3xl md:text-4xl lg:text-5xl font-medium leading-[1.1] drop-shadow-[0_1px_1px_rgba(0,0,0,0.25)] text-white !whitespace-nowrap inline-block w-max flex-shrink-0"
+              >
+                {displayTitle}
+              </motion.h3>
+            </div>
+            <div className="flex flex-wrap items-center gap-4 text-white/90 text-base md:text-lg font-medium">
+              <div className="flex items-center gap-1.5">
+                <Calendar className="h-5 w-5" />
+                <time>{format(startAt, "EEEE, MMMM d")}</time>
+              </div>
+              {venue && (
+                <div className="flex items-center gap-1.5">
+                  <MapPin className="h-5 w-5" />
+                  <span>{venue.name}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Heart - Bottom Right (Absolute, on top of glass) */}
+        <div className="absolute bottom-8 right-8 z-10">
+          <HeartButton
+            eventId={id}
+            initialInterestedCount={interestedCount}
+            initialIsInterested={isInterested}
+            size="lg"
+            className="text-white hover:text-red-500 drop-shadow-md"
+          />
+        </div>
+      </MotionLink>
+    );
   }
 
-  // Determine content sizing
-  // If image fills space, content should be auto height (flex-none)
-  // If image is fixed, content fills remaining space (flex-1)
-  const contentClass = useFlexImage ? "flex-none" : "flex-1";
-
+  // Standard / Small Card Layout
   return (
-    <Link
+    <MotionLink
       href={`/event/${slug}`}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-50px" }}
+      custom={index}
+      whileHover="hover"
+      whileTap="tap"
+      variants={{
+        ...entryVariants,
+        ...cardVariants
+      }}
       className={cn(
-        "group block overflow-hidden rounded-lg border border-border-subtle bg-background-elevated transition-all hover:shadow-md h-full flex flex-col",
-        isPromoted && "border-border-default",
+        "group flex h-full flex-col overflow-hidden rounded-[18px] bg-bg-surface border border-border-default !no-underline transition-all hover:shadow-lg",
         className
       )}
     >
-      {/* Image */}
-      <div className={cn(imageClass)}>
-        {imageUrl ? (
-          <Image
-            src={imageUrl}
-            alt={title}
-            fill
-            className="object-cover transition-transform group-hover:scale-105"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center text-text-tertiary">
-            <Calendar className="h-12 w-12" />
-          </div>
-        )}
-        {isPromoted && (
-          <div className="absolute top-2 right-2 rounded-full bg-background-overlay/80 backdrop-blur-sm border border-border-default px-3 py-1 text-xs font-medium text-text-inverse">
-            Promoted
-          </div>
-        )}
-        {isSeries && (
-          <div className="absolute top-2 left-2 rounded-full bg-brand-accent/90 backdrop-blur-sm px-3 py-1 text-xs font-bold text-text-inverse shadow-sm group-hover:bg-brand-accent transition-colors">
-            Series
-          </div>
-        )}
-      </div>
-
-      {/* Content */}
-      <div className={cn("flex flex-col p-4 relative", contentClass)}>
-        <h3 className={cn(
-          "line-clamp-2 font-semibold text-text-primary mb-2",
-          size === 'big' ? "text-fluid-xl" : "text-base"
-        )}>
-          {title}
-        </h3>
-
-        <div className="space-y-1 text-sm text-text-secondary mb-1 flex-1">
-          <div className="flex items-center gap-1.5">
-            <Calendar className="h-4 w-4 shrink-0" />
-            <time dateTime={startAt.toISOString()} suppressHydrationWarning>
-              {format(startAt, "EEE, MMM d 'at' h:mm a")}
-            </time>
-          </div>
-          {venue && (
-            <div className="flex items-center gap-1.5">
-              <MapPin className="h-4 w-4 shrink-0" />
-              <span className="line-clamp-1">
-                {venue.name}, {venue.city}
-              </span>
+      {/* Image Area - Fixed 16:9 Aspect */}
+      <div className="relative aspect-[16/9] w-full overflow-hidden bg-gray-100">
+        <motion.div variants={imageVariants} className="h-full w-full">
+          {imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt={title}
+              fill
+              className="object-cover"
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center text-gray-300">
+              <Calendar className="h-10 w-10" />
             </div>
           )}
+        </motion.div>
+
+        {/* Badges Overlay */}
+        <div className="absolute top-3 left-3 flex gap-2 z-10">
+          {isSeries && (
+            <span className="rounded-full border-t border-white/20 bg-gradient-to-b from-white/10 to-transparent backdrop-blur-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm drop-shadow-md">
+              Series
+            </span>
+          )}
+          {category && (
+            <span className="rounded-full border-t border-white/20 bg-gradient-to-b from-white/10 to-transparent backdrop-blur-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm drop-shadow-md transition-all">
+              {category}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Content Area */}
+      <div className="flex flex-1 flex-col p-4 relative bg-bg-surface z-10 overflow-hidden">
+        <div ref={titleContainerRef} className="overflow-hidden mb-2 relative max-w-full">
+          <motion.h3
+            ref={titleTextRef}
+            variants={heroTitleVariants}
+            animate={isTouch ? "hover" : undefined}
+            className="font-serif font-medium text-[17px] text-text-primary leading-[1.3] group-hover:text-brand-accent transition-colors !whitespace-nowrap inline-block w-max flex-shrink-0"
+          >
+            {displayTitle}
+          </motion.h3>
         </div>
 
-        {/* Price/Free Badge for large cards (replaces footer) */}
-        {useFlexImage && (
-          <div className={cn("absolute bottom-4 right-4 font-medium text-xs", !priceMin ? "text-green-600" : "text-text-primary")}>
-            {!priceMin ? "Free" : `€${Number(priceMin).toFixed(2)}`}
+        <div className="space-y-1.5 text-[13px] text-text-secondary mt-auto">
+          <div className="flex items-center gap-1.5">
+            <Calendar className="h-3.5 w-3.5 opacity-70" />
+            <time className="font-medium">{format(startAt, "EEE, MMM d • h:mm a")}</time>
           </div>
-        )}
-
-        {/* Footer info: Category, Price, Stats - Only shown for small/wide cards */}
-        {!useFlexImage && (
-          <div className="flex items-center justify-between pt-3 border-t border-border-default mt-auto">
-            <div className="flex items-center gap-2">
-              {category && (
-                <span className="inline-flex items-center rounded-sm bg-background-overlay px-2 py-1 text-xs font-medium text-text-secondary ring-1 ring-inset ring-border-default">
-                  {category}
-                </span>
-              )}
-            </div>
-
-            <div className="flex items-center gap-3 text-xs text-text-tertiary font-medium">
-              {/* Stats */}
-              {(interestedCount > 0 || goingCount > 0) && (
-                <div className="flex items-center gap-1">
-                  <Users className="h-3.5 w-3.5" />
-                  <span>{interestedCount + goingCount}</span>
-                </div>
-              )}
-
-              {/* Price Display */}
-              <div className={cn("font-medium", !priceMin ? "text-green-600" : "text-text-primary")}>
-                {!priceMin ? (
-                  "Free"
-                ) : (
-                  `€${Number(priceMin).toFixed(2)}`
-                )}
-              </div>
-            </div>
+          <div className="flex items-center gap-1.5">
+            <MapPin className="h-3.5 w-3.5 opacity-70" />
+            <span className="line-clamp-1 opacity-90">{venue?.name || "Limassol"}</span>
           </div>
-        )}
+        </div>
+
+        {/* Footer: Price Pill */}
+        <div className="mt-3 pt-3 border-t border-border-subtle/50 flex items-center justify-between">
+          <span className={cn(
+            "rounded-full px-2.5 py-0.5 text-[11px] font-bold tracking-wide border",
+            !priceMin
+              ? "border-transparent bg-brand-accent/10 text-brand-accent"
+              : "border-border-default text-text-secondary"
+          )}>
+            {!priceMin ? "FREE" : `€${Math.round(priceMin)}`}
+          </span>
+
+          <HeartButton
+            eventId={id}
+            initialInterestedCount={interestedCount}
+            initialIsInterested={isInterested}
+            size="sm"
+            className="text-text-tertiary hover:text-red-500 transition-colors"
+          />
+        </div>
       </div>
-    </Link>
+    </MotionLink>
   );
 }
