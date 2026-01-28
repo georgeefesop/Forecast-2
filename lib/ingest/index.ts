@@ -37,13 +37,13 @@ import { RialtoInterticketAdapter } from './sources/rialto-interticket';
 /**
  * Get all active source adapters
  */
-import { ScrapeFrequency } from './types';
+import { ScrapeFrequency, SourceAdapter } from './types';
 
 /**
  * Get all active source adapters
  */
-export function getActiveAdapters(frequency?: ScrapeFrequency) {
-  const adapters = [
+export function getActiveAdapters(frequency?: ScrapeFrequency): SourceAdapter[] {
+  const adapters: SourceAdapter[] = [
     new LimassolMunicipalityAdapter(), // Testing municipality first
     new AllAboutLimassolAdapter(),
     new LimassolMarinaAdapter(),
