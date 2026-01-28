@@ -77,19 +77,6 @@ export default async function EventPage({ params }: EventPageProps) {
           {/* More at this Venue */}
           {event.venue && (
             <VenueEventsRail
-              venueId="" // Not needed since we query by slug, but prop exists in interface
-              // Actually I defined venueId in interface but didn't use it in logic (used slug).
-              // Let's pass empty string or ID if available. event.venue usually has updated structure?
-              // The query returns venue: { name, slug, city } but NOT ID in the nested object usually.
-              // Let's check getEventBySlug return type.
-              // It returns ...row, venue: { name, slug, city }. So NO ID in event.venue object.
-              // I should update VenueEventsRail interface to not require venueId or just pass a dummy.
-              // Or better, update VenueEventsRail to not ask for it.
-              // For now, I will pass it if I can finding it, or just ignore it if I update the component.
-              // Wait, I just created the component requiring venueId.
-              // I should fix the component to not require it if I don't have it easily.
-              // But event objects usually have venue_id at the top level? Yes: event.venue_id.
-              venueId={event.venue_id || ""}
               venueName={event.venue.name}
               venueSlug={event.venue.slug}
               currentEventId={event.id}

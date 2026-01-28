@@ -5,7 +5,6 @@ import { getEvents } from "@/lib/db/queries/events";
 import { EventCard } from "@/components/event-card";
 
 interface VenueEventsRailProps {
-    venueId: string;
     venueName: string;
     venueSlug: string;
     currentEventId: string;
