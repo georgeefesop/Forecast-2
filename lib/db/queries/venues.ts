@@ -83,13 +83,15 @@ export async function getVenues(filters: {
   }
 
   // Sort Logic
-  let orderBy = "ORDER BY v.name ASC";
+  let orderBy = "ORDER BY v.name ASC"; // Default (covers 'az')
   if (filters.sort === 'active') {
     orderBy = "ORDER BY upcoming_events_count DESC, v.name ASC";
   } else if (filters.sort === 'trending') {
     // For now, trending = mostly active next 30 days or general activity
     // Using upcoming_events_count as proxy or could join event_counters
     orderBy = "ORDER BY upcoming_events_count DESC, v.name ASC";
+  } else if (filters.sort === 'az') {
+    orderBy = "ORDER BY v.name ASC";
   }
 
   let finalQuery = `${baseQuery} ${whereClause} ${orderBy}`;
@@ -138,5 +140,31 @@ export async function getVenueBySlug(slug: string): Promise<Venue | null> {
     upcoming_events_count: parseInt(row.upcoming_events_count) || 0,
     total_saves: parseInt(row.total_saves) || 0,
     next_event_at: row.next_event_at ? new Date(row.next_event_at) : null
+  };
+}
+
+export async function getVenueFacets() {
+  const cityQuery = `
+    SELECT city, COUNT(*) as count
+    FROM venues
+    GROUP BY city
+    ORDER BY count DESC
+  `;
+  const typeQuery = `
+    SELECT type, COUNT(*) as count
+    FROM venues
+    WHERE type IS NOT NULL
+    GROUP BY type
+    ORDER BY count DESC
+  `;
+
+  const [cities, types] = await Promise.all([
+    db.query(cityQuery),
+    db.query(typeQuery)
+  ]);
+
+  return {
+    cities: cities.rows.map(r => ({ value: r.city, count: parseInt(r.count) })),
+    types: types.rows.map(r => ({ value: r.type, count: parseInt(r.count) }))
   };
 }

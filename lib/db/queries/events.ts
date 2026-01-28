@@ -25,6 +25,8 @@ export interface Event {
   source_url: string | null;
   series_id: string | null;
   is_primary_occurrence: boolean;
+  image_size_kb?: number | null;
+  is_high_res?: boolean;
   venue?: {
     name: string;
     slug: string;
@@ -53,6 +55,7 @@ export interface GetEventsOptions {
   excludeSeriesId?: string;
   hasCoordinates?: boolean;
   language?: string;
+  excludeLanguages?: string[];
   interestedByUserId?: string;
   viewerId?: string;
   sources?: string[];
@@ -75,6 +78,7 @@ export async function getEvents(options: GetEventsOptions = {}): Promise<Event[]
     excludeSeriesId,
     hasCoordinates,
     language,
+    excludeLanguages,
     sources,
     hideLowQuality
   } = options;
@@ -104,6 +108,11 @@ export async function getEvents(options: GetEventsOptions = {}): Promise<Event[]
   if (language) {
     query += ` AND e.language = $${paramIndex}`;
     params.push(language);
+    paramIndex++;
+  } else if (options.excludeLanguages && options.excludeLanguages.length > 0) {
+    // Exclusion Logic: Show events where language is NOT in the excluded list OR is NULL
+    query += ` AND (e.language IS NULL OR NOT (e.language = ANY($${paramIndex}::text[])))`;
+    params.push(options.excludeLanguages);
     paramIndex++;
   }
 

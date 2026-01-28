@@ -12,25 +12,16 @@ export async function GET() {
     // Usually filters are for what's available NOW.
 
     const query = `
-      WITH active_categories AS (
-        SELECT category, COUNT(*) as cnt
-        FROM events 
+      WITH expanded_tags AS (
+        SELECT id, category as label FROM events 
         WHERE status = 'published' AND start_at >= NOW() AND category IS NOT NULL AND is_primary_occurrence = TRUE
-        GROUP BY category
-      ),
-      active_tags AS (
-        SELECT unnest(tags) as tag, COUNT(*) as cnt
-        FROM events
-        WHERE status = 'published' AND start_at >= NOW() AND tags IS NOT NULL AND is_primary_occurrence = TRUE
-        GROUP BY tag
-      )
-      SELECT category, SUM(cnt) as count 
-      FROM (
-        SELECT category, cnt FROM active_categories
         UNION ALL
-        SELECT tag as category, cnt FROM active_tags
-      ) as combined
-      GROUP BY category
+        SELECT id, unnest(tags) as label FROM events
+        WHERE status = 'published' AND start_at >= NOW() AND tags IS NOT NULL AND is_primary_occurrence = TRUE
+      )
+      SELECT label as category, COUNT(DISTINCT id) as count
+      FROM expanded_tags
+      GROUP BY label
       ORDER BY count DESC
     `;
 

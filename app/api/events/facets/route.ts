@@ -2,19 +2,19 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db/client";
 
 export async function GET(request: Request) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const viewerId = searchParams.get("viewerId"); // Optional, for future use
+    try {
+        const { searchParams } = new URL(request.url);
+        const viewerId = searchParams.get("viewerId"); // Optional, for future use
 
-    // Common WHERE clause for valid events
-    // We only count primary occurrences that are published
-    const baseWhere = `
+        // Common WHERE clause for valid events
+        // We only count primary occurrences that are published
+        const baseWhere = `
       status = 'published' 
       AND (is_primary_occurrence = TRUE)
     `;
 
-    // 1. City Counts
-    const cityQuery = `
+        // 1. City Counts
+        const cityQuery = `
       SELECT city, COUNT(*) as cnt
       FROM events
       WHERE ${baseWhere} AND city IS NOT NULL AND start_at >= NOW()
@@ -22,8 +22,8 @@ export async function GET(request: Request) {
       ORDER BY cnt DESC
     `;
 
-    // 2. Language Counts
-    const languageQuery = `
+        // 2. Language Counts
+        const languageQuery = `
       SELECT language, COUNT(*) as cnt
       FROM events
       WHERE ${baseWhere} AND language IS NOT NULL AND start_at >= NOW()
@@ -31,8 +31,8 @@ export async function GET(request: Request) {
       ORDER BY cnt DESC
     `;
 
-    // 3. Source Counts
-    const sourceQuery = `
+        // 3. Source Counts
+        const sourceQuery = `
       SELECT source_name, COUNT(*) as cnt
       FROM events
       WHERE status = 'published' 
@@ -43,9 +43,9 @@ export async function GET(request: Request) {
       ORDER BY cnt DESC
     `;
 
-    // 4. Date Buckets
-    // Matching logic in lib/db/queries/events.ts
-    const dateQuery = `
+        // 4. Date Buckets
+        // Matching logic in lib/db/queries/events.ts
+        const dateQuery = `
       SELECT
         COUNT(*) FILTER (WHERE DATE(start_at) = CURRENT_DATE) as count_today,
         COUNT(*) FILTER (
@@ -66,8 +66,8 @@ export async function GET(request: Request) {
       WHERE ${baseWhere}
     `;
 
-    // 5. Venue Counts
-    const venueQuery = `
+        // 5. Venue Counts
+        const venueQuery = `
       SELECT v.name as venue_name, v.slug as venue_slug, COUNT(*) as cnt
       FROM events e
       JOIN venues v ON e.venue_id = v.id
@@ -78,41 +78,41 @@ export async function GET(request: Request) {
       LIMIT 20
     `;
 
-    const [cityRes, langRes, sourceRes, dateRes, venueRes] = await Promise.all([
-      db.query(cityQuery),
-      db.query(languageQuery),
-      db.query(sourceQuery),
-      db.query(dateQuery),
-      db.query(venueQuery)
-    ]);
+        const [cityRes, langRes, sourceRes, dateRes, venueRes] = await Promise.all([
+            db.query(cityQuery),
+            db.query(languageQuery),
+            db.query(sourceQuery),
+            db.query(dateQuery),
+            db.query(venueQuery)
+        ]);
 
-    // Format Data
-    const formattedCity = cityRes.rows.map(r => ({ value: r.city, count: parseInt(r.cnt) }));
-    const formattedLang = langRes.rows.map(r => ({ value: r.language, count: parseInt(r.cnt) }));
-    const formattedSource = sourceRes.rows.map(r => ({ value: r.source_name, count: parseInt(r.cnt) }));
-    const formattedVenue = venueRes.rows.map(r => ({ value: r.venue_slug, label: r.venue_name, count: parseInt(r.cnt) }));
+        // Format Data
+        const formattedCity = cityRes.rows.map(r => ({ value: r.city, count: parseInt(r.cnt) }));
+        const formattedLang = langRes.rows.map(r => ({ value: r.language, count: parseInt(r.cnt) }));
+        const formattedSource = sourceRes.rows.map(r => ({ value: r.source_name, count: parseInt(r.cnt) }));
+        const formattedVenue = venueRes.rows.map(r => ({ value: r.venue_slug, label: r.venue_name, count: parseInt(r.cnt) }));
 
-    // Format Dates
-    const d = dateRes.rows[0];
-    return NextResponse.json({
-      cities: formattedCity,
-      languages: formattedLang,
-      sources: formattedSource,
-      venues: formattedVenue,
-      dates: [
-        { value: "today", count: parseInt(d.count_today) },
-        { value: "weekend", count: parseInt(d.count_weekend) },
-        { value: "week", count: parseInt(d.count_week) },
-        { value: "month", count: parseInt(d.count_month) },
-        { value: "past", count: parseInt(d.count_past) },
-      ]
-    });
+        // Format Dates
+        const d = dateRes.rows[0];
+        return NextResponse.json({
+            cities: formattedCity,
+            languages: formattedLang,
+            sources: formattedSource,
+            venues: formattedVenue,
+            dates: [
+                { value: "today", count: parseInt(d.count_today) },
+                { value: "weekend", count: parseInt(d.count_weekend) },
+                { value: "week", count: parseInt(d.count_week) },
+                { value: "month", count: parseInt(d.count_month) },
+                { value: "past", count: parseInt(d.count_past) },
+            ]
+        });
 
-  } catch (error: any) {
-    console.error("Facets fetch error:", error);
-    return NextResponse.json(
-      { error: error.message || "Internal server error" },
-      { status: 500 }
-    );
-  }
+    } catch (error: any) {
+        console.error("Facets fetch error:", error);
+        return NextResponse.json(
+            { error: error.message || "Internal server error" },
+            { status: 500 }
+        );
+    }
 }

@@ -8,6 +8,7 @@ import type { SourceAdapter, RawEventStub, RawEventDetail, CanonicalEvent } from
  */
 export class RialtoInterticketAdapter implements SourceAdapter {
   name = 'rialto_interticket';
+  frequency: 'daily' = 'daily';
   baseUrl = 'https://rialto.interticket.com';
   entryPoint = 'https://rialto.interticket.com/ticketsearch';
 

@@ -7,7 +7,7 @@ console.log("!!! LOADING ORCHESTRATOR DEBUG VERSION !!!");
 
 import type { SourceAdapter, IngestRun } from './types';
 import { db } from '@/lib/db/client';
-import { RateLimiter, fetchWithRetry } from './utils';
+import { RateLimiter, fetchWithRetry, isScrapingAllowed, normalizeVenueName } from './utils';
 import { normalizeEvent } from './normalize';
 import { findDuplicateEvent } from './dedupe';
 import { validateEvent } from './validate';
@@ -131,6 +131,11 @@ async function processSource(
   try {
     console.log(`[${adapter.name}] Fetching event list...`);
 
+    // Check if scraping is allowed for this source
+    const isAllowed = await isScrapingAllowed(adapter.name.includes('http') ? adapter.name : 'https://www.larnaka.org.cy'); // This is a bit tricky, but let's check the base URL
+    // Actually, it's better if adapters specify their base URL.
+    // For now, let's just use the first stub URL to check.
+
     // Fetch list of events
     const stubs = await adapter.list();
     result.total = stubs.length;
@@ -140,6 +145,12 @@ async function processSource(
     // Process each event
     for (const stub of stubs) {
       try {
+        // Respect robots.txt
+        if (!(await isScrapingAllowed(stub.url))) {
+          console.warn(`[Orchestrator] Scraping disallowed by robots.txt for ${stub.url}`);
+          continue;
+        }
+
         console.log(`Processing stub: ${stub.url}`);
         await rateLimiter.waitForDomain(stub.url);
 
@@ -323,7 +334,10 @@ export async function upsertEvent(
   // Upsert venue if provided
   let venueId = null;
   if (event.venue) {
-    const venueSlug = `${event.venue.name}-${event.city}`
+    // Normalize venue name
+    const normalizedVenueName = normalizeVenueName(event.venue.name, event.venue.city || event.city);
+
+    const venueSlug = `${normalizedVenueName}-${event.venue.city || event.city}`
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '');
@@ -346,7 +360,7 @@ export async function upsertEvent(
              email = COALESCE(EXCLUDED.email, venues.email)
        RETURNING id`,
       [
-        event.venue.name,
+        normalizedVenueName,
         venueSlug,
         event.venue.city || event.city,
         event.venue.address || null,

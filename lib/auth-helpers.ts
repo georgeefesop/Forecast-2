@@ -11,25 +11,25 @@ export async function getSession(request?: NextRequest) {
   try {
     // Try auth() first (should work in NextAuth v5)
     let session = await auth();
-    
+
     if (session) {
       console.log("[getSession] auth() returned session for user:", session.user?.id);
       return session;
     }
-    
+
     console.log("[getSession] auth() returned null, trying cookie fallback");
-    
+
     // If auth() doesn't work and we have a request, try reading token from cookies
     if (!session && request) {
       try {
         const cookieHeader = request.headers.get('cookie') || '';
         console.log("[getSession] Cookie header:", cookieHeader ? `${cookieHeader.substring(0, 100)}...` : "EMPTY");
-        
+
         // Check for NextAuth v5 cookie names
         const hasAuthjsCookie = cookieHeader.includes('authjs.session-token') || cookieHeader.includes('__Secure-authjs.session-token');
         const hasNextAuthCookie = cookieHeader.includes('next-auth.session-token');
         console.log("[getSession] Has authjs cookie:", hasAuthjsCookie, "Has next-auth cookie:", hasNextAuthCookie);
-        
+
         if (cookieHeader) {
           const token = await getToken({
             req: {
@@ -44,7 +44,7 @@ export async function getSession(request?: NextRequest) {
 
           // Check for token.id or try to extract from token.sub (NextAuth v5 might use 'sub' instead of 'id')
           const userId = token?.id || (token as any)?.sub || null;
-          
+
           if (token && userId) {
             // Fetch user profile to build session
             const profile = await db.query(
@@ -81,11 +81,11 @@ export async function getSession(request?: NextRequest) {
     } else if (!request) {
       console.log("[getSession] No request object provided");
     }
-    
+
     if (!session) {
       console.log("[getSession] Final result: No session found");
     }
-    
+
     return session;
   } catch (error) {
     console.error("[getSession] Fatal error:", error);

@@ -20,6 +20,49 @@ export function deriveExternalId(url: string): string {
 }
 
 /**
+ * Normalize venue names to prevent duplicates
+ */
+export function normalizeVenueName(name: string, city?: string): string {
+  let normalized = name.trim();
+  const lower = normalized.toLowerCase();
+
+  // Common variations map
+  const mappings: Record<string, string> = {
+    'rialto': 'Rialto Theatre',
+    'rialto theater': 'Rialto Theatre',
+    'rialto theatre': 'Rialto Theatre',
+    'pattihio': 'Pattihio Municipal Theatre',
+    'pattihio theater': 'Pattihio Municipal Theatre',
+    'pattihio theatre': 'Pattihio Municipal Theatre',
+    'patticheio': 'Pattihio Municipal Theatre',
+    'municipal garden': 'Municipal Gardens',
+    'municipal gardens': 'Municipal Gardens',
+    'ancient curium': 'Kourion Ancient Amphitheatre',
+    'curium ancient theater': 'Kourion Ancient Amphitheatre',
+    'kourion': 'Kourion Ancient Amphitheatre',
+    'limassol marina': 'Limassol Marina',
+    'limassol agora': 'Limassol Agora',
+  };
+
+  // Check exact matches first
+  if (mappings[lower]) {
+    return mappings[lower];
+  }
+
+  // Check partial matches for specific key venues
+  if (lower.includes('rialto') && city?.toLowerCase().includes('limassol')) return 'Rialto Theatre';
+  if (lower.includes('pattihio') && city?.toLowerCase().includes('limassol')) return 'Pattihio Municipal Theatre';
+  if (lower.includes('curium') || lower.includes('kourion')) return 'Kourion Ancient Amphitheatre';
+
+  // Standardize "Theater" vs "Theatre"
+  if (normalized.match(/\bTheater\b/i)) {
+    normalized = normalized.replace(/\bTheater\b/gi, 'Theatre');
+  }
+
+  return normalized;
+}
+
+/**
  * Normalize title for deduplication
  */
 export function normalizeTitle(title: string): string {
@@ -392,7 +435,20 @@ export async function fetchWithRetry(
         ...options,
         signal: controller.signal,
         headers: {
-          'User-Agent': 'ForecastBot/1.0 (contact@forecast.cy)',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+          'Accept-Language': 'en-US,en;q=0.9',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
+          'Sec-Ch-Ua': '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
+          'Sec-Ch-Ua-Mobile': '?0',
+          'Sec-Ch-Ua-Platform': '"Windows"',
+          'Sec-Fetch-Dest': 'document',
+          'Sec-Fetch-Mode': 'navigate',
+          'Sec-Fetch-Site': 'none',
+          'Sec-Fetch-User': '?1',
+          'Upgrade-Insecure-Requests': '1',
           ...options.headers,
         },
       });
@@ -407,4 +463,157 @@ export async function fetchWithRetry(
 
   clearTimeout(timeoutId);
   throw new Error('Fetch failed after retries');
+}
+
+/**
+ * Check if scraping is allowed for a given URL by checking its robots.txt
+ */
+const robotsCache = new Map<string, string>();
+
+export async function isScrapingAllowed(url: string): Promise<boolean> {
+  try {
+    const urlObj = new URL(url);
+    const robotsUrl = `${urlObj.protocol}//${urlObj.hostname}/robots.txt`;
+
+    let robotsText = robotsCache.get(urlObj.hostname);
+    if (!robotsText) {
+      console.log(`[Robots] Fetching ${robotsUrl}...`);
+      const response = await fetchWithRetry(robotsUrl, {}, 1, 5000).catch(() => null);
+      if (response && response.ok) {
+        robotsText = await response.text();
+        robotsCache.set(urlObj.hostname, robotsText);
+      } else {
+        // If no robots.txt, assume allowed
+        robotsCache.set(urlObj.hostname, 'User-agent: *\nAllow: /');
+        return true;
+      }
+    }
+
+    if (!robotsText) return true;
+
+    // Simple robots.txt parser
+    const lines = robotsText.split('\n');
+    let currentUserAgentApplies = false;
+    let disallowedPaths: string[] = [];
+
+    for (let line of lines) {
+      line = line.trim();
+      if (!line || line.startsWith('#')) continue;
+
+      const [key, ...valueParts] = line.split(':');
+      const value = valueParts.join(':').trim();
+
+      if (key.toLowerCase() === 'user-agent') {
+        currentUserAgentApplies = (value === '*' || value.toLowerCase().includes('bot') || value.toLowerCase().includes('googlebot'));
+      } else if (currentUserAgentApplies) {
+        if (key.toLowerCase() === 'disallow') {
+          if (value) disallowedPaths.push(value);
+        } else if (key.toLowerCase() === 'allow') {
+          // Typically we ignore Allow for a "safe" scraper unless we want to be more specific
+        }
+      }
+    }
+
+    // Check if current path is disallowed
+    const path = urlObj.pathname;
+    const isDisallowed = disallowedPaths.some(disallowed => {
+      if (disallowed === '/') return true;
+      const regex = new RegExp('^' + disallowed.replace(/\*/g, '.*').replace(/\?/g, '\\?') + '.*');
+      return regex.test(path);
+    });
+
+    return !isDisallowed;
+  } catch (e) {
+    console.warn(`[Robots] Error checking robots.txt for ${url}:`, e);
+    return true; // Default to true on error to avoid blocking valid runs if server down
+  }
+}
+
+/**
+ * Detect city from text content
+ */
+export function detectCity(text: string): string | undefined {
+  if (!text) return undefined;
+
+  const lower = text.toLowerCase();
+
+  // Major Cyprus cities & Suburbs
+  if (lower.includes('nicosia') || lower.includes('lefkosia')) return 'Nicosia';
+  if (lower.includes('strovolos') || lower.includes('lakatamia') || lower.includes('aglantzia') || lower.includes('engomi') || lower.includes('egkomi') || lower.includes('latzia') || lower.includes('pallouriotissa') || lower.includes('kaimakli')) return 'Nicosia';
+
+  if (lower.includes('limassol') || lower.includes('lemesos')) return 'Limassol';
+  if (lower.includes('germasogeia') || lower.includes('yermasoyia') || lower.includes('polemidia') || lower.includes('agios athanasios') || lower.includes('pyrgos') || lower.includes('episkopi')) return 'Limassol';
+
+  if (lower.includes('larnaca') || lower.includes('larnaka')) return 'Larnaca';
+  if (lower.includes('aradippou') || lower.includes('livadia') || lower.includes('dhekelia')) return 'Larnaca';
+
+  if (lower.includes('paphos') || lower.includes('pafos')) return 'Paphos';
+  if (lower.includes('geroskipou') || lower.includes('pegeia') || lower.includes('chloraka')) return 'Paphos';
+
+  if (lower.includes('famagusta') || lower.includes('ammochostos')) return 'Famagusta';
+  if (lower.includes('ayia napa') || lower.includes('agia napa')) return 'Ayia Napa';
+  if (lower.includes('paralimni') || lower.includes('protaras')) return 'Famagusta';
+
+  if (lower.includes('troodos')) return 'Troodos';
+  if (lower.includes('platres')) return 'Platres';
+
+  return undefined;
+}
+
+/**
+ * Extract price information from text
+ */
+export function detectPrice(text: string): { min: number, max?: number, currency: string } | null {
+  if (!text) return null;
+
+  // Look for price patterns like €20, 20 EUR, €20-30, etc.
+  // 1. "€20" or "€ 20"
+  // 2. "20€" or "20 €"
+  // 3. "20 EUR"
+
+  const currency = 'EUR';
+  let min: number | undefined;
+  let max: number | undefined;
+
+  // Pattern: Range e.g. "€20 - €30" or "20-30 EUR"
+  const rangeMatch = text.match(/([€$£])?\s*(\d+)(?:[.,]\d{2})?\s*[-–]\s*([€$£])?\s*(\d+)(?:[.,]\d{2})?\s*(?:EUR|€)?/i);
+  if (rangeMatch) {
+    const v1 = parseInt(rangeMatch[2]);
+    const v4 = parseInt(rangeMatch[4]);
+    if (!isNaN(v1) && !isNaN(v4)) {
+      min = Math.min(v1, v4);
+      max = Math.max(v1, v4);
+      return { min, max, currency };
+    }
+  }
+
+  // Pattern: Single price e.g. "Price: €20"
+  const priceMatches = text.matchAll(/(?:[€$£]\s*(\d+)(?:[.,]\d{2})?)|(?:(\d+)(?:[.,]\d{2})?\s*(?:EUR|€|Euro))/gi);
+  const foundPrices: number[] = [];
+
+  for (const match of priceMatches) {
+    const val = parseInt(match[1] || match[2]);
+    if (!isNaN(val)) foundPrices.push(val);
+  }
+
+  if (foundPrices.length > 0) {
+    // If multiple prices found, assume range min-max
+    // Ignore 0 as it usually means "free" or bad parse, unless explicitly "Free"
+    const validPrices = foundPrices.filter(p => p > 0);
+    if (validPrices.length > 0) {
+      min = Math.min(...validPrices);
+      if (validPrices.length > 1) {
+        const potentialMax = Math.max(...validPrices);
+        if (potentialMax > min) max = potentialMax;
+      }
+      return { min, max, currency };
+    }
+  }
+
+  // Check for "Free"
+  if (/free entry|entrance free|free admission/i.test(text)) {
+    return { min: 0, max: 0, currency };
+  }
+
+  return null;
 }

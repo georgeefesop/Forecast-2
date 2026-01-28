@@ -1,5 +1,5 @@
 
-import { db } from '../lib/db/client';
+import { DatabaseTool, GeocodingTool } from '../tools';
 import * as dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
 
@@ -7,23 +7,19 @@ dotenv.config({ path: '.env.local' });
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 async function geocodeVenues() {
-    console.log('🌍 Starting venue geocoding...');
+    console.log('🌍 Starting venue geocoding using GeocodingTool...');
 
     try {
         // Get venues without coordinates
-        const result = await db.query(
+        const venues = await DatabaseTool.query(
             'SELECT id, name, city, address FROM venues WHERE lat IS NULL OR lng IS NULL LIMIT 20'
         );
 
-        const venues = result.rows;
         console.log(`Found ${venues.length} venues to geocode.`);
 
         let updated = 0;
 
         for (const venue of venues) {
-            // Construct search query
-            // Prefer address if available, otherwise Venue Name + City
-            // Clean up venue name (remove extra details after comma if possible)
             const cleanName = venue.name.split(',')[0].trim();
             const query = venue.address
                 ? `${venue.address}, ${venue.city}, Cyprus`
@@ -33,41 +29,29 @@ async function geocodeVenues() {
             console.log(`Query: ${query}`);
 
             try {
-                const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
+                const result = await GeocodingTool.geocode(query);
 
-                const response = await fetch(url, {
-                    headers: {
-                        'User-Agent': 'Forecast2-Geocoder/1.0'
-                    }
-                });
+                if (result) {
+                    console.log(`✅ Found: ${result.lat}, ${result.lng} (${result.display_name.substring(0, 50)}...)`);
 
-                const data = await response.json();
-
-                if (data && data.length > 0) {
-                    const { lat, lon } = data[0];
-                    console.log(`✅ Found: ${lat}, ${lon} (${data[0].display_name.substring(0, 50)}...)`);
-
-                    await db.query(
+                    await DatabaseTool.execute(
                         'UPDATE venues SET lat = $1, lng = $2 WHERE id = $3',
-                        [parseFloat(lat), parseFloat(lon), venue.id]
+                        [result.lat, result.lng, venue.id]
                     );
                     updated++;
                 } else {
                     // Try fallback: Just City
                     console.log('⚠️ Not found. Retrying with just City...');
-                    const cityUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(venue.city + ', Cyprus')}&limit=1`;
-                    const cityRes = await fetch(cityUrl, { headers: { 'User-Agent': 'Forecast2-Geocoder/1.0' } });
-                    const cityData = await cityRes.json();
+                    const cityResult = await GeocodingTool.geocode(`${venue.city}, Cyprus`);
 
-                    if (cityData && cityData.length > 0) {
-                        const { lat, lon } = cityData[0];
-                        // Add small random jitter to prevent stacked pins if falling back to city center
+                    if (cityResult) {
+                        // Add small random jitter to prevent stacked pins
                         const jitter = (Math.random() - 0.5) * 0.01;
-                        const finalLat = parseFloat(lat) + jitter;
-                        const finalLng = parseFloat(lon) + jitter;
+                        const finalLat = cityResult.lat + jitter;
+                        const finalLng = cityResult.lng + jitter;
 
                         console.log(`✅ Found (City Center): ${finalLat}, ${finalLng}`);
-                        await db.query(
+                        await DatabaseTool.execute(
                             'UPDATE venues SET lat = $1, lng = $2 WHERE id = $3',
                             [finalLat, finalLng, venue.id]
                         );
@@ -80,7 +64,7 @@ async function geocodeVenues() {
                 console.error('Error fetching/updating:', err);
             }
 
-            // Wait 1.1s to respect Nominatim usage policy (max 1 req/sec)
+            // Respect Nominatim usage policy (max 1 req/sec)
             await sleep(1100);
         }
 

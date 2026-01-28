@@ -22,9 +22,12 @@ export function LiveEventFeed({ initialEvents }: LiveEventFeedProps) {
         const date = searchParams.get("date");
         const free = searchParams.get("free") === "true";
         const language = searchParams.get("language");
+        const venue = searchParams.get("venue");
+        const sources = searchParams.get("sources");
+        const hiddenLanguages = searchParams.get("hidden_languages");
 
         // If no filters, revert to initial events
-        if (!city && !category && !date && !free && !language) {
+        if (!city && !category && !date && !free && !language && !venue && !sources && !hiddenLanguages) {
             setEvents(initialEvents);
             return;
         }
@@ -36,7 +39,14 @@ export function LiveEventFeed({ initialEvents }: LiveEventFeedProps) {
                 const params = new URLSearchParams(searchParams.toString());
                 // Ensure we only get primary occurrences
                 params.set("primaryOnly", "true");
-                params.set("limit", "40");
+
+                // Explicitly ensure hidden_languages is passed (it should be in searchParams.toString(), but good to be safe/clear)
+                if (hiddenLanguages) {
+                    params.set("hidden_languages", hiddenLanguages);
+                }
+
+                // Reset offset logic if we were paging (not implemented yet but good practice)
+                if (!params.get("limit")) params.set("limit", "40");
 
                 const response = await fetch(`/api/events?${params.toString()}`);
                 if (!response.ok) throw new Error("Failed to fetch");

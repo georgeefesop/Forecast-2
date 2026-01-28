@@ -12,7 +12,7 @@ const http = require('http');
 async function test() {
   console.log('🧪 Testing Limassol Municipality Scraper via API\n');
   console.log('📡 Calling ingestion endpoint...\n');
-  
+
   return new Promise((resolve, reject) => {
     const options = {
       hostname: 'localhost',
@@ -31,14 +31,14 @@ async function test() {
       res.on('end', () => {
         try {
           const result = JSON.parse(data);
-          
+
           if (result.success) {
             console.log('✅ Ingestion completed successfully\n');
             console.log(`Total events found: ${result.results.total}`);
             console.log(`Created: ${result.results.created}`);
             console.log(`Updated: ${result.results.updated}`);
             console.log(`Errors: ${result.results.errors}\n`);
-            
+
             // Show municipality-specific results
             if (result.results.sourceResults?.limassol_municipality) {
               const munResults = result.results.sourceResults.limassol_municipality;
@@ -50,7 +50,7 @@ async function test() {
                 console.log(`   Errors: ${munResults.errors}`);
               }
             }
-            
+
             // Show sample errors if any
             if (result.results.errorDetails && result.results.errorDetails.length > 0) {
               console.log('\n⚠️  Sample errors:');
@@ -61,7 +61,7 @@ async function test() {
           } else {
             console.error('❌ Ingestion failed:', result.error);
           }
-          
+
           resolve(result);
         } catch (error) {
           console.error('❌ Error parsing response:', error);

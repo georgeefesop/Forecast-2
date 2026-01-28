@@ -192,15 +192,35 @@ export function FilterChips({ masked = true }: FilterChipsProps) {
           onOpenChange={(isOpen) => setActiveDropdown(prev => isOpen ? "date" : (prev === "date" ? null : prev))}
         />
 
-        {/* Language Select */}
+        {/* Language Select (Inverted Logic) */}
         <FilterDropdown
           label="Language"
-          options={languageOptions.map(l => ({ ...l, label: getLanguageLabel(l) }))}
-          selectedValues={language ? [language] : []}
-          onSelect={(val) => updateFilter("language", val === language ? null : val)}
-          onClear={() => updateFilter("language", null)}
+          options={languageOptions.map(o => ({ ...o, label: getLanguageLabel(o) }))}
+          selectedValues={languageOptions
+            .map(o => o.value)
+            .filter(val => !searchParams.get("hidden_languages")?.split(",").includes(val))
+          }
+          onSelect={(val) => {
+            const currentHidden = searchParams.get("hidden_languages")?.split(",").filter(Boolean) || [];
+            const isHidden = currentHidden.includes(val);
+            let newHidden;
+
+            if (isHidden) {
+              // It was hidden, so we are "checking" it (removing from hidden list)
+              newHidden = currentHidden.filter(h => h !== val);
+            } else {
+              // It was visible, so we are "unchecking" it (adding to hidden list)
+              newHidden = [...currentHidden, val];
+            }
+
+            updateFilter("hidden_languages", newHidden.length > 0 ? newHidden.join(",") : null);
+          }}
+          // Clear means "Reset to default" which means "Show All" -> clear hidden_languages
+          onClear={() => updateFilter("hidden_languages", null)}
           open={activeDropdown === "language"}
           onOpenChange={(isOpen) => setActiveDropdown(prev => isOpen ? "language" : (prev === "language" ? null : prev))}
+          multiSelect={true}
+          isActive={!!searchParams.get("hidden_languages")}
         />
 
         {/* Source Filter */}
@@ -267,7 +287,7 @@ export function FilterChips({ masked = true }: FilterChipsProps) {
         </Button>
 
         {/* Clear Filters */}
-        {(date || category || free || city || language || sources || venue) && (
+        {(date || category || free || city || language || sources || venue || searchParams.get("hidden_languages")) && (
           <Button
             variant="ghost"
             size="sm"
@@ -286,96 +306,6 @@ export function FilterChips({ masked = true }: FilterChipsProps) {
         {/* Scroll End Spacer for Blur Mask */}
         <div className="w-[80px] shrink-0" aria-hidden="true" />
       </div>
-
-      {/* Active Filters Display */}
-      {(date || category || free || city || language || sources || venue) && (
-        <div className="flex flex-wrap gap-2 mt-4">
-          {city && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-brand-accent/30 bg-brand-accent/10 px-3 py-1 text-sm text-brand-accent">
-              {city}
-              <button
-                onClick={() => updateFilter("city", null)}
-                className="ml-1 text-brand-accent/70 hover:text-brand-accent cursor-pointer"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </span>
-          )}
-          {date && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-brand-accent/30 bg-brand-accent/10 px-3 py-1 text-sm text-brand-accent">
-              {dateOptions.find((opt) => opt.value === date)?.label}
-              <button
-                onClick={() => updateFilter("date", null)}
-                className="ml-1 text-brand-accent/70 hover:text-brand-accent cursor-pointer"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </span>
-          )}
-          {language && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-brand-accent/30 bg-brand-accent/10 px-3 py-1 text-sm text-brand-accent">
-              {languageOptions.find((opt) => opt.value === language)?.label || language}
-              <button
-                onClick={() => updateFilter("language", null)}
-                className="ml-1 text-brand-accent/70 hover:text-brand-accent cursor-pointer"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </span>
-          )}
-          {category && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-brand-accent/30 bg-brand-accent/10 px-3 py-1 text-sm text-brand-accent">
-              {category}
-              <button
-                onClick={() => updateFilter("category", null)}
-                className="ml-1 text-brand-accent/70 hover:text-brand-accent cursor-pointer"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </span>
-          )}
-          {free && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-brand-accent/30 bg-brand-accent/10 px-3 py-1 text-sm text-brand-accent">
-              Free
-              <button
-                onClick={toggleFree}
-                className="ml-1 text-brand-accent/70 hover:text-brand-accent cursor-pointer"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </span>
-          )}
-          {sources && sources.split(",").map((s) => (
-            <span key={s} className="inline-flex items-center gap-1 rounded-full border border-brand-accent/30 bg-brand-accent/10 px-3 py-1 text-sm text-brand-accent">
-              {s.split("_").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}
-              <button
-                onClick={() => {
-                  const currentParams = new URLSearchParams(searchParams.toString());
-                  const list = sources.split(",").filter((item) => item !== s);
-                  if (list.length > 0) currentParams.set("sources", list.join(","));
-                  else currentParams.delete("sources");
-                  const targetPath = pathname === "/" ? "/" : "/explore";
-                  router.replace(`${targetPath}?${currentParams.toString()}`, { scroll: false });
-                }}
-                className="ml-1 text-brand-accent/70 hover:text-brand-accent cursor-pointer"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </span>
-          ))}
-          {venue && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-brand-accent/30 bg-brand-accent/10 px-3 py-1 text-sm text-brand-accent">
-              {venue}
-              <button
-                onClick={() => updateFilter("venue", null)}
-                className="ml-1 text-brand-accent/70 hover:text-brand-accent cursor-pointer"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </span>
-          )}
-        </div>
-      )}
     </div>
   );
 }

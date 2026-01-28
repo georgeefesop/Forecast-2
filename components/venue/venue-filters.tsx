@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search, MapPin, Grid, Layers, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -17,6 +19,27 @@ const SORT_OPTIONS = [
 export function VenueFilters() {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const [facets, setFacets] = useState<{
+        cities: { value: string; count: number }[];
+        types: { value: string; count: number }[];
+    }>({ cities: [], types: [] });
+
+    useEffect(() => {
+        fetch('/api/venues/facets')
+            .then(res => res.json())
+            .then(data => setFacets(data))
+            .catch(err => console.error("Failed to fetch venue facets:", err));
+    }, []);
+
+    const getCityLabel = (city: string) => {
+        const found = facets.cities.find(c => c.value === city);
+        return found ? `${city} (${found.count})` : city;
+    };
+
+    const getTypeLabel = (type: string) => {
+        const found = facets.types.find(t => t.value === type);
+        return found ? `${type} (${found.count})` : type;
+    };
 
     const handleSearch = useDebouncedCallback((term: string) => {
         const params = new URLSearchParams(searchParams);
@@ -63,7 +86,7 @@ export function VenueFilters() {
                     >
                         <option value="">All Cities</option>
                         {CITIES.map(city => (
-                            <option key={city} value={city}>{city}</option>
+                            <option key={city} value={city}>{getCityLabel(city)}</option>
                         ))}
                     </select>
 
@@ -75,7 +98,7 @@ export function VenueFilters() {
                     >
                         <option value="">All Types</option>
                         {TYPES.map(t => (
-                            <option key={t} value={t}>{t}</option>
+                            <option key={t} value={t}>{getTypeLabel(t)}</option>
                         ))}
                     </select>
 

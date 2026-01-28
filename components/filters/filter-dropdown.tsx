@@ -46,8 +46,9 @@ export function FilterDropdown({
     onClear,
     open: controlledOpen,
     onOpenChange: controlledOnOpenChange,
-}: FilterDropdownProps) {
-    const isActive = selectedValues.length > 0;
+    isActive: propsIsActive,
+}: FilterDropdownProps & { isActive?: boolean }) {
+    const isActive = propsIsActive !== undefined ? propsIsActive : selectedValues.length > 0;
     const [internalOpen, setInternalOpen] = React.useState(false);
 
     const isControlled = controlledOpen !== undefined;

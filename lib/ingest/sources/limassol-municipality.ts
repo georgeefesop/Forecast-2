@@ -10,6 +10,7 @@ import { parseDate } from '../utils';
 
 export class LimassolMunicipalityAdapter implements SourceAdapter {
   name = 'limassol_municipality';
+  frequency: 'weekly' = 'weekly';
   // Use the English calendar page (limassol.org.cy)
   private baseUrl = 'https://www.limassol.org.cy/en/calendar';
 
@@ -347,6 +348,7 @@ export class LimassolMunicipalityAdapter implements SourceAdapter {
       tags: tags.length > 0 ? tags : undefined,
       imageUrl: imageUrl ? new URL(imageUrl, stub.url).href : undefined,
       ticketUrl: ticketUrl ? new URL(ticketUrl, stub.url).href : undefined,
+      city: 'Limassol', // Explicitly set city
       language: 'en' // Scraped from /en/calendar
     };
   }

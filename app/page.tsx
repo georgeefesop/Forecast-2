@@ -1,4 +1,5 @@
 import { MainNav } from "@/components/nav/main-nav";
+import { ActiveFiltersList } from "@/components/filters/active-filters-list";
 import { Footer } from "@/components/footer";
 import { SearchBar } from "@/components/search/search-bar";
 import { FilterChips } from "@/components/filters/filter-chips";
@@ -29,7 +30,7 @@ export default async function HomePage({
   const venue = typeof searchParams.venue === 'string' ? searchParams.venue : undefined;
   const free = searchParams.free === 'true';
 
-  const hasFilters = !!(city || date || category || free || sources || venue || searchParams.q);
+  const hasFilters = !!(city || date || category || free || sources || venue || searchParams.q || searchParams.hidden_languages);
 
   // Fetch primary occurrences for the gallery wall
   const events = await getEvents({
@@ -41,7 +42,9 @@ export default async function HomePage({
     date,
     category,
     venue,
-    free
+
+    free,
+    excludeLanguages: typeof searchParams.hidden_languages === 'string' ? searchParams.hidden_languages.split(',') : undefined
   });
 
   return (
@@ -107,11 +110,12 @@ export default async function HomePage({
                     <div className="flex items-center gap-4">
                       <a
                         href="/explore"
-                        className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors border-b border-transparent hover:border-text-primary"
+                        className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors border-b border-transparent hover:border-text-primary whitespace-nowrap"
                       >
                         Advanced Search →
                       </a>
                       <ClearFiltersButton />
+                      <ActiveFiltersList />
                     </div>
                     <SavedEventsButton />
                   </div>

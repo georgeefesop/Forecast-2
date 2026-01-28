@@ -23,39 +23,82 @@ export function GalleryGrid({ events, className }: GalleryGridProps) {
         <div className={cn("flex flex-col gap-12", className)}>
             {chunks.map((chunk, chunkIndex) => {
                 const baseIndex = chunkIndex * 5;
+                // Alternate patterns: Even = Hero Left, Odd = Hero Right
+                const isHeroRight = chunkIndex % 2 !== 0;
+
                 return (
                     <div key={chunkIndex} className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:h-[600px]">
-                        {/* Left Column: Hero Card (1st item) */}
-                        {chunk[0] && (
-                            <div className="lg:col-span-7 h-[400px] lg:h-auto">
-                                <EventCard
-                                    {...mapEventToProps(chunk[0])}
-                                    size="hero"
-                                    className="h-full w-full"
-                                    index={baseIndex}
-                                />
-                            </div>
+                        {/* 
+                          PATTERN A: Hero Left (Default)
+                          Order: Hero, Grid 
+                        */}
+                        {!isHeroRight && (
+                            <>
+                                <div className="lg:col-span-7 h-[400px] lg:h-auto">
+                                    {chunk[0] && (
+                                        <EventCard
+                                            {...mapEventToProps(chunk[0])}
+                                            size="hero"
+                                            className="h-full w-full"
+                                            index={baseIndex}
+                                        />
+                                    )}
+                                </div>
+                                <div className="lg:col-span-5 grid grid-cols-2 grid-rows-2 gap-4 h-full">
+                                    {[0, 1, 2, 3].map((pos) => {
+                                        const event = chunk[pos + 1];
+                                        return (
+                                            <div key={event ? event.id : `empty-${pos}`} className="min-h-[180px] h-full">
+                                                {event && (
+                                                    <EventCard
+                                                        {...mapEventToProps(event)}
+                                                        size="small"
+                                                        className="h-full w-full"
+                                                        index={baseIndex + pos + 1}
+                                                    />
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </>
                         )}
 
-                        {/* Right Column: 2x2 Grid (Next 4 items) */}
-                        <div className="lg:col-span-5 grid grid-cols-2 grid-rows-2 gap-4 h-full">
-                            {/* Explicitly map positions to prevent stretching if fewer than 4 items */}
-                            {[0, 1, 2, 3].map((pos) => {
-                                const event = chunk[pos + 1];
-                                if (!event) return <div key={`empty-${pos}`} className="hidden lg:block" />; // spacer
-
-                                return (
-                                    <div key={event.id} className="min-h-[180px] h-full">
+                        {/* 
+                          PATTERN B: Hero Right (Inverted)
+                          Order: Grid, Hero
+                        */}
+                        {isHeroRight && (
+                            <>
+                                <div className="lg:col-span-5 grid grid-cols-2 grid-rows-2 gap-4 h-full order-2 lg:order-1">
+                                    {[0, 1, 2, 3].map((pos) => {
+                                        const event = chunk[pos + 1];
+                                        return (
+                                            <div key={event ? event.id : `empty-${pos}`} className="min-h-[180px] h-full">
+                                                {event && (
+                                                    <EventCard
+                                                        {...mapEventToProps(event)}
+                                                        size="small"
+                                                        className="h-full w-full"
+                                                        index={baseIndex + pos + 1}
+                                                    />
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                                <div className="lg:col-span-7 h-[400px] lg:h-auto order-1 lg:order-2">
+                                    {chunk[0] && (
                                         <EventCard
-                                            {...mapEventToProps(event)}
-                                            size="small"
+                                            {...mapEventToProps(chunk[0])}
+                                            size="hero"
                                             className="h-full w-full"
-                                            index={baseIndex + pos + 1}
+                                            index={baseIndex}
                                         />
-                                    </div>
-                                );
-                            })}
-                        </div>
+                                    )}
+                                </div>
+                            </>
+                        )}
                     </div>
                 );
             })}

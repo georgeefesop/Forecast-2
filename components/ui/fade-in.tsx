@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 
+
 interface FadeInProps {
     children: React.ReactNode;
     className?: string;
@@ -43,7 +44,7 @@ export function FadeIn({
             transition={{
                 duration,
                 delay,
-                ease: [0.21, 0.47, 0.32, 0.98] // Smooth "apple-like" ease
+                ease: [0.21, 0.47, 0.32, 0.98]
             }}
             className={cn(fullWidth ? "w-full" : "", className)}
         >

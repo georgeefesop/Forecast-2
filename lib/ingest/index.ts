@@ -14,6 +14,10 @@ import { LimassolMunicipalityAdapter } from './sources/limassol-municipality';
 import { MoreAdapter } from './sources/more';
 import { RavePulseAdapter } from './sources/rave-pulse';
 import { CyprusUndergroundAdapter } from './sources/cyprus-underground';
+import { NicosiaForArtAdapter } from './sources/nicosia-for-art';
+import { LarnakaAdapter } from './sources/larnaka';
+import { VisitPafosAdapter } from './sources/visit-pafos';
+import { VisitFamagustaAdapter } from './sources/visit-famagusta';
 
 // Export source adapters
 export { AllAboutLimassolAdapter } from './sources/all-about-limassol';
@@ -23,6 +27,8 @@ export { LimassolMunicipalityAdapter } from './sources/limassol-municipality';
 export { MoreAdapter } from './sources/more';
 export { RavePulseAdapter } from './sources/rave-pulse';
 export { CyprusUndergroundAdapter } from './sources/cyprus-underground';
+export { NicosiaForArtAdapter } from './sources/nicosia-for-art';
+export { LarnakaAdapter } from './sources/larnaka';
 
 // Import adapters
 import { SoldOutTicketBoxAdapter } from './sources/soldout-ticketbox';
@@ -31,8 +37,13 @@ import { RialtoInterticketAdapter } from './sources/rialto-interticket';
 /**
  * Get all active source adapters
  */
-export function getActiveAdapters() {
-  return [
+import { ScrapeFrequency } from './types';
+
+/**
+ * Get all active source adapters
+ */
+export function getActiveAdapters(frequency?: ScrapeFrequency) {
+  const adapters = [
     new LimassolMunicipalityAdapter(), // Testing municipality first
     new AllAboutLimassolAdapter(),
     new LimassolMarinaAdapter(),
@@ -42,7 +53,17 @@ export function getActiveAdapters() {
     new MoreAdapter(),
     new RavePulseAdapter(),
     new CyprusUndergroundAdapter(),
+    new NicosiaForArtAdapter(), // Only surviving new source
+    new LarnakaAdapter(),
+    new VisitPafosAdapter(),
+    new VisitFamagustaAdapter(),
   ];
+
+  if (frequency) {
+    return adapters.filter(a => a.frequency === frequency);
+  }
+
+  return adapters;
 }
 
 /**

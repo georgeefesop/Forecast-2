@@ -10,6 +10,7 @@ import { parseDate } from '../utils';
 
 export class LimassolMarinaAdapter implements SourceAdapter {
   name = 'limassol_marina';
+  frequency: 'weekly' = 'weekly';
   private baseUrl = 'https://www.limassolmarina.com/whats-on';
 
   async list(): Promise<RawEventStub[]> {

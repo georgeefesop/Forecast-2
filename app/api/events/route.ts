@@ -12,6 +12,9 @@ export async function GET(request: NextRequest) {
         const date = searchParams.get("date") || undefined;
         const free = searchParams.get("free") === "true";
         const language = searchParams.get("language") || undefined;
+        const hiddenLanguages = searchParams.get("hidden_languages");
+        const excludeLanguages = hiddenLanguages ? hiddenLanguages.split(",") : undefined;
+        const venue = searchParams.get("venue") || undefined;
         const sourcesStr = searchParams.get("sources");
         const sources = sourcesStr ? sourcesStr.split(",") : undefined;
         const limit = parseInt(searchParams.get("limit") || "40");
@@ -23,6 +26,8 @@ export async function GET(request: NextRequest) {
             date,
             free,
             language,
+            excludeLanguages,
+            venue,
             sources,
             limit,
             primaryOnly,

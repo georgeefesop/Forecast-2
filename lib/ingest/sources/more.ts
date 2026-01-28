@@ -4,11 +4,12 @@
  */
 
 import type { SourceAdapter, RawEventStub, RawEventDetail, CanonicalEvent } from '../types';
-import { fetchWithRetry, parseDate, deriveExternalId } from '../utils';
+import { fetchWithRetry, parseDate, deriveExternalId, detectCity, detectPrice } from '../utils';
 import { load } from 'cheerio';
 
 export class MoreAdapter implements SourceAdapter {
-    name = 'more_com';
+    name = 'more.com';
+    frequency: 'daily' = 'daily';
     private baseUrl = 'https://www.more.com/cy-en/tickets/';
     private headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -66,6 +67,10 @@ export class MoreAdapter implements SourceAdapter {
         if (jsonLdScript) {
             try {
                 const data = JSON.parse(jsonLdScript);
+                console.log(`[More.com Debug] JSON-LD found for ${stub.title.substring(0, 20)}...`);
+                console.log(`[More.com Debug] Offers:`, JSON.stringify(data.offers));
+                console.log(`[More.com Debug] Location:`, JSON.stringify(data.location));
+
                 if (data && data['@type'] === 'Event') {
                     detail.title = data.name || detail.title;
                     detail.description = data.description;
@@ -111,9 +116,44 @@ export class MoreAdapter implements SourceAdapter {
                             detail.address = data.location.address.streetAddress;
                         }
                     }
+
+                    // Extract Price from offers
+                    if (data.offers) {
+                        const offers = Array.isArray(data.offers) ? data.offers : [data.offers];
+                        let minPrice = Infinity;
+                        let maxPrice = -Infinity;
+                        let currency = 'EUR';
+
+                        offers.forEach((offer: any) => {
+                            if (offer.priceCurrency) currency = offer.priceCurrency;
+                            const price = parseFloat(offer.price);
+                            if (!isNaN(price)) {
+                                if (price < minPrice) minPrice = price;
+                                if (price > maxPrice) maxPrice = price;
+                            }
+                        });
+
+                        if (minPrice !== Infinity) {
+                            detail.priceMin = minPrice;
+                            if (maxPrice > minPrice) detail.priceMax = maxPrice;
+                            detail.currency = currency;
+                        }
+                    }
                 }
             } catch (e) {
                 console.error('Error parsing JSON-LD for More.com:', e);
+            }
+        }
+
+        // Detect Price Pattern if missing (Fallback to description regex)
+        // More.com sometimes puts price in description text
+        if (!detail.priceMin) {
+            console.log(`[More.com Debug] Checking description for price: ${detail.description?.substring(0, 100)}...`);
+            const priceInfo = detectPrice(detail.description || '');
+            if (priceInfo) {
+                detail.priceMin = priceInfo.min;
+                detail.priceMax = priceInfo.max;
+                detail.currency = priceInfo.currency;
             }
         }
 
@@ -131,6 +171,14 @@ export class MoreAdapter implements SourceAdapter {
                     detail.venue = { name: venueCityText };
                 }
             }
+        }
+
+        // Detect City if not present
+        if (!detail.venue?.city && detail.venue?.name) {
+            // Try to set city on the venue object if possible, or leave for normalize to find
+            // We can use our detect override
+            const detected = detectCity(detail.venue.name) || detectCity(detail.address || '');
+            if (detected) detail.city = detected;
         }
 
         // Fallback image from meta tags if not found
@@ -152,20 +200,20 @@ export class MoreAdapter implements SourceAdapter {
     }
 
     mapToCanonical(raw: RawEventStub & Partial<RawEventDetail>): CanonicalEvent {
-        // Basic normalization. city and timezone mapping happens in orchestrator's normalize phase
-        // but we can provide hints here.
+        // City detection
+        let city = raw.city;
 
-        // Extract city from address if it was set to just a city name
-        let city = 'Limassol'; // Default for Cyprus if we can't tell? 
-        // Actually More.com has Nicosia events too.
+        if (!city && raw.address) {
+            city = detectCity(raw.address);
+        }
 
-        if (raw.address) {
-            const lower = raw.address.toLowerCase();
-            if (lower.includes('nicosia') || lower.includes('lefkosia')) city = 'Nicosia';
-            else if (lower.includes('limassol') || lower.includes('lemesos')) city = 'Limassol';
-            else if (lower.includes('paphos') || lower.includes('pafos')) city = 'Paphos';
-            else if (lower.includes('larnaca') || lower.includes('larnaka')) city = 'Larnaca';
-            else if (lower.includes('paralimni') || lower.includes('ayia napa') || lower.includes('famagusta')) city = 'Famagusta';
+        if (!city && raw.venue?.name) {
+            city = detectCity(raw.venue.name);
+        }
+
+        if (!city) {
+            // Fallback to detect from title if really needed, but normalize does this too.
+            // Let's just default to undefined and let normalize handle "Cyprus" fallback if detection fails
         }
 
         return {
@@ -173,7 +221,7 @@ export class MoreAdapter implements SourceAdapter {
             description: raw.description,
             startAt: raw.startAt || new Date(),
             endAt: raw.endAt,
-            city: city,
+            city: city!, // Normalize will fix if missing
             venue: raw.venue ? { name: raw.venue.name } : undefined,
             address: raw.address,
             imageUrl: raw.imageUrl,
@@ -181,6 +229,9 @@ export class MoreAdapter implements SourceAdapter {
             sourceName: this.name,
             sourceUrl: raw.url,
             sourceExternalId: deriveExternalId(raw.url),
+            priceMin: raw.priceMin,
+            priceMax: raw.priceMax,
+            currency: raw.currency || 'EUR',
             isHighRes: raw.imageUrl ? !raw.imageUrl.includes('placeholder') && !raw.imageUrl.includes('thumb') : false
         };
     }

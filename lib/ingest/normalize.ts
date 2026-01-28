@@ -3,9 +3,8 @@
  */
 
 import type { CanonicalEvent, RawEventStub, RawEventDetail } from './types';
-import { parseDate, parseDateRange, deriveExternalId } from './utils';
+import { parseDate, parseDateRange, deriveExternalId, detectCity } from './utils';
 
-const DEFAULT_CITY = 'Limassol';
 const DEFAULT_TIMEZONE = 'Europe/Nicosia';
 
 export function normalizeEvent(
@@ -73,20 +72,28 @@ export function normalizeEvent(
   const sourceExternalId = deriveExternalId(sourceUrl);
 
   // Normalize venue
-  const venue = raw.venue ? {
-    name: raw.venue.name.trim(),
-    address: raw.venue.address?.trim(),
-    city: raw.venue.city?.trim() || 'Limassol', // Default to Limassol
-    area: raw.venue.area?.trim(),
-    type: raw.venue.type?.trim(),
-    websiteUrl: raw.venue.websiteUrl?.trim(),
-    instagramUrl: raw.venue.instagramUrl?.trim(),
-    phone: raw.venue.phone?.trim(),
-    email: raw.venue.email?.trim(),
+  const detailData = raw as Partial<RawEventDetail>;
+
+  let venueCity = detailData.venue?.city?.trim();
+  if (!venueCity) {
+    if (detailData.venue?.address) venueCity = detectCity(detailData.venue.address);
+    if (!venueCity && detailData.venue?.name) venueCity = detectCity(detailData.venue.name);
+  }
+
+  const venue = detailData.venue ? {
+    name: detailData.venue.name.trim(),
+    address: detailData.venue.address?.trim(),
+    city: venueCity,
+    area: detailData.venue.area?.trim(),
+    type: detailData.venue.type?.trim(),
+    websiteUrl: detailData.venue.websiteUrl?.trim(),
+    instagramUrl: detailData.venue.instagramUrl?.trim(),
+    phone: detailData.venue.phone?.trim(),
+    email: detailData.venue.email?.trim(),
   } : undefined;
 
   // Normalize description (limit length, clean HTML)
-  let description = raw.description;
+  let description = detailData.description;
   if (description) {
     // Remove HTML tags (simple regex, use proper parser in production)
     description = description
@@ -100,21 +107,39 @@ export function normalizeEvent(
     }
   }
 
+  // Normalize City
+  // Priority: 
+  // 1. Explicit city from source
+  // 2. City from venue
+  // 3. Detect from title/description
+  // 4. Default to 'Cyprus' (not 'Limassol')
+
+  let city = detailData.city;
+  if (!city) {
+    if (venue?.city) city = venue.city;
+    else {
+      // Try detection
+      city = detectCity(raw.title) || detectCity(description || '');
+    }
+  }
+
+  if (!city) city = 'Cyprus'; // Generic fallback
+
   return {
     title: raw.title.trim(),
     description,
     startAt,
     endAt,
-    city: DEFAULT_CITY,
+    city,
     venue,
-    address: raw.address?.trim(),
-    category: raw.category?.trim(),
-    tags: raw.tags?.filter(Boolean),
-    priceMin: raw.priceMin,
-    priceMax: raw.priceMax,
-    currency: raw.currency || 'EUR',
-    imageUrl: raw.imageUrl || stub.imageUrl,
-    ticketUrl: raw.ticketUrl,
+    address: detailData.address?.trim(),
+    category: detailData.category?.trim(),
+    tags: detailData.tags?.filter(Boolean),
+    priceMin: detailData.priceMin,
+    priceMax: detailData.priceMax,
+    currency: detailData.currency || 'EUR',
+    imageUrl: detailData.imageUrl || stub.imageUrl,
+    ticketUrl: detailData.ticketUrl,
     sourceName,
     sourceUrl,
     sourceExternalId,

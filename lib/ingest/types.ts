@@ -7,6 +7,7 @@ export interface RawEventStub {
   url: string;
   dateHint?: string; // Raw date string from source
   imageUrl?: string;
+  [key: string]: any; // Allow extra properties for internal adapter use
 }
 
 export interface RawEventDetail {
@@ -26,6 +27,7 @@ export interface RawEventDetail {
     email?: string;
   };
   address?: string;
+  city?: string; // Explicit city override
   category?: string;
   tags?: string[];
   imageUrl?: string;
@@ -73,8 +75,11 @@ export interface CanonicalEvent {
   language?: string; // 'en', 'el', 'ru' etc.
 }
 
+export type ScrapeFrequency = 'daily' | 'weekly';
+
 export interface SourceAdapter {
   name: string;
+  frequency?: ScrapeFrequency;
   list(): Promise<RawEventStub[]>;
   detail?(stub: RawEventStub): Promise<RawEventDetail>;
   mapToCanonical(raw: RawEventStub & Partial<RawEventDetail>): CanonicalEvent;

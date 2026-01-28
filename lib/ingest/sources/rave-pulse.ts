@@ -4,11 +4,12 @@
  */
 
 import type { SourceAdapter, RawEventStub, RawEventDetail, CanonicalEvent } from '../types';
-import { fetchWithRetry, deriveExternalId } from '../utils';
+import { fetchWithRetry, deriveExternalId, detectCity } from '../utils';
 import { load } from 'cheerio';
 
 export class RavePulseAdapter implements SourceAdapter {
     name = 'rave_pulse';
+    frequency: 'daily' = 'daily';
     private baseUrl = 'https://rave-pulse.com/events/';
 
     async list(): Promise<RawEventStub[]> {
@@ -80,6 +81,14 @@ export class RavePulseAdapter implements SourceAdapter {
             detail.address = address;
         }
 
+        // Detect City
+        let city = undefined;
+        if (address) city = detectCity(address);
+        if (!city && venueName) city = detectCity(venueName);
+
+        // Pass explicit city if found
+        if (city) (detail as any).city = city;
+
         // Search for sub-genres/tags
         $('.gt-event-category a, .gt-event-tag a').each((_, el) => {
             const tag = $(el).text().trim();
@@ -102,13 +111,28 @@ export class RavePulseAdapter implements SourceAdapter {
     }
 
     mapToCanonical(raw: RawEventStub & Partial<RawEventDetail>): CanonicalEvent {
-        let city = 'Limassol';
-        if (raw.address) {
-            const lower = raw.address.toLowerCase();
-            if (lower.includes('nicosia')) city = 'Nicosia';
-            else if (lower.includes('larnaca')) city = 'Larnaca';
-            else if (lower.includes('paphos')) city = 'Paphos';
-            else if (lower.includes('ayia napa') || lower.includes('famagusta')) city = 'Famagusta';
+        let city = raw.city;
+
+        // Fallback detection if missing
+        if (!city && raw.address) {
+            city = detectCity(raw.address);
+        }
+        if (!city && raw.venue?.name) {
+            city = detectCity(raw.venue.name);
+        }
+
+        // Try to extract from URL if still missing
+        if (!city && raw.url) {
+            // Try to extract from URL: /events/limassol/...
+            const match = raw.url.match(/\/events\/([^\/]+)\//);
+            if (match && match[1]) {
+                const urlCity = match[1];
+                if (urlCity === 'limassol') city = 'Limassol';
+                else if (urlCity === 'nicosia') city = 'Nicosia';
+                else if (urlCity === 'larnaca') city = 'Larnaca';
+                else if (urlCity === 'paphos') city = 'Paphos';
+                else if (urlCity === 'famagusta' || urlCity === 'ayia-napa') city = 'Famagusta';
+            }
         }
 
         return {
@@ -117,7 +141,7 @@ export class RavePulseAdapter implements SourceAdapter {
             startAt: raw.startAt || new Date(), // Date parsing handled by orchestrator/normalize
             venue: raw.venue ? { name: raw.venue.name } : undefined,
             address: raw.address,
-            city,
+            city: city || 'Cyprus',
             category: 'Music',
             tags: raw.tags,
             imageUrl: raw.imageUrl,

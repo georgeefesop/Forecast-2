@@ -1,6 +1,5 @@
-
 import * as cheerio from 'cheerio';
-import { fetchWithRetry } from '../utils';
+import { fetchWithRetry, detectCity, detectPrice } from '../utils';
 import type { SourceAdapter, RawEventStub, RawEventDetail } from '../types';
 
 /**
@@ -9,6 +8,7 @@ import type { SourceAdapter, RawEventStub, RawEventDetail } from '../types';
  */
 export class SoldOutTicketBoxAdapter implements SourceAdapter {
   name = 'soldout_ticketbox';
+  frequency: 'daily' = 'daily';
   baseUrl = 'https://www.soldoutticketbox.com';
 
   async list(): Promise<RawEventStub[]> {
@@ -87,6 +87,31 @@ export class SoldOutTicketBoxAdapter implements SourceAdapter {
     // Clean up description (remove excessive whitespace)
     description = description.replace(/[\n\t]+/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
 
+    // Detect city from venue/location if possible
+    let city = undefined;
+    if (location) {
+      city = detectCity(location);
+    }
+    // If not found in location, try title
+    if (!city) {
+      city = detectCity(stub.title);
+    }
+
+    // Detect price
+    let priceMin: number | undefined;
+    let priceMax: number | undefined;
+    let currency = 'EUR';
+
+    // Look for price in description or specific elements
+    // SoldOut sometimes puts price in text.
+    console.log(`[SoldOut Debug] Checking description for price: ${description.substring(0, 100)}...`);
+    const priceInfo = detectPrice(description);
+    if (priceInfo) {
+      priceMin = priceInfo.min;
+      priceMax = priceInfo.max;
+      currency = priceInfo.currency;
+    }
+
     let startAt: Date | undefined;
     if (dateHint) {
       // Parse "DD/MM/YYYY HH:mm"
@@ -117,10 +142,14 @@ export class SoldOutTicketBoxAdapter implements SourceAdapter {
       title: stub.title,
       description: description || 'See source for details',
       startAt: startAt,
+      city: city, // Pass detected city
       venue: location ? { name: location } : undefined,
       category: category,
       imageUrl: imageUrl,
       tags: [category],
+      priceMin,
+      priceMax,
+      currency,
       language: stub.url.includes('/lang/el') || stub.url.includes('/lang/gr') ? 'el'
         : stub.url.includes('/lang/ru') ? 'ru'
           : 'en'
@@ -129,13 +158,18 @@ export class SoldOutTicketBoxAdapter implements SourceAdapter {
 
   mapToCanonical(raw: RawEventStub & Partial<RawEventDetail>): any {
     // Infer city from venue if possible
-    let city = 'Cyprus';
-    const venueLower = (raw.venue?.name || '').toLowerCase();
-    if (venueLower.includes('nicosia') || venueLower.includes('lefkosia')) city = 'Nicosia';
-    else if (venueLower.includes('limassol') || venueLower.includes('lemesos')) city = 'Limassol';
-    else if (venueLower.includes('larnaca') || venueLower.includes('larnaka')) city = 'Larnaca';
-    else if (venueLower.includes('paphos') || venueLower.includes('pafos')) city = 'Paphos';
-    else if (venueLower.includes('ayia napa')) city = 'Ayia Napa';
+    let city = raw.city; // Use usage from detail if available
+
+    if (!city) {
+      // Fallback checks
+      const venueLower = (raw.venue?.name || '').toLowerCase();
+      if (venueLower.includes('nicosia') || venueLower.includes('lefkosia')) city = 'Nicosia';
+      else if (venueLower.includes('limassol') || venueLower.includes('lemesos')) city = 'Limassol';
+      else if (venueLower.includes('larnaca') || venueLower.includes('larnaka')) city = 'Larnaca';
+      else if (venueLower.includes('paphos') || venueLower.includes('pafos')) city = 'Paphos';
+      else if (venueLower.includes('ayia napa')) city = 'Ayia Napa';
+    }
+    // Remove "Cyprus" default - let normalize handle it if we really can't find it
 
     return {
       title: raw.title,

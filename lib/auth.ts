@@ -11,17 +11,17 @@ import bcrypt from "bcrypt";
 
 // Only enable Email provider if SMTP is fully configured AND database is available
 // This prevents the "MissingAdapter" error when database isn't set up yet
-const hasSMTP = process.env.SMTP_HOST && 
-                process.env.SMTP_USER && 
-                process.env.SMTP_PASSWORD &&
-                process.env.SMTP_HOST !== 'smtp.example.com';
+const hasSMTP = process.env.SMTP_HOST &&
+  process.env.SMTP_USER &&
+  process.env.SMTP_PASSWORD &&
+  process.env.SMTP_HOST !== 'smtp.example.com';
 const hasDatabase = !!process.env.DATABASE_URL;
 const shouldUseEmailProvider = hasSMTP && hasDatabase;
 
 // Determine if we're in development (localhost)
-const isDevelopment = process.env.NODE_ENV === 'development' || 
-                       process.env.NEXTAUTH_URL?.includes('localhost') ||
-                       !process.env.NEXTAUTH_URL?.startsWith('https://');
+const isDevelopment = process.env.NODE_ENV === 'development' ||
+  process.env.NEXTAUTH_URL?.includes('localhost') ||
+  !process.env.NEXTAUTH_URL?.startsWith('https://');
 
 export const authConfig: NextAuthConfig = {
   // Trust host for local development
@@ -31,8 +31,8 @@ export const authConfig: NextAuthConfig = {
   // Cookie configuration for development (disable Secure on localhost)
   cookies: {
     sessionToken: {
-      name: isDevelopment 
-        ? `authjs.session-token` 
+      name: isDevelopment
+        ? `authjs.session-token`
         : `__Secure-authjs.session-token`,
       options: {
         httpOnly: true,
@@ -121,74 +121,74 @@ export const authConfig: NextAuthConfig = {
     // Email magic link authentication
     ...(shouldUseEmailProvider
       ? [
-          EmailProvider({
-            server: {
+        EmailProvider({
+          server: {
+            host: process.env.SMTP_HOST!,
+            port: Number(process.env.SMTP_PORT) || 587,
+            auth: {
+              user: process.env.SMTP_USER!,
+              pass: process.env.SMTP_PASSWORD!,
+            },
+          },
+          from: process.env.EMAIL_FROM || "noreply@forecast.app",
+          sendVerificationRequest: async ({ identifier, url, provider }) => {
+            const { host } = new URL(url);
+            const appName = "Forecast";
+
+            // Use Resend API directly for better email delivery and control
+            if (process.env.SMTP_HOST === "smtp.resend.com" && process.env.SMTP_PASSWORD) {
+              try {
+                const resendApiKey = process.env.SMTP_PASSWORD;
+                const response = await fetch("https://api.resend.com/emails", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${resendApiKey}`,
+                  },
+                  body: JSON.stringify({
+                    from: process.env.EMAIL_FROM || "noreply@forecast.app",
+                    to: identifier,
+                    subject: `Sign in to ${appName}`,
+                    html: getSignInEmailHTML(url, host),
+                    text: getSignInEmailText(url, host),
+                  }),
+                });
+
+                if (!response.ok) {
+                  const error = await response.text();
+                  console.error("Resend API error:", error);
+                  throw new Error(`Failed to send email: ${error}`);
+                }
+
+                return; // Successfully sent via Resend API
+              } catch (error) {
+                console.error("Resend API failed, falling back to SMTP:", error);
+                // Fall through to default SMTP sending
+              }
+            }
+
+            // Fallback: Use NextAuth's default SMTP transport with custom template
+            // Import nodemailer dynamically and use env vars directly
+            const nodemailer = await import("nodemailer");
+            const transport = nodemailer.createTransport({
               host: process.env.SMTP_HOST!,
               port: Number(process.env.SMTP_PORT) || 587,
               auth: {
                 user: process.env.SMTP_USER!,
                 pass: process.env.SMTP_PASSWORD!,
               },
-            },
-            from: process.env.EMAIL_FROM || "noreply@forecast.app",
-            sendVerificationRequest: async ({ identifier, url, provider }) => {
-              const { host } = new URL(url);
-              const appName = "Forecast";
-              
-              // Use Resend API directly for better email delivery and control
-              if (process.env.SMTP_HOST === "smtp.resend.com" && process.env.SMTP_PASSWORD) {
-                try {
-                  const resendApiKey = process.env.SMTP_PASSWORD;
-                  const response = await fetch("https://api.resend.com/emails", {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                      "Authorization": `Bearer ${resendApiKey}`,
-                    },
-                    body: JSON.stringify({
-                      from: process.env.EMAIL_FROM || "noreply@forecast.app",
-                      to: identifier,
-                      subject: `Sign in to ${appName}`,
-                      html: getSignInEmailHTML(url, host),
-                      text: getSignInEmailText(url, host),
-                    }),
-                  });
+            });
 
-                  if (!response.ok) {
-                    const error = await response.text();
-                    console.error("Resend API error:", error);
-                    throw new Error(`Failed to send email: ${error}`);
-                  }
-                  
-                  return; // Successfully sent via Resend API
-                } catch (error) {
-                  console.error("Resend API failed, falling back to SMTP:", error);
-                  // Fall through to default SMTP sending
-                }
-              }
-
-              // Fallback: Use NextAuth's default SMTP transport with custom template
-              // Import nodemailer dynamically and use env vars directly
-              const nodemailer = await import("nodemailer");
-              const transport = nodemailer.createTransport({
-                host: process.env.SMTP_HOST!,
-                port: Number(process.env.SMTP_PORT) || 587,
-                auth: {
-                  user: process.env.SMTP_USER!,
-                  pass: process.env.SMTP_PASSWORD!,
-                },
-              });
-
-              await transport.sendMail({
-                to: identifier,
-                from: provider.from,
-                subject: `Sign in to ${appName}`,
-                text: getSignInEmailText(url, host),
-                html: getSignInEmailHTML(url, host),
-              });
-            },
-          }),
-        ]
+            await transport.sendMail({
+              to: identifier,
+              from: provider.from,
+              subject: `Sign in to ${appName}`,
+              text: getSignInEmailText(url, host),
+              html: getSignInEmailHTML(url, host),
+            });
+          },
+        }),
+      ]
       : []),
     // TODO: Add phone OTP provider (Twilio or similar)
   ],
